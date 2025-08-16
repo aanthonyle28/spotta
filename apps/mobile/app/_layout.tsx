@@ -3,12 +3,13 @@ import { useColorScheme } from 'react-native'
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { useFonts } from 'expo-font'
 import { SplashScreen, Stack } from 'expo-router'
-import { Provider } from 'app/provider'
-import { NativeToast } from '@my/ui/src/NativeToast'
+import { TamaguiProvider, createTamagui } from '@tamagui/core'
+import { config } from '@tamagui/config/v3'
+
+const tamaguiConfig = createTamagui(config)
 
 export const unstable_settings = {
-  // Ensure that reloading on `/user` keeps a back button present.
-  initialRouteName: 'Home',
+  initialRouteName: '(tabs)',
 }
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -38,11 +39,13 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme()
 
   return (
-    <Provider>
+    <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme === 'dark' ? 'dark' : 'light'}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack />
-        <NativeToast />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="auth" options={{ headerShown: false }} />
+        </Stack>
       </ThemeProvider>
-    </Provider>
+    </TamaguiProvider>
   )
 }
