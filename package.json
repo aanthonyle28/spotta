@@ -1,0 +1,30 @@
+{
+  "name": "spotta",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile": "cd apps/mobile && npm start",
+    "mobile:prebuild": "cd apps/mobile && npm run prebuild",
+    "ios": "cd apps/mobile && npm run ios",
+    "android": "cd apps/mobile && npm run android",
+    "typecheck": "npm run --workspaces --if-present typecheck",
+    "lint": "npm run --workspaces --if-present lint",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "test": "npm run --workspaces --if-present test",
+    "build": "npm run --workspaces --if-present build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.1",
+    "eslint": "^9.3.0",
+    "prettier": "^3.3.3",
+    "typescript": "~5.8.3"
+  },
+  "engines": {
+    "node": ">=18",
+    "npm": ">=8"
+  }
+}
