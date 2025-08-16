@@ -4,6 +4,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font'
 import { SplashScreen, Stack } from 'expo-router'
 import { TamaguiProvider, createTamagui } from '@tamagui/core'
+import { PortalProvider } from '@tamagui/portal'
 import { config } from '@tamagui/config'
 
 const tamaguiConfig = createTamagui(config)
@@ -40,12 +41,14 @@ function RootLayoutNav() {
 
   return (
     <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme === 'dark' ? 'dark' : 'light'}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="auth" options={{ headerShown: false }} />
-        </Stack>
-      </ThemeProvider>
+      <PortalProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="auth" options={{ headerShown: false }} />
+          </Stack>
+        </ThemeProvider>
+      </PortalProvider>
     </TamaguiProvider>
   )
 }
