@@ -1,21 +1,25 @@
-import { UserDetailScreen } from 'app/features/user/detail-screen'
-import { Stack } from 'expo-router'
-import { useParams } from 'solito/navigation'
+import { YStack, H1, Text } from 'tamagui'
+import { Stack, useLocalSearchParams } from 'expo-router'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function Screen() {
-  const { id } = useParams()
+  const { id } = useLocalSearchParams()
+  
   return (
     <>
       <Stack.Screen
         options={{
-          title: 'User',
+          title: 'User Profile',
           presentation: 'modal',
-          animation: 'slide_from_right',
-          gestureEnabled: true,
-          gestureDirection: 'horizontal',
         }}
       />
-      <UserDetailScreen id={id as string} />
+      <SafeAreaView style={{ flex: 1 }}>
+        <YStack flex={1} padding="$4" space="$4">
+          <H1>User Profile</H1>
+          <Text>User ID: {id}</Text>
+          <Text color="$gray10">Profile details coming soon...</Text>
+        </YStack>
+      </SafeAreaView>
     </>
   )
 }

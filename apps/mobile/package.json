@@ -1,7 +1,7 @@
 {
   "name": "expo-app",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "App.js",
   "private": true,
   "scripts": {
     "start": "npx expo start",
@@ -10,8 +10,10 @@
     "fix-xcode-env": "node scripts/fix-xcode-env.mjs",
     "prebuild": "npx expo prebuild",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'lint not configured yet'",
-    "test": "echo 'tests not configured yet'"
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@babel/runtime": "^7.26.0",
@@ -19,6 +21,9 @@
     "@my/ui": "0.0.1",
     "@react-navigation/bottom-tabs": "^7.3.12",
     "@react-navigation/native": "^7.1.8",
+    "@tamagui/animations-react-native": "^1.132.20",
+    "@tamagui/config": "^1.132.20",
+    "@tamagui/core": "^1.132.20",
     "@tamagui/lucide-icons": "^1.132.20",
     "app": "0.0.0",
     "babel-plugin-module-resolver": "^5.0.2",
@@ -40,13 +45,21 @@
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "~4.10.0",
     "react-native-svg": "15.8.0",
-    "react-native-web": "^0.20.0"
+    "react-native-web": "^0.20.0",
+    "tamagui": "^1.132.20"
   },
   "devDependencies": {
     "@babel/core": "^7.24.6",
     "@expo/metro-config": "~0.20.0",
     "@tamagui/babel-plugin": "^1.132.18",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.2.2",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
+    "eslint-config-expo": "^9.2.0",
+    "jest": "^30.0.5",
     "metro-minify-terser": "^0.81.0",
+    "react-test-renderer": "^19.0.0",
     "typescript": "~5.8.3"
   },
   "resolutions": {
@@ -55,6 +68,7 @@
   },
   "overrides": {
     "metro": "0.81.0",
-    "metro-resolver": "0.81.0"
+    "metro-resolver": "0.81.0",
+    "react-test-renderer": "19.0.0"
   }
 }

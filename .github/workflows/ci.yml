@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  quality-checks:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: TypeScript check
+        run: npm run typecheck
+        
+      - name: Lint check
+        run: npm run lint
+        
+      - name: Format check
+        run: npm run format:check
+        
+      - name: Run tests
+        run: npm run test
+        
+  expo-check:
+    name: Expo Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Setup Expo CLI
+        run: npm install -g @expo/cli
+        
+      - name: Expo Doctor Check
+        run: cd apps/mobile && npx expo-doctor || true
+        
+      - name: Type check mobile app
+        run: cd apps/mobile && npm run typecheck

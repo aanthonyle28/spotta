@@ -4,7 +4,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font'
 import { SplashScreen, Stack } from 'expo-router'
 import { TamaguiProvider, createTamagui } from '@tamagui/core'
-import { config } from '@tamagui/config/v3'
+import { config } from '@tamagui/config'
 
 const tamaguiConfig = createTamagui(config)
 
