@@ -71,13 +71,21 @@ describe('Workout types', () => {
   describe('WorkoutState', () => {
     it('should represent initial empty state', () => {
       const initialState: WorkoutState = {
-        currentSession: null,
+        activeSession: null,
+        restTimer: {
+          isActive: false,
+          remainingTime: 0,
+          totalTime: 0,
+          exerciseId: null,
+          startedAt: null,
+        },
+        templates: [],
         recentWorkouts: [],
         isLoading: false,
         error: null,
       };
 
-      expect(initialState.currentSession).toBeNull();
+      expect(initialState.activeSession).toBeNull();
       expect(initialState.recentWorkouts).toHaveLength(0);
       expect(initialState.isLoading).toBe(false);
       expect(initialState.error).toBeNull();
@@ -85,7 +93,15 @@ describe('Workout types', () => {
 
     it('should represent loading state', () => {
       const loadingState: WorkoutState = {
-        currentSession: null,
+        activeSession: null,
+        restTimer: {
+          isActive: false,
+          remainingTime: 0,
+          totalTime: 0,
+          exerciseId: null,
+          startedAt: null,
+        },
+        templates: [],
         recentWorkouts: [],
         isLoading: true,
         error: null,
@@ -96,7 +112,15 @@ describe('Workout types', () => {
 
     it('should represent error state', () => {
       const errorState: WorkoutState = {
-        currentSession: null,
+        activeSession: null,
+        restTimer: {
+          isActive: false,
+          remainingTime: 0,
+          totalTime: 0,
+          exerciseId: null,
+          startedAt: null,
+        },
+        templates: [],
         recentWorkouts: [],
         isLoading: false,
         error: 'Failed to load workouts',

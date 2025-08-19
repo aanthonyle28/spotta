@@ -1,13 +1,14 @@
 import { memo, useCallback, useMemo } from 'react';
 import { YStack, XStack, H3, Text, Button, Card } from 'tamagui';
 import type { SessionExercise, SetData } from '../types';
+import type { SetEntryId } from '@spotta/shared';
 import { WeightRepsStepper } from './WeightRepsStepper';
 
 interface ExerciseCardProps {
   exercise: SessionExercise;
   isActive: boolean;
   onSetComplete: (setData: SetData) => void;
-  onSetUpdate: (setId: string, updates: Partial<SetData>) => void;
+  onSetUpdate: (setId: SetEntryId, updates: Partial<SetData>) => void;
   onToggleActive: () => void;
 }
 
@@ -46,14 +47,14 @@ export const ExerciseCard = memo(
 
     const handleWeightChange = useCallback(
       (setId: string, weight: number) => {
-        onSetUpdate(setId, { weight });
+        onSetUpdate(setId as SetEntryId, { weight });
       },
       [onSetUpdate]
     );
 
     const handleRepsChange = useCallback(
       (setId: string, reps: number) => {
-        onSetUpdate(setId, { reps });
+        onSetUpdate(setId as SetEntryId, { reps });
       },
       [onSetUpdate]
     );

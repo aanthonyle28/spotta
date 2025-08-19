@@ -44,15 +44,15 @@ You can add other folders inside of `packages/` if you know what you're doing an
 
 ## 🏁 Start the app
 
-- Install dependencies: `yarn`
+- Install dependencies: `npm install`
 
-- Next.js local dev: `yarn web`
+- Next.js local dev: `npm run web`
 
-To run with optimizer on in dev mode (just for testing, it's faster to leave it off): `yarn web:extract`. To build for production `yarn web:prod`.
+To run with optimizer on in dev mode (just for testing, it's faster to leave it off): `npm run web:extract`. To build for production `npm run web:prod`.
 
 To see debug output to verify the compiler, add `// debug` as a comment to the top of any file.
 
-- Expo local dev: `yarn native`
+- Expo local dev: `npm run native`
 
 ## UI Kit
 
@@ -68,9 +68,9 @@ If you're installing a JavaScript-only dependency that will be used across platf
 
 ```sh
 cd packages/app
-yarn add date-fns
+npm add date-fns
 cd ../..
-yarn
+npm install
 ```
 
 ### Native dependencies
@@ -79,9 +79,9 @@ If you're installing a library with any native code, you must install it in `exp
 
 ```sh
 cd apps/expo
-yarn add react-native-reanimated
+npm add react-native-reanimated
 cd ..
-yarn
+npm install
 ```
 
 ## Update new dependencies
@@ -89,7 +89,7 @@ yarn
 ### Pure JS dependencies
 
 ```sh
-yarn upgrade-interactive
+npm update
 ```
 
 You can also install the native library inside of `packages/app` if you want to get autoimport for that package inside of the `app` folder. However, you need to be careful and install the _exact_ same version in both packages. If the versions mismatch at all, you'll potentially get terrible bugs. This is a classic monorepo issue. I use `lerna-update-wizard` to help with this (you don't need to use Lerna to use that lib).
@@ -99,6 +99,6 @@ You may potentially want to have the native module transpiled for the next app. 
 ### Deploying to Vercel
 
 - Root: `apps/next`
-- Install command to be `yarn set version stable && yarn install`
+- Install command to be `npm install`
 - Build command: leave default setting
 - Output dir: leave default setting

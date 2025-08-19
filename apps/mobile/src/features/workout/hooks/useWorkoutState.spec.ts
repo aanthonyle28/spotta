@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 import { useWorkoutState } from './useWorkoutState';
 import { workoutService } from '../services/workoutService';
 import type { ExerciseId } from '@spotta/shared';
@@ -80,9 +80,12 @@ describe('useWorkoutState', () => {
   });
 
   it('loads initial data on mount', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useWorkoutState());
+    const { result } = renderHook(() => useWorkoutState());
 
-    await waitForNextUpdate();
+    // Wait for the async effect to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
 
     expect(mockWorkoutService.getActiveSession).toHaveBeenCalled();
     expect(mockWorkoutService.getRecentWorkouts).toHaveBeenCalled();

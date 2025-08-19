@@ -397,7 +397,7 @@ export default function LoggingScreen() {
           isOpen={showRestPresetSheet}
           onClose={() => setShowRestPresetSheet(false)}
           currentRestTime={activeExercise?.restPreset || 90}
-          exerciseName={currentExerciseName}
+          exerciseName={currentExerciseName ?? undefined}
           onApplyToThis={(seconds) => handleRestPresetApply('this', seconds)}
           onApplyToAll={(seconds) => handleRestPresetApply('all', seconds)}
           onRememberForExercise={(seconds) => handleRestPresetApply('remember', seconds)}

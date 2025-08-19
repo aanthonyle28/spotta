@@ -1,10 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import { TamaguiProvider } from '@tamagui/core';
+import { TamaguiProvider, createTamagui } from '@tamagui/core';
 import { config } from '@tamagui/config';
 import { WeightRepsStepper } from './WeightRepsStepper';
 
+const testConfig = createTamagui(config);
+
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <TamaguiProvider config={config}>{children}</TamaguiProvider>
+  <TamaguiProvider config={testConfig}>{children}</TamaguiProvider>
 );
 
 describe('WeightRepsStepper', () => {

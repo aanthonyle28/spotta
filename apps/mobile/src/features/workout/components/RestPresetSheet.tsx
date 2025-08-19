@@ -87,7 +87,7 @@ export const RestPresetSheet = memo<RestPresetSheetProps>(({
               <Button
                 key={preset.value}
                 size="$3"
-                theme={selectedPreset === preset.value ? "active" : undefined}
+                theme={selectedPreset === preset.value ? "active" : null}
                 onPress={() => handlePresetSelect(preset.value)}
                 icon={<Clock size={16} />}
               >

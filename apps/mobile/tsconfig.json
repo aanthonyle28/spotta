@@ -5,14 +5,13 @@
     "app/**/*.tsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ],
-  "exclude": [
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "**/*.test.ts",
-    "**/*.test.tsx"
+    "**/*.test.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "jest-setup.ts"
   ],
   "compilerOptions": {
     "composite": true,
