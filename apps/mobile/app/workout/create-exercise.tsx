@@ -1,255 +1,239 @@
 import { useState } from 'react';
-import { 
-  YStack, 
-  XStack, 
-  H2, 
-  Text, 
-  Button, 
-  Card, 
+import {
+  YStack,
+  XStack,
+  H2,
+  Text,
+  Button,
+  Card,
   Input,
   TextArea,
   ScrollView,
   Label,
-  Checkbox
+  Checkbox,
 } from 'tamagui';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ChevronLeft, Save } from '@tamagui/lucide-icons';
 import { workoutService } from '../../src/features/workout/services/workoutService';
+import { FilterDropdown } from '../../src/features/workout/components/FilterDropdown';
 import type { Exercise } from '../../src/features/workout/types';
 
 interface CreateExerciseForm {
   name: string;
-  muscle: string; // Single muscle selection
-  equipment: string[];
+  muscle: string; // Single muscle selection - can be empty now
+  equipment: string; // Changed to single selection string
   category: 'strength' | 'cardio' | 'flexibility' | 'balance' | 'sports';
 }
 
 const MUSCLE_OPTIONS = [
-  'chest', 'back', 'shoulders', 'biceps', 'triceps', 'forearms',
-  'abs', 'obliques', 'quads', 'hamstrings', 'glutes', 'calves'
+  'chest',
+  'back',
+  'shoulders',
+  'biceps',
+  'triceps',
+  'forearms',
+  'abs',
+  'obliques',
+  'quads',
+  'hamstrings',
+  'glutes',
+  'calves',
 ];
 
 const EQUIPMENT_OPTIONS = [
-  'barbell', 'dumbbell', 'cable', 'machine', 'bodyweight', 
-  'kettlebell', 'resistance-band', 'medicine-ball'
+  'barbell',
+  'dumbbell',
+  'cable',
+  'machine',
+  'bodyweight',
+  'kettlebell',
+  'resistance-band',
+  'medicine-ball',
 ];
 
 const CATEGORY_OPTIONS: Array<CreateExerciseForm['category']> = [
-  'strength', 'cardio', 'flexibility', 'balance', 'sports'
+  'strength',
+  'cardio',
+  'flexibility',
+  'balance',
+  'sports',
 ];
 
 export default function CreateExerciseScreen() {
+  const insets = useSafeAreaInsets();
   const [form, setForm] = useState<CreateExerciseForm>({
     name: '',
-    muscle: '',
-    equipment: [],
-    category: 'strength'
+    muscle: 'all',
+    equipment: 'all',
+    category: 'strength',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showNameError, setShowNameError] = useState(false);
 
   const updateForm = <K extends keyof CreateExerciseForm>(
     key: K,
     value: CreateExerciseForm[K]
   ) => {
-    setForm(prev => ({ ...prev, [key]: value }));
+    setForm((prev) => ({ ...prev, [key]: value }));
+    // Clear name error when user starts typing
+    if (key === 'name' && showNameError) {
+      setShowNameError(false);
+    }
   };
 
-  const toggleEquipment = (value: string) => {
-    setForm(prev => {
-      const current = prev.equipment;
-      const newArray = current.includes(value)
-        ? current.filter(v => v !== value)
-        : [...current, value];
-      
-      return { ...prev, equipment: newArray };
-    });
-  };
-
-  const validateForm = (): string | null => {
-    if (!form.name.trim()) return 'Exercise name is required';
-    if (!form.muscle) return 'Muscle group is required';
-    if (form.equipment.length === 0) return 'At least one equipment type is required';
-    return null;
+  const validateForm = (): boolean => {
+    if (!form.name.trim()) {
+      setShowNameError(true);
+      return false;
+    }
+    return true;
   };
 
   const handleSave = async () => {
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
+    if (!validateForm()) {
       return;
     }
 
     try {
       setIsSaving(true);
-      setError(null);
 
       const newExercise = await workoutService.createCustomExercise({
         name: form.name.trim(),
         category: form.category,
-        equipment: form.equipment,
-        primaryMuscles: [form.muscle], // Convert single muscle to array
-        secondaryMuscles: [], // No secondary muscles
-        difficulty: 'beginner', // Default difficulty
-        isCustom: true
+        equipment: form.equipment === 'all' ? ['bodyweight'] : [form.equipment],
+        primaryMuscles: form.muscle === 'all' ? [] : [form.muscle],
+        secondaryMuscles: [],
+        difficulty: 'beginner',
+        isCustom: true,
       });
 
       // Navigate back to AddExercises with new exercise pre-selected
       router.back();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create exercise');
+      // Handle error silently or with toast notification
       setIsSaving(false);
     }
   };
 
-  const renderCheckboxList = (
-    options: string[],
-    selected: string[],
-    onToggle: (value: string) => void,
-    label: string
-  ) => (
-    <YStack space="$2">
-      <Label fontSize="$4" fontWeight="500">{label}</Label>
-      <YStack space="$2" backgroundColor="$gray1" padding="$3" borderRadius="$3">
-        {options.map(option => (
-          <XStack
-            key={option}
-            alignItems="center"
-            space="$2"
-            padding="$2"
-            borderRadius="$2"
-            backgroundColor={selected.includes(option) ? "$blue2" : "transparent"}
-            pressStyle={{ backgroundColor: "$gray2" }}
-            onPress={() => onToggle(option)}
-          >
-            <Checkbox
-              checked={selected.includes(option)}
-              onCheckedChange={() => onToggle(option)}
-            >
-              <Checkbox.Indicator />
-            </Checkbox>
-            <Text flex={1} textTransform="capitalize">
-              {option.replace('-', ' ')}
-            </Text>
-          </XStack>
-        ))}
-      </YStack>
-    </YStack>
-  );
-
-  const renderRadioList = <T extends string>(
-    options: T[],
-    selected: T,
-    onSelect: (value: T) => void,
-    label: string
-  ) => (
-    <YStack space="$2">
-      <Label fontSize="$4" fontWeight="500">{label}</Label>
-      <YStack space="$2" backgroundColor="$gray1" padding="$3" borderRadius="$3">
-        {options.map(option => (
-          <XStack
-            key={option}
-            alignItems="center"
-            space="$2"
-            padding="$2"
-            borderRadius="$2"
-            backgroundColor={selected === option ? "$blue2" : "transparent"}
-            pressStyle={{ backgroundColor: "$gray2" }}
-            onPress={() => onSelect(option)}
-          >
-            <XStack
-              width={20}
-              height={20}
-              borderRadius={10}
-              borderWidth={2}
-              borderColor={selected === option ? "$blue9" : "$gray6"}
-              backgroundColor={selected === option ? "$blue9" : "transparent"}
-              justifyContent="center"
-              alignItems="center"
-            >
-              {selected === option && (
-                <XStack
-                  width={8}
-                  height={8}
-                  borderRadius={4}
-                  backgroundColor="white"
-                />
-              )}
-            </XStack>
-            <Text flex={1} textTransform="capitalize">
-              {option}
-            </Text>
-          </XStack>
-        ))}
-      </YStack>
-    </YStack>
-  );
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <YStack flex={1}>
-        {/* Header Actions */}
-        <XStack padding="$4" justifyContent="flex-end">
-          <Button
-            size="$3"
-            onPress={handleSave}
-            disabled={isSaving}
-            icon={<Save size={16} />}
-            backgroundColor="$green9"
-          >
-            {isSaving ? 'Saving...' : 'Save'}
-          </Button>
-        </XStack>
+        {/* Custom Header */}
+        <YStack
+          paddingTop={insets.top - 40}
+          paddingHorizontal="$4"
+          paddingBottom="$2"
+          backgroundColor="$background"
+          borderBottomWidth={1}
+          borderBottomColor="$gray4"
+        >
+          <XStack alignItems="center" minHeight={44}>
+            <Button
+              size="$3"
+              chromeless
+              onPress={() => router.back()}
+              icon={<ChevronLeft size={20} />}
+              accessibilityLabel="Go back"
+            />
+            <Text fontSize="$6" fontWeight="600" marginLeft="$3">
+              Create Exercise
+            </Text>
+            <XStack flex={1} justifyContent="flex-end">
+              <Button
+                size="$3"
+                backgroundColor="$green9"
+                onPress={handleSave}
+                disabled={isSaving}
+                icon={<Save size={16} />}
+                accessibilityLabel="Save exercise"
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            </XStack>
+          </XStack>
+        </YStack>
 
         <ScrollView>
           <YStack padding="$4" space="$4">
             {/* Name */}
             <YStack space="$2">
-              <Label fontSize="$4" fontWeight="500">Exercise Name *</Label>
+              <Label fontSize="$4" fontWeight="500">
+                Exercise Name *
+                {showNameError && (
+                  <Text fontSize="$3" color="$red9">
+                    {' '}
+                    Required
+                  </Text>
+                )}
+              </Label>
               <Input
                 placeholder="e.g., Barbell Bench Press"
                 value={form.name}
                 onChangeText={(text) => updateForm('name', text)}
                 accessibilityLabel="Exercise name"
+                borderColor={showNameError ? '$red6' : '$gray6'}
+                borderWidth={showNameError ? 2 : 1}
               />
             </YStack>
 
             {/* Category */}
-            {renderRadioList(
-              CATEGORY_OPTIONS,
-              form.category,
-              (value) => updateForm('category', value),
-              'Category *'
-            )}
+            <YStack space="$2">
+              <Label fontSize="$4" fontWeight="500">
+                Category
+              </Label>
+              <FilterDropdown
+                placeholder="Category"
+                options={CATEGORY_OPTIONS}
+                value={form.category}
+                onValueChange={(value) => updateForm('category', value as any)}
+                accessibilityLabel="Select category"
+              />
+            </YStack>
 
-            {/* Muscle Group (Single Selection) */}
-            {renderRadioList(
-              MUSCLE_OPTIONS,
-              form.muscle,
-              (value) => updateForm('muscle', value),
-              'Primary Muscle Group *'
-            )}
+            {/* Muscle Group */}
+            <YStack space="$2">
+              <Label fontSize="$4" fontWeight="500">
+                Primary Muscle Group
+              </Label>
+              <FilterDropdown
+                placeholder="Muscle Group"
+                options={MUSCLE_OPTIONS}
+                value={form.muscle}
+                onValueChange={(value) => updateForm('muscle', value)}
+                accessibilityLabel="Select muscle group"
+              />
+            </YStack>
 
             {/* Equipment */}
-            {renderCheckboxList(
-              EQUIPMENT_OPTIONS,
-              form.equipment,
-              toggleEquipment,
-              'Equipment Required *'
-            )}
+            <YStack space="$2">
+              <Label fontSize="$4" fontWeight="500">
+                Equipment
+              </Label>
+              <FilterDropdown
+                placeholder="Equipment"
+                options={EQUIPMENT_OPTIONS}
+                value={form.equipment}
+                onValueChange={(value) => updateForm('equipment', value)}
+                accessibilityLabel="Select equipment"
+              />
+            </YStack>
 
-            {/* Error Display */}
-            {error && (
-              <Card backgroundColor="$red2" borderColor="$red6" borderWidth={1} padding="$3">
-                <Text color="$red11">{error}</Text>
-              </Card>
-            )}
-
-            {/* Form Validation Help */}
-            <Card backgroundColor="$blue1" borderColor="$blue6" borderWidth={1} padding="$3">
+            {/* Help Text */}
+            <Card
+              backgroundColor="$blue1"
+              borderColor="$blue4"
+              borderWidth={1}
+              padding="$3"
+              borderRadius="$4"
+              marginTop="$4"
+            >
               <Text fontSize="$3" color="$blue11">
-                * Required fields. Your custom exercise will be saved to your personal library.
+                Custom exercises are saved to your personal library.
               </Text>
             </Card>
           </YStack>

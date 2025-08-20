@@ -1,4 +1,6 @@
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
+import { Button } from 'tamagui';
+import { ChevronLeft } from '@tamagui/lucide-icons';
 
 export default function WorkoutLayout() {
   return (
@@ -6,21 +8,28 @@ export default function WorkoutLayout() {
       screenOptions={{
         headerShown: true,
         headerTitleStyle: { fontSize: 18, fontWeight: '600' },
-      }}>
-      <Stack.Screen 
-        name="add" 
-        options={{ title: 'Add Exercises' }}
+        headerStyle: { backgroundColor: 'transparent' },
+      }}
+    >
+      <Stack.Screen
+        name="add"
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
       />
-      <Stack.Screen 
-        name="create-exercise" 
-        options={{ title: 'Create Exercise' }}
+      <Stack.Screen
+        name="create-exercise"
+        options={{
+          headerShown: false,
+        }}
       />
-      <Stack.Screen 
-        name="logging/[sessionId]" 
+      <Stack.Screen
+        name="logging/[sessionId]"
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="template/[id]" 
+      <Stack.Screen
+        name="template/[id]"
         options={{ title: 'Template Preview' }}
       />
     </Stack>
