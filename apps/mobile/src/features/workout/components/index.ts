@@ -6,6 +6,8 @@ export { ActiveSessionBanner } from './ActiveSessionBanner';
 export { StartEmptyButton } from './StartEmptyButton';
 export { RoutineCarousel } from './RoutineCarousel';
 export { BrowseExercisesTile } from './BrowseExercisesTile';
+export { BrowseTemplatesTile } from './BrowseTemplatesTile';
+export { ReorderTemplatesModal } from './ReorderTemplatesModal';
 export { FilterDropdown } from './FilterDropdown';
 export { FilterRow } from './FilterRow';
 export { CustomHeader } from './CustomHeader';

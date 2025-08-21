@@ -12,7 +12,7 @@ export {
   Card,
   Input,
   ScrollView,
-} from 'tamagui'
+} from 'tamagui';
 
 // Placeholder for custom components
-export const PlaceholderComponent = () => null
+export const PlaceholderComponent = () => null;

@@ -86,32 +86,31 @@ export const useWorkoutState = () => {
     }
   }, []);
 
-  const startFromTemplate = useCallback(
-    async (templateId: string) => {
-      try {
-        setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  const startFromTemplate = useCallback(async (templateId: string) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-        const session = await workoutService.startFromTemplate(templateId);
+      const session = await workoutService.startFromTemplate(templateId);
 
-        setState((prev) => ({
-          ...prev,
-          activeSession: session,
-          isLoading: false,
-        }));
+      setState((prev) => ({
+        ...prev,
+        activeSession: session,
+        isLoading: false,
+      }));
 
-        return session;
-      } catch (error) {
-        setState((prev) => ({
-          ...prev,
-          error:
-            error instanceof Error ? error.message : 'Failed to start from template',
-          isLoading: false,
-        }));
-        throw error;
-      }
-    },
-    []
-  );
+      return session;
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to start from template',
+        isLoading: false,
+      }));
+      throw error;
+    }
+  }, []);
 
   const startSessionWithExercises = useCallback(
     async (exerciseIds: ExerciseId[], name?: string) => {

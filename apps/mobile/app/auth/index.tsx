@@ -12,17 +12,17 @@ export default function AuthScreen() {
             Track workouts and stay accountable with friends
           </Text>
         </YStack>
-        
+
         <YStack space="$3">
           <Input placeholder="Email" keyboardType="email-address" />
           <Input placeholder="Password" secureTextEntry />
         </YStack>
-        
+
         <YStack space="$3">
           <Button>Sign In</Button>
           <Button variant="outlined">Sign Up</Button>
         </YStack>
-        
+
         <XStack justifyContent="center">
           <Link href="/(tabs)/workout">
             <Text color="$blue10">Continue as Guest</Text>

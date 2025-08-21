@@ -100,6 +100,7 @@ export const mockTemplates: Template[] = [
     difficulty: 'intermediate',
     isPublic: true,
     userId: 'user-1' as UserId,
+    lastCompleted: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
   },
   {
     id: 'pull-day' as TemplateId,
@@ -118,6 +119,26 @@ export const mockTemplates: Template[] = [
     difficulty: 'advanced',
     isPublic: true,
     userId: 'user-1' as UserId,
+    lastCompleted: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+  },
+  {
+    id: 'leg-day' as TemplateId,
+    title: 'Leg Day',
+    description: 'Lower body strength workout',
+    exercises: [
+      {
+        exerciseId: 'squat' as ExerciseId,
+        sets: 4,
+        reps: 8,
+        weight: 185,
+        restTime: 120,
+      },
+    ],
+    estimatedDuration: 50,
+    difficulty: 'intermediate',
+    isPublic: true,
+    userId: 'user-1' as UserId,
+    // No lastCompleted - never used
   },
 ];
 
@@ -205,4 +226,15 @@ export const filterExercisesByCategory = (category: string): Exercise[] => {
 
 export const getExercisesByIds = (ids: ExerciseId[]): Exercise[] => {
   return mockExercises.filter((exercise) => ids.includes(exercise.id));
+};
+
+// Helper function to calculate days since last workout
+export const getDaysAgoText = (date: Date): string => {
+  const now = new Date();
+  const diffTime = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return '1 day ago';
+  return `${diffDays} days ago`;
 };

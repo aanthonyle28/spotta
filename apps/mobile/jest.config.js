@@ -5,10 +5,7 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(react-native|@react-native|expo|@expo|@tamagui|tamagui)/)',
   ],
-  testMatch: [
-    '**/__tests__/**/*.(ts|tsx|js)',
-    '**/*.(test|spec).(ts|tsx|js)',
-  ],
+  testMatch: ['**/__tests__/**/*.(ts|tsx|js)', '**/*.(test|spec).(ts|tsx|js)'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
@@ -18,5 +15,8 @@ module.exports = {
   moduleNameMapper: {
     '^@spotta/shared$': '<rootDir>/../../packages/shared',
     '^@spotta/api-schema$': '<rootDir>/../../packages/api-schema',
+  },
+  testEnvironmentOptions: {
+    customExportConditions: ['react-native'],
   },
 };

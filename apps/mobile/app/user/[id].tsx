@@ -1,10 +1,10 @@
-import { YStack, H1, Text } from 'tamagui'
-import { Stack, useLocalSearchParams } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { YStack, H1, Text } from 'tamagui';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Screen() {
-  const { id } = useLocalSearchParams()
-  
+  const { id } = useLocalSearchParams();
+
   return (
     <>
       <Stack.Screen
@@ -21,5 +21,5 @@ export default function Screen() {
         </YStack>
       </SafeAreaView>
     </>
-  )
+  );
 }

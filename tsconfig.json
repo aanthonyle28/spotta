@@ -16,28 +16,13 @@
     "exactOptionalPropertyTypes": true,
     "baseUrl": ".",
     "paths": {
-      "@spotta/shared": [
-        "./packages/shared"
-      ],
-      "@spotta/shared/*": [
-        "./packages/shared/*"
-      ],
-      "@spotta/api-schema": [
-        "./packages/api-schema"
-      ],
-      "@spotta/api-schema/*": [
-        "./packages/api-schema/*"
-      ]
+      "@spotta/shared": ["./packages/shared"],
+      "@spotta/shared/*": ["./packages/shared/*"],
+      "@spotta/api-schema": ["./packages/api-schema"],
+      "@spotta/api-schema/*": ["./packages/api-schema/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.js",
-    "**/*.jsx"
-  ],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "**/*.js", "**/*.jsx"],
   "extends": "expo/tsconfig.base"
 }

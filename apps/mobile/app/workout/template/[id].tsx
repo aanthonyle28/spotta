@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react';
-import { YStack, XStack, H2, Text, Button, Card, ScrollView, Spinner } from 'tamagui';
+import {
+  YStack,
+  XStack,
+  H2,
+  Text,
+  Button,
+  Card,
+  ScrollView,
+  Spinner,
+} from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Play, Clock, Target, ChevronLeft } from '@tamagui/lucide-icons';
@@ -26,12 +35,12 @@ export default function TemplatePreviewScreen() {
       setIsLoading(true);
       setError(null);
       const templateData = await workoutService.getTemplateById(id);
-      
+
       if (!templateData) {
         setError('Template not found');
         return;
       }
-      
+
       setTemplate(templateData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load template');
@@ -57,7 +66,7 @@ export default function TemplatePreviewScreen() {
     const now = new Date();
     const diffTime = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -69,7 +78,9 @@ export default function TemplatePreviewScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <YStack flex={1} justifyContent="center" alignItems="center">
           <Spinner size="large" />
-          <Text marginTop="$3" color="$gray10">Loading template...</Text>
+          <Text marginTop="$3" color="$gray10">
+            Loading template...
+          </Text>
         </YStack>
       </SafeAreaView>
     );
@@ -78,8 +89,16 @@ export default function TemplatePreviewScreen() {
   if (error || !template) {
     return (
       <SafeAreaView style={{ flex: 1 }}>
-        <YStack flex={1} justifyContent="center" alignItems="center" space="$3" padding="$4">
-          <Text fontSize="$5" color="$red10">{error || 'Template not found'}</Text>
+        <YStack
+          flex={1}
+          justifyContent="center"
+          alignItems="center"
+          space="$3"
+          padding="$4"
+        >
+          <Text fontSize="$5" color="$red10">
+            {error || 'Template not found'}
+          </Text>
           <Button onPress={loadTemplate}>Try Again</Button>
         </YStack>
       </SafeAreaView>
@@ -90,17 +109,16 @@ export default function TemplatePreviewScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
         <YStack flex={1} padding="$4" space="$4">
-
           {/* Template Info */}
           <YStack space="$3">
             <H2>{template.title}</H2>
-            
+
             {template.description && (
               <Text fontSize="$4" color="$gray11" lineHeight="$1">
                 {template.description}
               </Text>
             )}
-            
+
             {/* Stats */}
             <XStack space="$4" alignItems="center">
               <XStack space="$2" alignItems="center">
@@ -109,14 +127,14 @@ export default function TemplatePreviewScreen() {
                   {template.estimatedDuration}m
                 </Text>
               </XStack>
-              
+
               <XStack space="$2" alignItems="center">
                 <Target size={16} color="$gray10" />
                 <Text fontSize="$3" color="$gray10">
                   {template.exercises.length} exercises
                 </Text>
               </XStack>
-              
+
               <Text fontSize="$3" color="$gray10" textTransform="capitalize">
                 {template.difficulty}
               </Text>
@@ -131,32 +149,38 @@ export default function TemplatePreviewScreen() {
 
           {/* Exercise List */}
           <YStack space="$3">
-            <Text fontSize="$5" fontWeight="600">Exercises</Text>
-            
+            <Text fontSize="$5" fontWeight="600">
+              Exercises
+            </Text>
+
             {template.exercises.map((templateExercise, index) => (
-              <Card key={`${templateExercise.exerciseId}-${index}`} padding="$3" backgroundColor="$gray2">
+              <Card
+                key={`${templateExercise.exerciseId}-${index}`}
+                padding="$3"
+                backgroundColor="$gray2"
+              >
                 <YStack space="$2">
                   <Text fontSize="$4" fontWeight="500">
                     {index + 1}. Exercise {templateExercise.exerciseId}
                   </Text>
-                  
+
                   <XStack space="$4">
                     <Text fontSize="$3" color="$gray10">
                       {templateExercise.sets} sets
                     </Text>
-                    
+
                     {templateExercise.reps && (
                       <Text fontSize="$3" color="$gray10">
                         {templateExercise.reps} reps
                       </Text>
                     )}
-                    
+
                     {templateExercise.weight && (
                       <Text fontSize="$3" color="$gray10">
                         {templateExercise.weight} lbs
                       </Text>
                     )}
-                    
+
                     {templateExercise.restTime && (
                       <Text fontSize="$3" color="$gray10">
                         {templateExercise.restTime}s rest
@@ -169,7 +193,7 @@ export default function TemplatePreviewScreen() {
           </YStack>
 
           {/* Start CTA */}
-          <Button 
+          <Button
             size="$4"
             backgroundColor="$green9"
             onPress={handleStart}
@@ -181,7 +205,12 @@ export default function TemplatePreviewScreen() {
           </Button>
 
           {error && (
-            <Card backgroundColor="$red2" borderColor="$red6" borderWidth={1} padding="$3">
+            <Card
+              backgroundColor="$red2"
+              borderColor="$red6"
+              borderWidth={1}
+              padding="$3"
+            >
               <Text color="$red11">{error}</Text>
             </Card>
           )}

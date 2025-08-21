@@ -234,9 +234,122 @@ type CreateExerciseCommand = {
 - Screen reader support for validation states
 - Consistent with existing FilterDropdown accessibility patterns
 
+### Main Workout Screen (`/(tabs)/workout`)
+
+**Route**: `/(tabs)/workout`
+
+**Navigation & Header**:
+- Simple H1 heading "Workout"
+- No custom header, uses standard tab navigation
+
+**Information Architecture**:
+
+```tsx
+// State management
+const { state, actions } = useWorkoutState();
+const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
+
+// Key state
+templates: Template[]           // Available workout templates
+activeSession: ActiveSession   // Current workout session (if any)
+isLoading: boolean             // Loading states
+error: string | null           // Error display
+```
+
+**UI Components & Layout**:
+
+1. **Start Empty Button**
+   - Primary CTA for starting quick workouts
+   - Green button with prominent styling
+   - Routes to `/workout/add?mode=empty`
+
+2. **Templates Section**
+   - Header row with "Templates" title and reorder icon (ArrowUpDown)
+   - Horizontal scrolling carousel of template cards
+   - "New Template" card at the end for creating templates
+
+3. **Template Cards (RoutineCard)**
+   - **Layout**: Title, exercise info row, Start button at bottom
+   - **Title**: Template name with horizontal 3-dots menu (MoreHorizontal)
+   - **Exercise Info**: "X exercises" • "X days ago" (if used before)
+   - **Start Button**: Blue button with Play icon at card bottom
+   - **3-Dots Menu**: Edit, Duplicate, Share, Delete options with icons
+   - **Conditional Display**: Last workout date only shows if template was used
+
+4. **Browse Sections**
+   - **Browse Exercises**: Tile with Search icon, routes to exercise library
+   - **Browse Templates**: Tile with BookOpen icon, for community templates
+
+5. **Reorder Templates Modal**
+   - Sheet modal with template list
+   - Up/down arrow controls for reordering
+   - GripVertical icon visual indicator
+   - Save/Cancel actions
+
+**Template Card Visual Design**:
+```
+┌─────────────────────────────────┐
+│ Template Name            ⋯      │ ← Title + 3-dots menu
+│                                 │
+│ 4 exercises • 3 days ago        │ ← Exercise count + last used
+│                                 │
+│ [▶ Start]                       │ ← Start button at bottom
+└─────────────────────────────────┘
+```
+
+**Dropdown Menu Design**:
+- **Portal Pattern**: Renders outside card hierarchy to avoid clipping
+- **Global State**: Single `activeMenuId` manages which menu is open
+- **Positioning**: Fixed position below carousel area (top: 100px, right: 80px)
+- **Overlay**: Full-screen dimmed background for tap-outside-to-close
+- **Menu Items**: Edit (Edit3), Duplicate (Copy), Share (Share2), Delete (Trash2)
+
+**Data Flow**:
+
+```tsx
+// Read models (what UI consumes)
+type Template = {
+  id: TemplateId;
+  title: string;
+  exercises: TemplateExercise[];
+  lastCompleted?: Date;      // For "X days ago" display
+  estimatedDuration: number; // Removed from UI but kept in data
+  difficulty: string;
+  isPublic: boolean;
+  userId: UserId;
+};
+
+// Write commands (what UI sends)
+type StartTemplateCommand = {
+  templateId: TemplateId;
+};
+
+type TemplateActionCommand = {
+  type: 'EDIT' | 'DELETE' | 'DUPLICATE' | 'SHARE';
+  templateId: TemplateId;
+};
+
+type ReorderTemplatesCommand = {
+  type: 'REORDER_TEMPLATES';
+  newOrder: Template[];
+};
+```
+
+**UI States**:
+- **Loading**: Skeleton or loading states during template fetch
+- **Empty Templates**: "Create your first template" card when no templates
+- **Menu Open**: Dimmed background with dropdown menu visible
+- **Reorder Modal**: Sheet modal with draggable template list
+- **Error**: Error card with dismiss action
+
+**Accessibility**:
+- 44px minimum touch targets for all interactive elements
+- Proper accessibility labels for 3-dots menu ("Template options")
+- Screen reader support for template cards and menu actions
+- Keyboard navigation support for modal and dropdown
+
 ### Other Screens
 
-- **Main Screen**: Start quick workout, browse templates, recent workouts with active session banner
 - **Logging Screen**: One active exercise at a time, collapsible cards, custom steppers for Weight/Reps
 - **Rest Timer**: Sticky bar with countdown, -15/+15/Skip controls
 
@@ -300,6 +413,18 @@ type CreateExerciseCommand = {
   - ✅ Filter styling: Added gray borders, reduced spacing between search and filters
   - ✅ Component architecture: FilterDropdown and FilterRow components with proper props
   - ✅ Accessibility: Maintained proper labels and touch targets throughout redesign
+
+- 2025-08-21 — Mobile — Main workout screen redesign and template management — [main-workout-redesign]
+  - ✅ Template card redesign: Removed duration, added last workout info with "X days ago"
+  - ✅ Enhanced spacing: Increased gap between title and exercise info, proper visual hierarchy
+  - ✅ 3-dots menu system: Horizontal menu with Edit, Duplicate, Share, Delete actions with icons
+  - ✅ Portal dropdown pattern: Global menu state with full-screen overlay for proper UX
+  - ✅ Browse Templates tile: New component for discovering community templates
+  - ✅ Template reordering: Modal with up/down arrows for reordering templates
+  - ✅ Reorder UI: Templates title row with ArrowUpDown icon, Sheet modal with save/cancel
+  - ✅ Visual polish: Removed icons from exercise count and days ago for cleaner design
+  - ✅ Menu positioning: Fixed positioning to avoid clipping, proper tap-outside handling
+  - ✅ Accessibility: All interactions meet 44px touch targets, proper labels throughout
 
 - 2025-01-XX — Mobile — QFRONT Phase 1 implementation completed — [workout-frontend]
   - ✅ Core UI components: ExerciseCard, WeightRepsStepper, RestBar

@@ -90,7 +90,7 @@ export interface Exercise {
   updatedAt: string;
 }
 
-export type ExerciseCategory = 
+export type ExerciseCategory =
   | 'strength'
   | 'cardio'
   | 'flexibility'
@@ -162,7 +162,7 @@ export interface Measurement {
   createdAt: string;
 }
 
-export type MeasurementType = 
+export type MeasurementType =
   | 'weight'
   | 'body_fat'
   | 'muscle_mass'
@@ -227,7 +227,7 @@ export interface Equipment {
   description?: string;
 }
 
-export type EquipmentCategory = 
+export type EquipmentCategory =
   | 'free_weights'
   | 'machines'
   | 'cardio'

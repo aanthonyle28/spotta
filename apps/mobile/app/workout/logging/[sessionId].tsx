@@ -1,12 +1,38 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { FlatList, Alert } from 'react-native';
-import { YStack, XStack, H3, Text, Button, ScrollView, Card, Separator } from 'tamagui';
+import {
+  YStack,
+  XStack,
+  H3,
+  Text,
+  Button,
+  ScrollView,
+  Card,
+  Separator,
+} from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import { CheckCircle, MoreHorizontal, Plus, Clock, Trophy, Hash } from '@tamagui/lucide-icons';
-import { useWorkoutState, useRestTimer } from '../../../src/features/workout/hooks';
-import { ExerciseCard, RestBar, RestPresetSheet } from '../../../src/features/workout/components';
-import type { SetData, SessionExercise } from '../../../src/features/workout/types';
+import {
+  CheckCircle,
+  MoreHorizontal,
+  Plus,
+  Clock,
+  Trophy,
+  Hash,
+} from '@tamagui/lucide-icons';
+import {
+  useWorkoutState,
+  useRestTimer,
+} from '../../../src/features/workout/hooks';
+import {
+  ExerciseCard,
+  RestBar,
+  RestPresetSheet,
+} from '../../../src/features/workout/components';
+import type {
+  SetData,
+  SessionExercise,
+} from '../../../src/features/workout/types';
 import type { ExerciseId, SetEntryId } from '@spotta/shared';
 
 export default function LoggingScreen() {
@@ -32,32 +58,40 @@ export default function LoggingScreen() {
   // Calculate session stats
   const sessionStats = useMemo(() => {
     if (!state.activeSession) return { duration: 0, volume: 0, sets: 0 };
-    
+
     const completedSets = state.activeSession.exercises.reduce(
-      (total, ex) => total + ex.sets.filter(set => set.completed).length,
+      (total, ex) => total + ex.sets.filter((set) => set.completed).length,
       0
     );
-    
+
     const totalVolume = state.activeSession.exercises.reduce(
-      (total, ex) => total + ex.sets.reduce(
-        (exTotal, set) => set.completed && set.weight && set.reps 
-          ? exTotal + (set.weight * set.reps)
-          : exTotal,
-        0
-      ),
+      (total, ex) =>
+        total +
+        ex.sets.reduce(
+          (exTotal, set) =>
+            set.completed && set.weight && set.reps
+              ? exTotal + set.weight * set.reps
+              : exTotal,
+          0
+        ),
       0
     );
-    
+
     return {
-      duration: Math.floor((Date.now() - state.activeSession.startedAt.getTime()) / 1000 / 60),
+      duration: Math.floor(
+        (Date.now() - state.activeSession.startedAt.getTime()) / 1000 / 60
+      ),
       volume: Math.round(totalVolume),
-      sets: completedSets
+      sets: completedSets,
     };
   }, [state.activeSession]);
 
   useEffect(() => {
     // Only redirect if we're sure there's no session matching this sessionId
-    if (!state.isLoading && (!state.activeSession || state.activeSession.id !== sessionId)) {
+    if (
+      !state.isLoading &&
+      (!state.activeSession || state.activeSession.id !== sessionId)
+    ) {
       // Add a small delay to allow for state updates during navigation
       const timeoutId = setTimeout(() => {
         if (!state.activeSession || state.activeSession.id !== sessionId) {
@@ -65,7 +99,7 @@ export default function LoggingScreen() {
           router.replace('/workout');
         }
       }, 100);
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [state.activeSession, state.isLoading, sessionId]);
@@ -73,32 +107,38 @@ export default function LoggingScreen() {
   const activeExercise = state.activeSession?.exercises[activeExerciseIndex];
   const currentExerciseName = activeExercise?.exercise.name;
 
-  const handleSetComplete = useCallback(async (setData: SetData) => {
-    try {
-      await actions.completeSet(setData);
-      
-      // Start rest timer after completing a set
-      if (activeExercise) {
-        actions.startRestTimer(activeExercise.restPreset, activeExercise.id);
-      }
-    } catch (error) {
-      console.error('Failed to complete set:', error);
-    }
-  }, [actions, activeExercise]);
+  const handleSetComplete = useCallback(
+    async (setData: SetData) => {
+      try {
+        await actions.completeSet(setData);
 
-  const handleSetUpdate = useCallback(async (setId: SetEntryId, updates: Partial<SetData>) => {
-    if (!activeExercise) return;
-    
-    try {
-      await actions.updateSet(activeExercise.id, setId, updates);
-    } catch (error) {
-      console.error('Failed to update set:', error);
-    }
-  }, [actions, activeExercise]);
+        // Start rest timer after completing a set
+        if (activeExercise) {
+          actions.startRestTimer(activeExercise.restPreset, activeExercise.id);
+        }
+      } catch (error) {
+        console.error('Failed to complete set:', error);
+      }
+    },
+    [actions, activeExercise]
+  );
+
+  const handleSetUpdate = useCallback(
+    async (setId: SetEntryId, updates: Partial<SetData>) => {
+      if (!activeExercise) return;
+
+      try {
+        await actions.updateSet(activeExercise.id, setId, updates);
+      } catch (error) {
+        console.error('Failed to update set:', error);
+      }
+    },
+    [actions, activeExercise]
+  );
 
   const handleAddSet = useCallback(async () => {
     if (!activeExercise) return;
-    
+
     try {
       await actions.addSet(activeExercise.id);
     } catch (error) {
@@ -108,9 +148,9 @@ export default function LoggingScreen() {
 
   const handleFinishWorkout = useCallback(async () => {
     if (!state.activeSession) return;
-    
+
     const completedSets = sessionStats.sets;
-    
+
     Alert.alert(
       'Finish Workout',
       `Complete your workout with ${completedSets} logged sets?`,
@@ -128,17 +168,17 @@ export default function LoggingScreen() {
               console.error('Failed to finish workout:', error);
               setIsFinishing(false);
             }
-          }
-        }
+          },
+        },
       ]
     );
   }, [state.activeSession, sessionStats.sets, actions]);
 
   const handleDiscardWorkout = useCallback(() => {
     if (!state.activeSession) return;
-    
+
     const completedSets = sessionStats.sets;
-    
+
     Alert.alert(
       'Discard workout?',
       `You'll lose ${completedSets} logged sets.`,
@@ -154,74 +194,84 @@ export default function LoggingScreen() {
             } catch (error) {
               console.error('Failed to discard workout:', error);
             }
-          }
-        }
+          },
+        },
       ]
     );
   }, [state.activeSession, sessionStats.sets, actions]);
 
-  const handleRestPresetApply = useCallback((scope: 'this' | 'all' | 'remember', seconds: number) => {
-    if (!activeExercise) return;
-    
-    switch (scope) {
-      case 'this':
-        // Apply to current exercise only - would update exercise rest preset
-        break;
-      case 'all':
-        // Apply to all exercises in session
-        break;
-      case 'remember':
-        // Remember for this exercise type
-        break;
-    }
-    
-    setShowRestPresetSheet(false);
-  }, [activeExercise]);
+  const handleRestPresetApply = useCallback(
+    (scope: 'this' | 'all' | 'remember', seconds: number) => {
+      if (!activeExercise) return;
 
-  const renderCollapsedExerciseCard = useCallback(({ item, index }: { item: SessionExercise; index: number }) => {
-    const completedSets = item.sets.filter(set => set.completed).length;
-    const lastCompletedSet = item.sets.filter(set => set.completed).pop();
-    
-    return (
-      <Card 
-        padding="$3" 
-        backgroundColor={index === activeExerciseIndex ? "$blue2" : "$gray1"}
-        borderColor={index === activeExerciseIndex ? "$blue6" : "$gray4"}
-        borderWidth={1}
-        marginBottom="$2"
-        pressStyle={{ scale: 0.98 }}
-        onPress={() => setActiveExerciseIndex(index)}
-        accessibilityLabel={`Exercise ${index + 1}: ${item.exercise.name}`}
-      >
-        <XStack justifyContent="space-between" alignItems="center">
-          <YStack flex={1} space="$1">
-            <Text fontSize="$4" fontWeight="500">
-              {item.exercise.name}
-            </Text>
-            <XStack space="$2" alignItems="center" flexWrap="wrap">
-              <Text fontSize="$2" color="$gray10">
-                {completedSets}/{item.sets.length} sets
+      switch (scope) {
+        case 'this':
+          // Apply to current exercise only - would update exercise rest preset
+          break;
+        case 'all':
+          // Apply to all exercises in session
+          break;
+        case 'remember':
+          // Remember for this exercise type
+          break;
+      }
+
+      setShowRestPresetSheet(false);
+    },
+    [activeExercise]
+  );
+
+  const renderCollapsedExerciseCard = useCallback(
+    ({ item, index }: { item: SessionExercise; index: number }) => {
+      const completedSets = item.sets.filter((set) => set.completed).length;
+      const lastCompletedSet = item.sets.filter((set) => set.completed).pop();
+
+      return (
+        <Card
+          padding="$3"
+          backgroundColor={index === activeExerciseIndex ? '$blue2' : '$gray1'}
+          borderColor={index === activeExerciseIndex ? '$blue6' : '$gray4'}
+          borderWidth={1}
+          marginBottom="$2"
+          pressStyle={{ scale: 0.98 }}
+          onPress={() => setActiveExerciseIndex(index)}
+          accessibilityLabel={`Exercise ${index + 1}: ${item.exercise.name}`}
+        >
+          <XStack justifyContent="space-between" alignItems="center">
+            <YStack flex={1} space="$1">
+              <Text fontSize="$4" fontWeight="500">
+                {item.exercise.name}
               </Text>
-              {lastCompletedSet && lastCompletedSet.weight && lastCompletedSet.reps && (
-                <>
-                  <Text fontSize="$2" color="$gray10">•</Text>
-                  <Text fontSize="$2" color="$gray10">
-                    Last: {lastCompletedSet.weight}×{lastCompletedSet.reps}
-                  </Text>
-                </>
-              )}
-            </XStack>
-          </YStack>
-          
-          {index === activeExerciseIndex && (
-            <Text fontSize="$2" color="$blue11" fontWeight="600">
-              ACTIVE
-            </Text>
-          )}
-        </XStack>
-      </Card>
-    );
-  }, [activeExerciseIndex]);
+              <XStack space="$2" alignItems="center" flexWrap="wrap">
+                <Text fontSize="$2" color="$gray10">
+                  {completedSets}/{item.sets.length} sets
+                </Text>
+                {lastCompletedSet &&
+                  lastCompletedSet.weight &&
+                  lastCompletedSet.reps && (
+                    <>
+                      <Text fontSize="$2" color="$gray10">
+                        •
+                      </Text>
+                      <Text fontSize="$2" color="$gray10">
+                        Last: {lastCompletedSet.weight}×{lastCompletedSet.reps}
+                      </Text>
+                    </>
+                  )}
+              </XStack>
+            </YStack>
+
+            {index === activeExerciseIndex && (
+              <Text fontSize="$2" color="$blue11" fontWeight="600">
+                ACTIVE
+              </Text>
+            )}
+          </XStack>
+        </Card>
+      );
+    },
+    [activeExerciseIndex]
+  );
 
   if (state.isLoading) {
     return (
@@ -247,9 +297,9 @@ export default function LoggingScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <YStack flex={1}>
         {/* Header */}
-        <XStack 
-          padding="$4" 
-          justifyContent="space-between" 
+        <XStack
+          padding="$4"
+          justifyContent="space-between"
           alignItems="center"
           backgroundColor="$background"
         >
@@ -278,18 +328,18 @@ export default function LoggingScreen() {
               </XStack>
             </XStack>
           </YStack>
-          
+
           <XStack space="$2">
-            <Button 
-              size="$3" 
+            <Button
+              size="$3"
               chromeless
               onPress={handleDiscardWorkout}
               icon={<MoreHorizontal size={16} />}
               accessibilityLabel="More options"
             />
-            <Button 
-              size="$3" 
-              backgroundColor="$green9" 
+            <Button
+              size="$3"
+              backgroundColor="$green9"
               onPress={handleFinishWorkout}
               disabled={isFinishing}
             >
@@ -315,17 +365,17 @@ export default function LoggingScreen() {
                       onSetUpdate={handleSetUpdate}
                       onToggleActive={() => {}}
                     />
-                    
+
                     {/* Add Set Button */}
-                    <Button 
-                      size="$3" 
+                    <Button
+                      size="$3"
                       marginTop="$2"
                       onPress={handleAddSet}
                       icon={<Plus size={16} />}
                     >
                       Add Set
                     </Button>
-                    
+
                     {/* Rest Preset Chip */}
                     <Button
                       size="$2"
@@ -339,7 +389,7 @@ export default function LoggingScreen() {
                   </YStack>
                 );
               }
-              
+
               return renderCollapsedExerciseCard({ item, index });
             }}
             keyExtractor={(item, index) => `${item.id}-${index}`}
@@ -350,10 +400,10 @@ export default function LoggingScreen() {
               index,
             })}
           />
-          
+
           {/* Cancel Workout Button */}
-          <Button 
-            size="$3" 
+          <Button
+            size="$3"
             marginVertical="$3"
             backgroundColor="$red9"
             onPress={handleDiscardWorkout}
@@ -363,16 +413,16 @@ export default function LoggingScreen() {
         </YStack>
 
         {/* Footer Bar */}
-        <XStack 
-          padding="$4" 
-          backgroundColor="$background" 
-          borderTopWidth={1} 
+        <XStack
+          padding="$4"
+          backgroundColor="$background"
+          borderTopWidth={1}
           borderTopColor="$gray6"
           space="$3"
         >
-          <Button 
+          <Button
             flex={1}
-            size="$3" 
+            size="$3"
             onPress={() => router.push('/workout/add?mode=append' as any)}
             icon={<Plus size={16} />}
           >
@@ -400,7 +450,9 @@ export default function LoggingScreen() {
           exerciseName={currentExerciseName ?? undefined}
           onApplyToThis={(seconds) => handleRestPresetApply('this', seconds)}
           onApplyToAll={(seconds) => handleRestPresetApply('all', seconds)}
-          onRememberForExercise={(seconds) => handleRestPresetApply('remember', seconds)}
+          onRememberForExercise={(seconds) =>
+            handleRestPresetApply('remember', seconds)
+          }
         />
       </YStack>
     </SafeAreaView>

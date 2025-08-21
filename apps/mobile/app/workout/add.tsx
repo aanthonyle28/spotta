@@ -1,34 +1,40 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FlatList, TextInput } from 'react-native';
-import { 
-  YStack, 
-  XStack, 
-  H2, 
-  Text, 
-  Button, 
-  Card, 
+import {
+  YStack,
+  XStack,
+  H2,
+  Text,
+  Button,
+  Card,
   Input,
   ScrollView,
-  Checkbox
+  Checkbox,
 } from 'tamagui';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Search, ChevronLeft, Plus } from '@tamagui/lucide-icons';
 import { workoutService } from '../../src/features/workout/services/workoutService';
 import { useWorkoutState } from '../../src/features/workout/hooks';
+import { FilterRow } from '../../src/features/workout/components';
 import type { Exercise } from '../../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';
 
-
 export default function AddExercisesScreen() {
-  const { mode, targetExerciseId } = useLocalSearchParams<{ 
-    mode?: 'append' | 'empty' | 'template'; 
+  const { mode, targetExerciseId } = useLocalSearchParams<{
+    mode?: 'append' | 'empty' | 'template';
     targetExerciseId?: string;
   }>();
   const { actions } = useWorkoutState();
-  
+  const insets = useSafeAreaInsets();
+
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [selectedExercises, setSelectedExercises] = useState<Set<ExerciseId>>(new Set());
+  const [selectedExercises, setSelectedExercises] = useState<Set<ExerciseId>>(
+    new Set()
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>('all');
@@ -56,52 +62,66 @@ export default function AddExercisesScreen() {
 
   // Get unique filter options from exercises
   const filterOptions = useMemo(() => {
-    const categories = [...new Set(exercises.map(ex => ex.category))].sort();
-    const muscleGroups = [...new Set(exercises.flatMap(ex => ex.primaryMuscles))].sort();
-    const equipment = [...new Set(exercises.flatMap(ex => ex.equipment))].sort();
-    
+    const categories = [...new Set(exercises.map((ex) => ex.category))].sort();
+    const muscleGroups = [
+      ...new Set(exercises.flatMap((ex) => ex.primaryMuscles)),
+    ].sort();
+    const equipment = [
+      ...new Set(exercises.flatMap((ex) => ex.equipment)),
+    ].sort();
+
     return { categories, muscleGroups, equipment };
   }, [exercises]);
 
   // Comprehensive filtering
   const filteredExercises = useMemo(() => {
     let filtered = exercises;
-    
+
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(exercise => 
-        exercise.name.toLowerCase().includes(query) ||
-        exercise.primaryMuscles.some(muscle => muscle.toLowerCase().includes(query)) ||
-        exercise.equipment.some(eq => eq.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        (exercise) =>
+          exercise.name.toLowerCase().includes(query) ||
+          exercise.primaryMuscles.some((muscle) =>
+            muscle.toLowerCase().includes(query)
+          ) ||
+          exercise.equipment.some((eq) => eq.toLowerCase().includes(query))
       );
     }
-    
+
     // Category filter
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(exercise => exercise.category === selectedCategory);
+      filtered = filtered.filter(
+        (exercise) => exercise.category === selectedCategory
+      );
     }
-    
+
     // Muscle group filter
     if (selectedMuscleGroup !== 'all') {
-      filtered = filtered.filter(exercise => 
+      filtered = filtered.filter((exercise) =>
         exercise.primaryMuscles.includes(selectedMuscleGroup)
       );
     }
-    
+
     // Equipment filter
     if (selectedEquipment !== 'all') {
-      filtered = filtered.filter(exercise => 
+      filtered = filtered.filter((exercise) =>
         exercise.equipment.includes(selectedEquipment)
       );
     }
-    
-    return filtered;
-  }, [exercises, searchQuery, selectedCategory, selectedMuscleGroup, selectedEquipment]);
 
+    return filtered;
+  }, [
+    exercises,
+    searchQuery,
+    selectedCategory,
+    selectedMuscleGroup,
+    selectedEquipment,
+  ]);
 
   const toggleExerciseSelection = useCallback((exerciseId: ExerciseId) => {
-    setSelectedExercises(prev => {
+    setSelectedExercises((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(exerciseId)) {
         newSet.delete(exerciseId);
@@ -118,15 +138,21 @@ export default function AddExercisesScreen() {
     try {
       setIsStarting(true);
       const exerciseIds = Array.from(selectedExercises);
-      
+
       if (mode === 'empty') {
         // Start new session with selected exercises (empty workout flow)
-        const session = await actions.startSessionWithExercises(exerciseIds, 'Quick Workout');
+        const session = await actions.startSessionWithExercises(
+          exerciseIds,
+          'Quick Workout'
+        );
         router.push(`/workout/logging/${session.id}` as any);
       } else if (mode === 'template') {
         // For template mode, we'll show save options first
         // For now, just start the session
-        const session = await actions.startSessionWithExercises(exerciseIds, 'New Template Workout');
+        const session = await actions.startSessionWithExercises(
+          exerciseIds,
+          'New Template Workout'
+        );
         router.push(`/workout/logging/${session.id}` as any);
       } else {
         // Append mode - navigate back with selected exercises
@@ -139,15 +165,14 @@ export default function AddExercisesScreen() {
     }
   };
 
-
   const renderExerciseItem = ({ item }: { item: Exercise }) => {
     const isSelected = selectedExercises.has(item.id);
-    
+
     return (
-      <Card 
-        padding="$3" 
-        backgroundColor={isSelected ? "$blue2" : "$gray1"}
-        borderColor={isSelected ? "$blue6" : "$gray4"}
+      <Card
+        padding="$3"
+        backgroundColor={isSelected ? '$blue2' : '$gray1'}
+        borderColor={isSelected ? '$blue6' : '$gray4'}
         borderWidth={1}
         marginBottom="$2"
         pressStyle={{ scale: 0.98 }}
@@ -163,18 +188,24 @@ export default function AddExercisesScreen() {
               <Text fontSize="$2" color="$gray10" textTransform="capitalize">
                 {item.difficulty}
               </Text>
-              <Text fontSize="$2" color="$gray10">•</Text>
+              <Text fontSize="$2" color="$gray10">
+                •
+              </Text>
               <Text fontSize="$2" color="$gray10">
                 {item.primaryMuscles.join(', ')}
               </Text>
             </XStack>
           </YStack>
-          
-          <Checkbox 
+
+          <Checkbox
             checked={isSelected}
             onCheckedChange={() => toggleExerciseSelection(item.id)}
             size="$4"
-          />
+            backgroundColor={isSelected ? '$blue9' : 'transparent'}
+            borderColor={isSelected ? '$blue9' : '$gray6'}
+          >
+            <Checkbox.Indicator />
+          </Checkbox>
         </XStack>
       </Card>
     );
@@ -183,20 +214,47 @@ export default function AddExercisesScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <YStack flex={1}>
-        {/* Header Actions */}
-        <XStack padding="$4" justifyContent="flex-end">
-          <Button
-            size="$3"
-            chromeless
-            onPress={() => router.push('/workout/create-exercise' as any)}
-            icon={<Plus size={20} />}
-            accessibilityLabel="Create exercise"
-          />
-        </XStack>
-
+        {/* Custom Header */}
+        <YStack
+          paddingTop={insets.top - 40}
+          paddingHorizontal="$4"
+          paddingBottom="$2"
+          backgroundColor="$background"
+          borderBottomWidth={1}
+          borderBottomColor="$gray4"
+        >
+          <XStack alignItems="center" minHeight={44}>
+            <Button
+              size="$3"
+              chromeless
+              onPress={() => router.back()}
+              icon={<ChevronLeft size={20} />}
+              accessibilityLabel="Go back"
+            />
+            <Text fontSize="$6" fontWeight="600" marginLeft="$3">
+              Add Exercises
+            </Text>
+            <XStack flex={1} justifyContent="flex-end">
+              <Button
+                size="$3"
+                backgroundColor="$green9"
+                onPress={() => router.push('/workout/create-exercise' as any)}
+                accessibilityLabel="Create exercise"
+              >
+                Create +
+              </Button>
+            </XStack>
+          </XStack>
+        </YStack>
         {/* Search */}
-        <XStack padding="$4" paddingTop="$0">
-          <XStack flex={1} alignItems="center" backgroundColor="$gray2" borderRadius="$3" paddingHorizontal="$3">
+        <XStack padding="$4" paddingTop="$3" paddingBottom="$2">
+          <XStack
+            flex={1}
+            alignItems="center"
+            backgroundColor="$gray2"
+            borderRadius="$3"
+            paddingHorizontal="$3"
+          >
             <Search size={16} color="$gray10" />
             <Input
               flex={1}
@@ -211,115 +269,58 @@ export default function AddExercisesScreen() {
         </XStack>
 
         {/* Filters */}
-        <YStack paddingHorizontal="$4" paddingBottom="$3" space="$3">
-          {/* Category Filters */}
-          <YStack space="$2">
-            <Text fontSize="$3" fontWeight="500">Category</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <XStack space="$2">
-                <Button
-                  size="$2"
-                  backgroundColor={selectedCategory === 'all' ? '$blue9' : '$gray4'}
-                  color={selectedCategory === 'all' ? 'white' : '$gray11'}
-                  onPress={() => setSelectedCategory('all')}
-                >
-                  All
-                </Button>
-                {filterOptions.categories.map(category => (
-                  <Button
-                    key={category}
-                    size="$2"
-                    backgroundColor={selectedCategory === category ? '$blue9' : '$gray4'}
-                    color={selectedCategory === category ? 'white' : '$gray11'}
-                    onPress={() => setSelectedCategory(category)}
-                  >
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </Button>
-                ))}
-              </XStack>
-            </ScrollView>
-          </YStack>
-
-          {/* Muscle Group Filters */}
-          <YStack space="$2">
-            <Text fontSize="$3" fontWeight="500">Muscle Group</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <XStack space="$2">
-                <Button
-                  size="$2"
-                  backgroundColor={selectedMuscleGroup === 'all' ? '$blue9' : '$gray4'}
-                  color={selectedMuscleGroup === 'all' ? 'white' : '$gray11'}
-                  onPress={() => setSelectedMuscleGroup('all')}
-                >
-                  All
-                </Button>
-                {filterOptions.muscleGroups.map(muscle => (
-                  <Button
-                    key={muscle}
-                    size="$2"
-                    backgroundColor={selectedMuscleGroup === muscle ? '$blue9' : '$gray4'}
-                    color={selectedMuscleGroup === muscle ? 'white' : '$gray11'}
-                    onPress={() => setSelectedMuscleGroup(muscle)}
-                  >
-                    {muscle}
-                  </Button>
-                ))}
-              </XStack>
-            </ScrollView>
-          </YStack>
-
-          {/* Equipment Filters */}
-          <YStack space="$2">
-            <Text fontSize="$3" fontWeight="500">Equipment</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <XStack space="$2">
-                <Button
-                  size="$2"
-                  backgroundColor={selectedEquipment === 'all' ? '$blue9' : '$gray4'}
-                  color={selectedEquipment === 'all' ? 'white' : '$gray11'}
-                  onPress={() => setSelectedEquipment('all')}
-                >
-                  All
-                </Button>
-                {filterOptions.equipment.map(equip => (
-                  <Button
-                    key={equip}
-                    size="$2"
-                    backgroundColor={selectedEquipment === equip ? '$blue9' : '$gray4'}
-                    color={selectedEquipment === equip ? 'white' : '$gray11'}
-                    onPress={() => setSelectedEquipment(equip)}
-                  >
-                    {equip}
-                  </Button>
-                ))}
-              </XStack>
-            </ScrollView>
-          </YStack>
-
-          {/* Filter Results Summary */}
-          <XStack justifyContent="space-between" alignItems="center">
-            <Text fontSize="$2" color="$gray11">
-              {filteredExercises.length} of {exercises.length} exercises
-            </Text>
-            {(selectedCategory !== 'all' || selectedMuscleGroup !== 'all' || selectedEquipment !== 'all') && (
-              <Button 
-                size="$2" 
-                chromeless 
-                onPress={() => {
-                  setSelectedCategory('all');
-                  setSelectedMuscleGroup('all');
-                  setSelectedEquipment('all');
-                }}
-              >
-                Clear filters
-              </Button>
-            )}
-          </XStack>
+        <YStack overflow="visible" zIndex={2}>
+          <FilterRow
+            categoryOptions={filterOptions.categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            muscleOptions={filterOptions.muscleGroups}
+            selectedMuscle={selectedMuscleGroup}
+            onMuscleChange={setSelectedMuscleGroup}
+            equipmentOptions={filterOptions.equipment}
+            selectedEquipment={selectedEquipment}
+            onEquipmentChange={setSelectedEquipment}
+          />
         </YStack>
+
+        {/* Filter Results Summary */}
+        <XStack
+          paddingHorizontal="$4"
+          paddingBottom="$3"
+          paddingTop="$5"
+          justifyContent="space-between"
+          alignItems="center"
+          zIndex={1}
+        >
+          <Text fontSize="$2" color="$gray11">
+            {filteredExercises.length} of {exercises.length} exercises
+          </Text>
+          {(selectedCategory !== 'all' ||
+            selectedMuscleGroup !== 'all' ||
+            selectedEquipment !== 'all') && (
+            <Button
+              size="$2"
+              chromeless
+              onPress={() => {
+                setSelectedCategory('all');
+                setSelectedMuscleGroup('all');
+                setSelectedEquipment('all');
+              }}
+            >
+              Clear filters
+            </Button>
+          )}
+        </XStack>
 
         {/* Results */}
         {filteredExercises.length === 0 && !isLoading && searchQuery && (
-          <YStack flex={1} justifyContent="center" alignItems="center" space="$3" padding="$4">
+          <YStack
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            space="$3"
+            padding="$4"
+          >
             <Text fontSize="$4" textAlign="center">
               No exercises found for "{searchQuery}".
             </Text>
@@ -345,27 +346,32 @@ export default function AddExercisesScreen() {
         {/* Footer CTA */}
         {selectedExercises.size > 0 && (
           <XStack padding="$4" backgroundColor="$background">
-            <Button 
+            <Button
               flex={1}
               size="$4"
               backgroundColor="$green9"
               onPress={handleStart}
               disabled={isStarting}
             >
-              {isStarting 
-                ? 'Starting...' 
-                : mode === 'empty' 
+              {isStarting
+                ? 'Starting...'
+                : mode === 'empty'
                   ? `Start with ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`
                   : mode === 'template'
                     ? `Create template with ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`
-                    : `Add ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`
-              }
+                    : `Add ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`}
             </Button>
           </XStack>
         )}
 
         {error && (
-          <Card margin="$4" backgroundColor="$red2" borderColor="$red6" borderWidth={1} padding="$3">
+          <Card
+            margin="$4"
+            backgroundColor="$red2"
+            borderColor="$red6"
+            borderWidth={1}
+            padding="$3"
+          >
             <Text color="$red11">{error}</Text>
           </Card>
         )}

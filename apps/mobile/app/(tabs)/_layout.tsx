@@ -7,7 +7,7 @@ import { ActiveSessionBanner } from '../../src/features/workout/components/Activ
 export default function TabLayout() {
   const { state } = useWorkoutState();
   const pathname = usePathname();
-  
+
   // Don't show banner on logging screen
   const isLoggingScreen = pathname.includes('/workout/logging/');
   const showBanner = state.activeSession && !isLoggingScreen;
@@ -18,7 +18,8 @@ export default function TabLayout() {
         screenOptions={{
           tabBarActiveTintColor: '#007AFF',
           headerShown: false,
-        }}>
+        }}
+      >
         <Tabs.Screen
           name="workout"
           options={{
@@ -41,7 +42,7 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      
+
       {/* Active Session Banner - Above Tab Bar */}
       {showBanner && state.activeSession && (
         <ActiveSessionBanner activeSession={state.activeSession} />

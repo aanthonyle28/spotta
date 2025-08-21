@@ -39,9 +39,11 @@ class WorkoutService {
     return mockExercises.find((ex) => ex.id === id) || null;
   }
 
-  async createCustomExercise(exerciseData: Omit<Exercise, 'id' | 'userId'>): Promise<Exercise> {
+  async createCustomExercise(
+    exerciseData: Omit<Exercise, 'id' | 'userId'>
+  ): Promise<Exercise> {
     await delay(200);
-    
+
     const newExercise: Exercise = {
       ...exerciseData,
       id: `custom-${Date.now()}` as ExerciseId,
@@ -50,7 +52,7 @@ class WorkoutService {
 
     // Add to mock exercises (in real app, this would persist to backend)
     mockExercises.push(newExercise);
-    
+
     return newExercise;
   }
 
@@ -77,9 +79,9 @@ class WorkoutService {
       throw new Error('Template not found');
     }
 
-    const exerciseIds = template.exercises.map(ex => ex.exerciseId);
+    const exerciseIds = template.exercises.map((ex) => ex.exerciseId);
     const exercises = getExercisesByIds(exerciseIds);
-    
+
     if (exercises.length === 0) {
       throw new Error('No exercises found in template');
     }

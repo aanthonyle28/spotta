@@ -138,4 +138,6 @@ export type CompleteSetRequest = z.infer<typeof CompleteSetRequestSchema>;
 export type CreateWorkoutRequest = z.infer<typeof CreateWorkoutRequestSchema>;
 export type SetEntry = z.infer<typeof SetEntrySchema>;
 export type UpdateWorkoutRequest = z.infer<typeof UpdateWorkoutRequestSchema>;
-export type CompleteWorkoutRequest = z.infer<typeof CompleteWorkoutRequestSchema>;
+export type CompleteWorkoutRequest = z.infer<
+  typeof CompleteWorkoutRequestSchema
+>;

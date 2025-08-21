@@ -1,12 +1,12 @@
 import { memo } from 'react';
 import { Card, XStack, YStack, Text } from 'tamagui';
-import { Search, ChevronRight } from '@tamagui/lucide-icons';
+import { BookOpen, ChevronRight } from '@tamagui/lucide-icons';
 
-interface BrowseExercisesTileProps {
+interface BrowseTemplatesTileProps {
   onPress: () => void;
 }
 
-export const BrowseExercisesTile = memo<BrowseExercisesTileProps>(
+export const BrowseTemplatesTile = memo<BrowseTemplatesTileProps>(
   ({ onPress }) => {
     return (
       <Card
@@ -14,17 +14,17 @@ export const BrowseExercisesTile = memo<BrowseExercisesTileProps>(
         backgroundColor="$gray2"
         pressStyle={{ scale: 0.98 }}
         onPress={onPress}
-        accessibilityLabel="Browse exercises"
+        accessibilityLabel="Browse templates"
       >
         <XStack justifyContent="space-between" alignItems="center">
           <XStack space="$3" alignItems="center" flex={1}>
-            <Search size={20} color="$gray11" />
+            <BookOpen size={20} color="$gray11" />
             <YStack flex={1}>
               <Text fontSize="$4" fontWeight="600">
-                Browse Exercises
+                Browse Templates
               </Text>
               <Text fontSize="$3" color="$gray10">
-                Explore our exercise library
+                Discover workout templates
               </Text>
             </YStack>
           </XStack>
