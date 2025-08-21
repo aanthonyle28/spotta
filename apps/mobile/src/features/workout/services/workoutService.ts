@@ -4,11 +4,13 @@ import type {
   Exercise,
   SetData,
   Template,
+  CommunityTemplate,
   WorkoutSession,
 } from '../types';
 import {
   mockExercises,
   mockTemplates,
+  mockCommunityTemplates,
   mockRecentWorkouts,
   createMockActiveSession,
   createMockSet,
@@ -69,6 +71,40 @@ class WorkoutService {
 
   async getTemplates(): Promise<Template[]> {
     return this.getAllTemplates();
+  }
+
+  // Community template operations
+  async getCommunityTemplates(): Promise<CommunityTemplate[]> {
+    await delay(300);
+    return mockCommunityTemplates;
+  }
+
+  async searchCommunityTemplates(query: string): Promise<CommunityTemplate[]> {
+    await delay(200);
+    const lowercaseQuery = query.toLowerCase();
+
+    return mockCommunityTemplates.filter(
+      (template) =>
+        template.title.toLowerCase().includes(lowercaseQuery) ||
+        template.author.toLowerCase().includes(lowercaseQuery) ||
+        template.tags?.some((tag) =>
+          tag.toLowerCase().includes(lowercaseQuery)
+        ) ||
+        template.exercises.some(
+          (ex) =>
+            ex.name.toLowerCase().includes(lowercaseQuery) ||
+            ex.primaryMuscles.some((muscle) =>
+              muscle.toLowerCase().includes(lowercaseQuery)
+            )
+        )
+    );
+  }
+
+  async getCommunityTemplateById(
+    id: string
+  ): Promise<CommunityTemplate | null> {
+    await delay(150);
+    return mockCommunityTemplates.find((t) => t.id === id) || null;
   }
 
   async startFromTemplate(templateId: string): Promise<ActiveSession> {
@@ -208,7 +244,12 @@ class WorkoutService {
       throw new Error('Exercise not found in session');
     }
 
-    const newSetNumber = exercise.sets.length + 1;
+    // Fix set duplication: Find the highest set number and increment by 1
+    const existingSetNumbers = exercise.sets.map((set) => set.setNumber);
+    const maxSetNumber =
+      existingSetNumbers.length > 0 ? Math.max(...existingSetNumbers) : 0;
+    const newSetNumber = maxSetNumber + 1;
+
     const newSet = createMockSet(newSetNumber);
     exercise.sets.push(newSet);
 

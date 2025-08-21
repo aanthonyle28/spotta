@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { FlatList, Alert } from 'react-native';
 import {
   YStack,
@@ -23,16 +23,16 @@ import {
 import {
   useWorkoutState,
   useRestTimer,
-} from '../../../src/features/workout/hooks';
+} from '../../src/features/workout/hooks';
 import {
-  ExerciseCard,
+  CollapsibleExerciseCard,
   RestBar,
   RestPresetSheet,
-} from '../../../src/features/workout/components';
+} from '../../src/features/workout/components';
 import type {
   SetData,
   SessionExercise,
-} from '../../../src/features/workout/types';
+} from '../../src/features/workout/types';
 import type { ExerciseId, SetEntryId } from '@spotta/shared';
 
 export default function LoggingScreen() {
@@ -41,6 +41,10 @@ export default function LoggingScreen() {
   const [activeExerciseIndex, setActiveExerciseIndex] = useState(0);
   const [showRestPresetSheet, setShowRestPresetSheet] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
+    new Set([0])
+  );
+  const addSetTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const restTimer = useRestTimer({
     restTimer: state.restTimer,
@@ -96,7 +100,7 @@ export default function LoggingScreen() {
       const timeoutId = setTimeout(() => {
         if (!state.activeSession || state.activeSession.id !== sessionId) {
           console.log('No matching session found, redirecting to workout');
-          router.replace('/workout');
+          router.replace('/(tabs)/workout');
         }
       }, 100);
 
@@ -136,15 +140,30 @@ export default function LoggingScreen() {
     [actions, activeExercise]
   );
 
-  const handleAddSet = useCallback(async () => {
-    if (!activeExercise) return;
+  const handleAddSet = useCallback(
+    async (exerciseId: string) => {
+      const timeoutKey = exerciseId;
 
-    try {
-      await actions.addSet(activeExercise.id);
-    } catch (error) {
-      console.error('Failed to add set:', error);
-    }
-  }, [actions, activeExercise]);
+      // Clear existing timeout for this exercise
+      if (addSetTimeouts.current.has(timeoutKey)) {
+        clearTimeout(addSetTimeouts.current.get(timeoutKey)!);
+      }
+
+      // Add debouncing to prevent rapid clicks
+      const timeout = setTimeout(async () => {
+        try {
+          await actions.addSet(exerciseId as any);
+          addSetTimeouts.current.delete(timeoutKey);
+        } catch (error) {
+          console.error('Failed to add set:', error);
+          addSetTimeouts.current.delete(timeoutKey);
+        }
+      }, 300);
+
+      addSetTimeouts.current.set(timeoutKey, timeout);
+    },
+    [actions]
+  );
 
   const handleFinishWorkout = useCallback(async () => {
     if (!state.activeSession) return;
@@ -163,7 +182,7 @@ export default function LoggingScreen() {
             try {
               setIsFinishing(true);
               await actions.finishSession();
-              router.replace('/workout');
+              router.replace('/(tabs)/workout');
             } catch (error) {
               console.error('Failed to finish workout:', error);
               setIsFinishing(false);
@@ -190,7 +209,7 @@ export default function LoggingScreen() {
           onPress: async () => {
             try {
               await actions.discardSession();
-              router.replace('/workout');
+              router.replace('/(tabs)/workout');
             } catch (error) {
               console.error('Failed to discard workout:', error);
             }
@@ -199,6 +218,18 @@ export default function LoggingScreen() {
       ]
     );
   }, [state.activeSession, sessionStats.sets, actions]);
+
+  const handleToggleExercise = useCallback((index: number) => {
+    setExpandedExercises((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  }, []);
 
   const handleRestPresetApply = useCallback(
     (scope: 'this' | 'all' | 'remember', seconds: number) => {
@@ -221,57 +252,13 @@ export default function LoggingScreen() {
     [activeExercise]
   );
 
-  const renderCollapsedExerciseCard = useCallback(
-    ({ item, index }: { item: SessionExercise; index: number }) => {
-      const completedSets = item.sets.filter((set) => set.completed).length;
-      const lastCompletedSet = item.sets.filter((set) => set.completed).pop();
-
-      return (
-        <Card
-          padding="$3"
-          backgroundColor={index === activeExerciseIndex ? '$blue2' : '$gray1'}
-          borderColor={index === activeExerciseIndex ? '$blue6' : '$gray4'}
-          borderWidth={1}
-          marginBottom="$2"
-          pressStyle={{ scale: 0.98 }}
-          onPress={() => setActiveExerciseIndex(index)}
-          accessibilityLabel={`Exercise ${index + 1}: ${item.exercise.name}`}
-        >
-          <XStack justifyContent="space-between" alignItems="center">
-            <YStack flex={1} space="$1">
-              <Text fontSize="$4" fontWeight="500">
-                {item.exercise.name}
-              </Text>
-              <XStack space="$2" alignItems="center" flexWrap="wrap">
-                <Text fontSize="$2" color="$gray10">
-                  {completedSets}/{item.sets.length} sets
-                </Text>
-                {lastCompletedSet &&
-                  lastCompletedSet.weight &&
-                  lastCompletedSet.reps && (
-                    <>
-                      <Text fontSize="$2" color="$gray10">
-                        •
-                      </Text>
-                      <Text fontSize="$2" color="$gray10">
-                        Last: {lastCompletedSet.weight}×{lastCompletedSet.reps}
-                      </Text>
-                    </>
-                  )}
-              </XStack>
-            </YStack>
-
-            {index === activeExerciseIndex && (
-              <Text fontSize="$2" color="$blue11" fontWeight="600">
-                ACTIVE
-              </Text>
-            )}
-          </XStack>
-        </Card>
-      );
-    },
-    [activeExerciseIndex]
-  );
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      addSetTimeouts.current.forEach((timeout) => clearTimeout(timeout));
+      addSetTimeouts.current.clear();
+    };
+  }, []);
 
   if (state.isLoading) {
     return (
@@ -350,53 +337,39 @@ export default function LoggingScreen() {
 
         <Separator />
 
-        {/* Exercise List - Virtualized */}
-        <YStack flex={1} paddingHorizontal="$4">
+        {/* Exercise List - Fullwidth with No Horizontal Padding */}
+        <YStack flex={1}>
           <FlatList
             data={state.activeSession.exercises}
-            renderItem={({ item, index }) => {
-              if (index === activeExerciseIndex && activeExercise) {
-                return (
-                  <YStack marginBottom="$3" marginTop="$3">
-                    <ExerciseCard
-                      exercise={activeExercise}
-                      isActive={true}
-                      onSetComplete={handleSetComplete}
-                      onSetUpdate={handleSetUpdate}
-                      onToggleActive={() => {}}
-                    />
-
-                    {/* Add Set Button */}
-                    <Button
-                      size="$3"
-                      marginTop="$2"
-                      onPress={handleAddSet}
-                      icon={<Plus size={16} />}
-                    >
-                      Add Set
-                    </Button>
-
-                    {/* Rest Preset Chip */}
-                    <Button
-                      size="$2"
-                      marginTop="$2"
-                      chromeless
-                      onPress={() => setShowRestPresetSheet(true)}
-                      accessibilityLabel="Rest timer settings"
-                    >
-                      Rest: {activeExercise.restPreset}s ⚙️
-                    </Button>
-                  </YStack>
-                );
-              }
-
-              return renderCollapsedExerciseCard({ item, index });
-            }}
+            renderItem={({ item, index }) => (
+              <CollapsibleExerciseCard
+                exercise={item}
+                index={index}
+                isExpanded={expandedExercises.has(index)}
+                onToggleExpanded={() => handleToggleExercise(index)}
+                onSetComplete={handleSetComplete}
+                onSetUpdate={handleSetUpdate}
+                onAddSet={() => handleAddSet(item.id)}
+                onShowRestPreset={
+                  index === activeExerciseIndex
+                    ? () => setShowRestPresetSheet(true)
+                    : undefined
+                }
+              />
+            )}
             keyExtractor={(item, index) => `${item.id}-${index}`}
             showsVerticalScrollIndicator={false}
             getItemLayout={(data, index) => ({
-              length: index === activeExerciseIndex ? 300 : 80,
-              offset: 80 * index + (index === activeExerciseIndex ? 220 : 0),
+              length: expandedExercises.has(index) ? 300 : 80,
+              offset: data
+                ? Array.from(data)
+                    .slice(0, index)
+                    .reduce(
+                      (sum, _, i) =>
+                        sum + (expandedExercises.has(i) ? 300 : 80),
+                      0
+                    )
+                : 0,
               index,
             })}
           />
@@ -404,7 +377,7 @@ export default function LoggingScreen() {
           {/* Cancel Workout Button */}
           <Button
             size="$3"
-            marginVertical="$3"
+            margin="$4"
             backgroundColor="$red9"
             onPress={handleDiscardWorkout}
           >

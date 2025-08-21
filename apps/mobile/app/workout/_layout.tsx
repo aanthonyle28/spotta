@@ -25,12 +25,14 @@ export default function WorkoutLayout() {
         }}
       />
       <Stack.Screen
-        name="logging/[sessionId]"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
         name="template/[id]"
         options={{ title: 'Template Preview' }}
+      />
+      <Stack.Screen
+        name="browse-templates"
+        options={{
+          headerShown: false,
+        }}
       />
     </Stack>
   );

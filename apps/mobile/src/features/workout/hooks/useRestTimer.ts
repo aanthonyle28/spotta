@@ -12,7 +12,9 @@ export const useRestTimer = ({
   onComplete,
   onTick,
 }: UseRestTimerProps) => {
-  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(
+    undefined
+  );
   const lastTickRef = useRef<number>(0);
 
   useEffect(() => {

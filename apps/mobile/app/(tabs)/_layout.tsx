@@ -9,7 +9,7 @@ export default function TabLayout() {
   const pathname = usePathname();
 
   // Don't show banner on logging screen
-  const isLoggingScreen = pathname.includes('/workout/logging/');
+  const isLoggingScreen = pathname.includes('/logging/');
   const showBanner = state.activeSession && !isLoggingScreen;
 
   return (

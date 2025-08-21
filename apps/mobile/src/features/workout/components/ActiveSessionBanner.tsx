@@ -18,7 +18,7 @@ export const ActiveSessionBanner = memo<ActiveSessionBannerProps>(
     }, [activeSession.startedAt]);
 
     const handlePress = () => {
-      router.push(`/workout/logging/${activeSession.id}` as any);
+      router.push(`/logging/${activeSession.id}` as any);
     };
 
     return (

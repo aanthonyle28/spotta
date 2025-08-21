@@ -1,7 +1,17 @@
 import { memo, useMemo, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native';
 import { XStack, YStack, Card, Text, Button, H4 } from 'tamagui';
-import { Play, Plus, Clock, MoreHorizontal, Edit3, Copy, Share2, Trash2, Dumbbell } from '@tamagui/lucide-icons';
+import {
+  Play,
+  Plus,
+  Clock,
+  MoreHorizontal,
+  Edit3,
+  Copy,
+  Share2,
+  Trash2,
+  Dumbbell,
+} from '@tamagui/lucide-icons';
 import type { Template } from '../types';
 import { getDaysAgoText } from '../services/mockData';
 
@@ -59,7 +69,7 @@ const RoutineCard = memo<RoutineCardProps>(
               <MoreHorizontal size={16} color="$gray10" />
             </Button>
           </XStack>
-          
+
           <XStack space="$2" alignItems="center">
             <Text fontSize="$3" color="$gray10">
               {routine.exercises.length} exercises
@@ -90,7 +100,6 @@ const RoutineCard = memo<RoutineCardProps>(
             Start
           </Button>
         </YStack>
-
       </Card>
     );
   }
@@ -123,18 +132,29 @@ const NewTemplateCard = memo<{ onPress: () => void }>(({ onPress }) => {
 });
 
 export const RoutineCarousel = memo<RoutineCarouselProps>(
-  ({ routines, onStart, onTemplatePreview, onAddTemplate, onEditTemplate, onDeleteTemplate, onDuplicateTemplate, onShareTemplate }) => {
+  ({
+    routines,
+    onStart,
+    onTemplatePreview,
+    onAddTemplate,
+    onEditTemplate,
+    onDeleteTemplate,
+    onDuplicateTemplate,
+    onShareTemplate,
+  }) => {
     const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
     const handleMenuPress = (templateId: string) => {
       setActiveMenuId(activeMenuId === templateId ? null : templateId);
     };
 
-    const handleMenuAction = (action: 'edit' | 'delete' | 'duplicate' | 'share') => {
+    const handleMenuAction = (
+      action: 'edit' | 'delete' | 'duplicate' | 'share'
+    ) => {
       if (!activeMenuId) return;
-      
+
       setActiveMenuId(null);
-      
+
       switch (action) {
         case 'edit':
           onEditTemplate?.(activeMenuId);
@@ -218,7 +238,7 @@ export const RoutineCarousel = memo<RoutineCarouselProps>(
                 zIndex={999}
               />
             </TouchableWithoutFeedback>
-            
+
             {/* Global dropdown menu */}
             <Card
               position="absolute"
@@ -280,7 +300,9 @@ export const RoutineCarousel = memo<RoutineCarouselProps>(
                   icon={<Trash2 size={16} color="$red10" />}
                   gap="$1"
                 >
-                  <Text fontSize="$4" color="$red10">Delete</Text>
+                  <Text fontSize="$4" color="$red10">
+                    Delete
+                  </Text>
                 </Button>
               </YStack>
             </Card>

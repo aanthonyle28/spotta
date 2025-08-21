@@ -145,7 +145,7 @@ export default function AddExercisesScreen() {
           exerciseIds,
           'Quick Workout'
         );
-        router.push(`/workout/logging/${session.id}` as any);
+        router.push(`/logging/${session.id}` as any);
       } else if (mode === 'template') {
         // For template mode, we'll show save options first
         // For now, just start the session
@@ -153,7 +153,7 @@ export default function AddExercisesScreen() {
           exerciseIds,
           'New Template Workout'
         );
-        router.push(`/workout/logging/${session.id}` as any);
+        router.push(`/logging/${session.id}` as any);
       } else {
         // Append mode - navigate back with selected exercises
         // This would typically pass data back to the calling screen

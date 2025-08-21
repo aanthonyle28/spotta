@@ -12,7 +12,14 @@ import {
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Play, Clock, Calendar, Plus, Search, ArrowUpDown } from '@tamagui/lucide-icons';
+import {
+  Play,
+  Clock,
+  Calendar,
+  Plus,
+  Search,
+  ArrowUpDown,
+} from '@tamagui/lucide-icons';
 import { useWorkoutState } from '../../src/features/workout/hooks';
 import {
   StartEmptyButton,
@@ -34,7 +41,7 @@ export default function WorkoutStartScreen() {
   const handleStartTemplate = async (templateId: string) => {
     try {
       const session = await actions.startFromTemplate(templateId);
-      router.push(`/workout/logging/${session.id}` as any);
+      router.push(`/logging/${session.id}` as any);
     } catch (error) {
       console.error('Failed to start workout from template:', error);
     }
@@ -69,8 +76,7 @@ export default function WorkoutStartScreen() {
   };
 
   const handleBrowseTemplates = () => {
-    console.log('Browse templates');
-    // TODO: Navigate to browse templates screen
+    router.push('/workout/browse-templates' as any);
   };
 
   const handleReorderTemplates = () => {
@@ -84,7 +90,7 @@ export default function WorkoutStartScreen() {
 
   const handleResumeWorkout = () => {
     if (state.activeSession) {
-      router.push(`/workout/logging/${state.activeSession.id}` as any);
+      router.push(`/logging/${state.activeSession.id}` as any);
     }
   };
 
@@ -142,9 +148,7 @@ export default function WorkoutStartScreen() {
           />
 
           {/* Browse Templates */}
-          <BrowseTemplatesTile
-            onPress={handleBrowseTemplates}
-          />
+          <BrowseTemplatesTile onPress={handleBrowseTemplates} />
 
           {/* Error Display */}
           {state.error && (

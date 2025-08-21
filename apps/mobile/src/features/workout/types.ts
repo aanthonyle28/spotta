@@ -71,6 +71,20 @@ export interface TemplateExercise {
   reps?: number;
   weight?: number;
   restTime?: number;
+  // Extended properties for template exercises
+  name: string;
+  category: 'strength' | 'cardio' | 'flexibility' | 'balance' | 'sports';
+  primaryMuscles: string[];
+}
+
+// Community template extends base template with social features
+export interface CommunityTemplate extends Template {
+  author: string;
+  authorId: UserId;
+  saves: number;
+  tags?: string[];
+  createdAt: Date;
+  isOfficial?: boolean;
 }
 
 // UI state types

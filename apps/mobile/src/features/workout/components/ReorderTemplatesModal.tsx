@@ -12,14 +12,18 @@ interface ReorderTemplatesModalProps {
 
 export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
   ({ isOpen, templates, onClose, onSave }) => {
-    const [reorderedTemplates, setReorderedTemplates] = useState<Template[]>(templates);
+    const [reorderedTemplates, setReorderedTemplates] =
+      useState<Template[]>(templates);
 
     const moveTemplate = (index: number, direction: 'up' | 'down') => {
       const newTemplates = [...reorderedTemplates];
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      
+
       if (targetIndex >= 0 && targetIndex < newTemplates.length) {
-        [newTemplates[index], newTemplates[targetIndex]] = [newTemplates[targetIndex], newTemplates[index]];
+        [newTemplates[index], newTemplates[targetIndex]] = [
+          newTemplates[targetIndex],
+          newTemplates[index],
+        ];
         setReorderedTemplates(newTemplates);
       }
     };
@@ -82,7 +86,7 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
                         </Text>
                       </YStack>
                     </XStack>
-                    
+
                     <XStack space="$1">
                       <Button
                         size="$2"
@@ -101,7 +105,9 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
                         onPress={() => moveTemplate(index, 'down')}
                         disabled={index === reorderedTemplates.length - 1}
                         padding="$2"
-                        opacity={index === reorderedTemplates.length - 1 ? 0.5 : 1}
+                        opacity={
+                          index === reorderedTemplates.length - 1 ? 0.5 : 1
+                        }
                         accessibilityLabel="Move down"
                       >
                         <ArrowDown size={14} color="$gray10" />

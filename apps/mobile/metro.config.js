@@ -27,4 +27,7 @@ config.transformer = {
 };
 config.transformer.minifierPath = require.resolve('metro-minify-terser');
 
+// Exclude test files from production bundle
+config.resolver.blacklistRE = /.*\.(spec|test)\.(js|jsx|ts|tsx)$/;
+
 module.exports = config;

@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { XStack, YStack, Text, Button } from 'tamagui';
+import { XStack, YStack, Text, Button, Input } from 'tamagui';
 import { Minus, Plus } from '@tamagui/lucide-icons';
 
 interface WeightRepsStepperProps {
@@ -51,84 +51,130 @@ export const WeightRepsStepper = memo(
     }, [reps, repsStep, minReps, onRepsChange]);
 
     return (
-      <XStack space="$4" alignItems="center">
+      <XStack space="$2" alignItems="center">
         {/* Weight stepper */}
-        <YStack space="$1" alignItems="center">
-          <Text fontSize="$2" color="$gray10">
-            Weight
-          </Text>
-          <XStack space="$2" alignItems="center">
-            <Button
-              size="$2"
-              circular
-              disabled={disabled || weight <= minWeight}
-              onPress={handleWeightDecrement}
-              backgroundColor="$red9"
-              accessibilityLabel="Decrease weight"
-            >
-              <Minus size={16} color="white" />
-            </Button>
+        <XStack space="$1" alignItems="center" flex={1} justifyContent="center">
+          <Button
+            size="$1"
+            circular
+            disabled={disabled || weight <= minWeight}
+            onPress={handleWeightDecrement}
+            backgroundColor="$red9"
+            accessibilityLabel="Decrease weight"
+            padding={0}
+            minWidth={26}
+            minHeight={26}
+          >
+            <Minus size={8} color="white" />
+          </Button>
 
-            <Text
-              fontSize="$4"
-              fontWeight="600"
-              minWidth={50}
-              textAlign="center"
-            >
-              {weight}
-            </Text>
+          <Input
+            value={weight === 0 ? '' : weight.toString()}
+            onChangeText={(text) => {
+              if (text === '') {
+                onWeightChange(0);
+                return;
+              }
+              const newWeight = parseInt(text);
+              if (!isNaN(newWeight) && newWeight >= minWeight && newWeight <= maxWeight) {
+                onWeightChange(newWeight);
+              }
+            }}
+            onFocus={(e) => {
+              // Auto-select all text when focused
+              e.target.select && e.target.select();
+            }}
+            placeholder="0"
+            disabled={disabled}
+            textAlign="center"
+            fontSize="$3"
+            fontWeight="600"
+            width={65}
+            height={32}
+            borderRadius="$2"
+            keyboardType="numeric"
+            selectTextOnFocus={true}
+            maxLength={5}
+            paddingHorizontal={2}
+            paddingVertical={0}
+          />
 
-            <Button
-              size="$2"
-              circular
-              disabled={disabled || weight >= maxWeight}
-              onPress={handleWeightIncrement}
-              backgroundColor="$green9"
-              accessibilityLabel="Increase weight"
-            >
-              <Plus size={16} color="white" />
-            </Button>
-          </XStack>
-        </YStack>
+          <Button
+            size="$1"
+            circular
+            disabled={disabled || weight >= maxWeight}
+            onPress={handleWeightIncrement}
+            backgroundColor="$green9"
+            accessibilityLabel="Increase weight"
+            padding={0}
+            minWidth={26}
+            minHeight={26}
+          >
+            <Plus size={8} color="white" />
+          </Button>
+        </XStack>
 
         {/* Reps stepper */}
-        <YStack space="$1" alignItems="center">
-          <Text fontSize="$2" color="$gray10">
-            Reps
-          </Text>
-          <XStack space="$2" alignItems="center">
-            <Button
-              size="$2"
-              circular
-              disabled={disabled || reps <= minReps}
-              onPress={handleRepsDecrement}
-              backgroundColor="$red9"
-              accessibilityLabel="Decrease reps"
-            >
-              <Minus size={16} color="white" />
-            </Button>
+        <XStack space="$1" alignItems="center" flex={1} justifyContent="center">
+          <Button
+            size="$1"
+            circular
+            disabled={disabled || reps <= minReps}
+            onPress={handleRepsDecrement}
+            backgroundColor="$red9"
+            accessibilityLabel="Decrease reps"
+            padding={0}
+            minWidth={26}
+            minHeight={26}
+          >
+            <Minus size={8} color="white" />
+          </Button>
 
-            <Text
-              fontSize="$4"
-              fontWeight="600"
-              minWidth={30}
-              textAlign="center"
-            >
-              {reps}
-            </Text>
+          <Input
+            value={reps === 0 ? '' : reps.toString()}
+            onChangeText={(text) => {
+              if (text === '') {
+                onRepsChange(0);
+                return;
+              }
+              const newReps = parseInt(text);
+              if (!isNaN(newReps) && newReps >= minReps && newReps <= maxReps) {
+                onRepsChange(newReps);
+              }
+            }}
+            onFocus={(e) => {
+              // Auto-select all text when focused
+              e.target.select && e.target.select();
+            }}
+            placeholder="0"
+            disabled={disabled}
+            textAlign="center"
+            fontSize="$3"
+            fontWeight="600"
+            width={65}
+            height={32}
+            borderRadius="$2"
+            keyboardType="numeric"
+            selectTextOnFocus={true}
+            maxLength={5}
+            paddingHorizontal={2}
+            paddingVertical={0}
+          />
 
-            <Button
-              size="$2"
-              circular
-              disabled={disabled || reps >= maxReps}
-              onPress={handleRepsIncrement}
-              backgroundColor="$green9"
-              accessibilityLabel="Increase reps"
-            >
-              <Plus size={16} color="white" />
-            </Button>
-          </XStack>
-        </YStack>
+          <Button
+            size="$1"
+            circular
+            disabled={disabled || reps >= maxReps}
+            onPress={handleRepsIncrement}
+            backgroundColor="$green9"
+            accessibilityLabel="Increase reps"
+            padding={0}
+            minWidth={26}
+            minHeight={26}
+          >
+            <Plus size={8} color="white" />
+          </Button>
+        </XStack>
       </XStack>
     );
   }

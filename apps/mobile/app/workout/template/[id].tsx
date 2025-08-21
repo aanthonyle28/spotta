@@ -55,7 +55,7 @@ export default function TemplatePreviewScreen() {
     try {
       setIsStarting(true);
       const session = await actions.startFromTemplate(template.id);
-      router.push(`/workout/logging/${session.id}` as any);
+      router.push(`/logging/${session.id}` as any);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start workout');
       setIsStarting(false);

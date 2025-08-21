@@ -13,6 +13,11 @@ export interface FilterRowProps {
   equipmentOptions: string[];
   selectedEquipment: string;
   onEquipmentChange: (value: string) => void;
+
+  // Optional custom placeholders
+  categoryPlaceholder?: string;
+  musclePlaceholder?: string;
+  equipmentPlaceholder?: string;
 }
 
 export function FilterRow({
@@ -25,6 +30,9 @@ export function FilterRow({
   equipmentOptions,
   selectedEquipment,
   onEquipmentChange,
+  categoryPlaceholder = 'Category',
+  musclePlaceholder = 'Muscle',
+  equipmentPlaceholder = 'Gear',
 }: FilterRowProps) {
   return (
     <XStack
@@ -36,27 +44,27 @@ export function FilterRow({
       zIndex={1}
     >
       <FilterDropdown
-        placeholder="Category"
+        placeholder={categoryPlaceholder}
         options={categoryOptions}
         value={selectedCategory}
         onValueChange={onCategoryChange}
-        accessibilityLabel="Filter by category"
+        accessibilityLabel={`Filter by ${categoryPlaceholder.toLowerCase()}`}
       />
 
       <FilterDropdown
-        placeholder="Muscle"
+        placeholder={musclePlaceholder}
         options={muscleOptions}
         value={selectedMuscle}
         onValueChange={onMuscleChange}
-        accessibilityLabel="Filter by muscle group"
+        accessibilityLabel={`Filter by ${musclePlaceholder.toLowerCase()}`}
       />
 
       <FilterDropdown
-        placeholder="Gear"
+        placeholder={equipmentPlaceholder}
         options={equipmentOptions}
         value={selectedEquipment}
         onValueChange={onEquipmentChange}
-        accessibilityLabel="Filter by equipment"
+        accessibilityLabel={`Filter by ${equipmentPlaceholder.toLowerCase()}`}
       />
     </XStack>
   );
