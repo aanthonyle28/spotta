@@ -70,6 +70,12 @@
   "overrides": {
     "metro": "0.81.0",
     "metro-resolver": "0.81.0",
-    "react-test-renderer": "19.0.0"
+    "react-test-renderer": "19.0.0",
+    "@testing-library/jest-native": {
+      "react-test-renderer": "19.0.0"
+    },
+    "@testing-library/react-native": {
+      "react-test-renderer": "19.0.0"
+    }
   }
 }
