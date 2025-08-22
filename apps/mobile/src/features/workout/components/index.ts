@@ -2,6 +2,7 @@ export { ExerciseCard } from './ExerciseCard';
 export { CollapsibleExerciseCard } from './CollapsibleExerciseCard';
 export { WeightRepsStepper } from './WeightRepsStepper';
 export { RestBar } from './RestBar';
+export { RestTimerModal } from './RestTimerModal';
 export { RestPresetSheet } from './RestPresetSheet';
 export { ActiveSessionBanner } from './ActiveSessionBanner';
 export { StartEmptyButton } from './StartEmptyButton';

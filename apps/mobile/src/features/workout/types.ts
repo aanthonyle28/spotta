@@ -96,11 +96,19 @@ export interface RestTimerState {
   totalTime: number;
   exerciseId: ExerciseId | null;
   startedAt: Date | null;
+  showAsModal: boolean;
+}
+
+export interface WorkoutSettings {
+  restTimerEnabled: boolean;
+  defaultRestTime: number;
+  showRestAsModal: boolean;
 }
 
 export interface WorkoutState {
   activeSession: ActiveSession | null;
   restTimer: RestTimerState;
+  settings: WorkoutSettings;
   templates: Template[];
   recentWorkouts: WorkoutSession[];
   isLoading: boolean;

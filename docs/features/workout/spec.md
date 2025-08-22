@@ -301,14 +301,20 @@ selectedExerciseForRest: string | null; // Context for rest settings
    - **Add Exercise Button**: Navigates to `/workout/add?mode=append` for adding exercises to active session
    - Cancel workout button within scrollable content
 
-3. **Rest Timer Bar** - Sticky bottom bar when rest timer active
-   - Countdown display with exercise name
-   - -15/+15/Skip controls for timer adjustment
+3. **Rest Timer System** - Configurable timer display options
+   - **RestBar**: Traditional sticky bottom bar (legacy mode)
+   - **RestTimerModal**: Enhanced compact modal with real-time countdown
+   - Real-time countdown updates every 100ms for smooth animation
+   - Linear progress indicator showing remaining time
+   - Centered timer display with -15/+15 adjustment controls
+   - Skip button for immediate rest completion
+   - Non-blocking modal allows background scrolling
 
-4. **Rest Preset Sheet** - Modal for rest timer settings
+4. **Rest Preset Sheet** - Modal for rest timer duration configuration
    - **Portal Context**: Uses PortalProvider wrapper to render above navigation modal
-   - Quick presets (60s, 90s, 2min, 3min) + custom time input
-   - Apply to: this exercise, all exercises, remember for exercise type
+   - **Quick presets**: 60s, 90s, 2min, 3min buttons for common durations
+   - **Custom time input**: Numeric input for custom rest durations in seconds
+   - **Apply actions**: Configure rest time for this exercise, all exercises, or remember for exercise type
 
 **UI States**:
 
@@ -339,6 +345,21 @@ interface SessionExercise {
   restPreset: number; // seconds
 }
 
+interface RestTimerState {
+  isActive: boolean;
+  remainingTime: number;
+  totalTime: number;
+  exerciseId: ExerciseId | null;
+  startedAt: Date | null;
+  showAsModal: boolean;
+}
+
+interface WorkoutSettings {
+  restTimerEnabled: boolean;
+  defaultRestTime: number;
+  showRestAsModal: boolean; // Always true for modal display
+}
+
 interface SetData {
   id: SetEntryId;
   setNumber: number;
@@ -357,6 +378,8 @@ actions.finishSession()
 actions.discardSession()
 actions.startRestTimer(seconds: number, exerciseId: string)
 actions.skipRest()
+actions.updateRestTimerEnabled(enabled: boolean)
+actions.updateShowRestAsModal(showAsModal: boolean)
 ```
 
 **Accessibility**:
@@ -438,6 +461,16 @@ actions.skipRest()
 - **Accessibility**: Maintain focus order and screen reader compatibility across modal interactions
 
 ## 9. Changelog (auto-appended by Scribe)
+
+- 2025-08-22 — Mobile — Enhanced rest timer modal with user controls — [rest-timer-modal-enhancement]
+  - ✅ RestTimerModal component: Compact, non-blocking bottom modal with real-time countdown
+  - ✅ Real-time updates: Smooth countdown with 100ms intervals and linear progress indicator
+  - ✅ Enhanced controls: Centered timer display with -15/+15 adjustment and Skip functionality
+  - ✅ Non-modal behavior: Users can scroll and interact with background while timer is active
+  - ✅ Simplified settings: RestPresetSheet focused on duration configuration only
+  - ✅ Progress animation: Linear progress bar showing remaining time without precision errors
+  - ✅ Accessibility: Maintained proper touch targets and button sizing for mobile use
+  - ✅ Clean UI: Removed rounded corners and swipe handle for streamlined appearance
 
 - 2025-08-22 — Mobile — Append exercises functionality with optimistic updates — [append-exercises-feature]
   - ✅ Optimistic updates: Exercises appear immediately on logging screen when added

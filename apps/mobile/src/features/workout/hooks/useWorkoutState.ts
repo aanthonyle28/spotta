@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { ExerciseId, SetEntryId } from '@spotta/shared';
-import type { WorkoutState, SetData, RestTimerState } from '../types';
+import type { WorkoutState, SetData, RestTimerState, WorkoutSettings } from '../types';
 import { workoutService } from '../services/workoutService';
 
 const initialRestTimer: RestTimerState = {
@@ -9,12 +9,20 @@ const initialRestTimer: RestTimerState = {
   totalTime: 0,
   exerciseId: null,
   startedAt: null,
+  showAsModal: true,
+};
+
+const initialSettings: WorkoutSettings = {
+  restTimerEnabled: true,
+  defaultRestTime: 90,
+  showRestAsModal: true,
 };
 
 export const useWorkoutState = () => {
   const [state, setState] = useState<WorkoutState>({
     activeSession: null,
     restTimer: initialRestTimer,
+    settings: initialSettings,
     templates: [],
     recentWorkouts: [],
     isLoading: false,
@@ -336,11 +344,12 @@ export const useWorkoutState = () => {
       setState((prev) => ({
         ...prev,
         restTimer: {
-          isActive: true,
+          isActive: prev.settings.restTimerEnabled,
           remainingTime: duration,
           totalTime: duration,
           exerciseId: exerciseId || null,
-          startedAt: new Date(),
+          startedAt: prev.settings.restTimerEnabled ? new Date() : null,
+          showAsModal: prev.settings.showRestAsModal,
         },
       }));
     },
@@ -457,6 +466,33 @@ export const useWorkoutState = () => {
     setState((prev) => ({ ...prev, error: null }));
   }, []);
 
+  // Settings functions
+  const updateRestTimerEnabled = useCallback((enabled: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        restTimerEnabled: enabled,
+      },
+      // Stop current timer if being disabled
+      restTimer: enabled ? prev.restTimer : initialRestTimer,
+    }));
+  }, []);
+
+  const updateShowRestAsModal = useCallback((showAsModal: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        showRestAsModal,
+      },
+      restTimer: {
+        ...prev.restTimer,
+        showAsModal,
+      },
+    }));
+  }, []);
+
   return {
     state,
     actions: {
@@ -474,6 +510,8 @@ export const useWorkoutState = () => {
       adjustRestTimer,
       pauseRestTimer,
       resumeRestTimer,
+      updateRestTimerEnabled,
+      updateShowRestAsModal,
       clearError,
       loadInitialData,
     },
