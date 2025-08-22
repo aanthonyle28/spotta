@@ -303,6 +303,41 @@ class WorkoutService {
   }
 
   // Rest timer operations
+  async appendExercises(
+    sessionId: WorkoutId,
+    exerciseIds: ExerciseId[]
+  ): Promise<void> {
+    await delay(200);
+
+    const session = this.sessionStorage.get(sessionId);
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    const exercises = getExercisesByIds(exerciseIds);
+    if (exercises.length === 0) {
+      throw new Error('No exercises found for provided IDs');
+    }
+
+    const currentMaxOrderIndex = Math.max(
+      ...session.exercises.map((ex) => ex.orderIndex),
+      -1
+    );
+
+    exercises.forEach((exercise, index) => {
+      const newSessionExercise = {
+        id: exercise.id,
+        exercise,
+        sets: [createMockSet(1, false)],
+        orderIndex: currentMaxOrderIndex + 1 + index,
+        restPreset: 120,
+      };
+      session.exercises.push(newSessionExercise);
+    });
+
+    this.sessionStorage.set(sessionId, session);
+  }
+
   async updateRestPreset(
     sessionId: WorkoutId,
     exerciseId: ExerciseId,

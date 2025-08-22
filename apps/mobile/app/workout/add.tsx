@@ -1,14 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { FlatList, TextInput } from 'react-native';
+import { FlatList } from 'react-native';
 import {
   YStack,
   XStack,
-  H2,
   Text,
   Button,
   Card,
   Input,
-  ScrollView,
   Checkbox,
 } from 'tamagui';
 import {
@@ -16,7 +14,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Search, ChevronLeft, Plus } from '@tamagui/lucide-icons';
+import { Search, ChevronLeft } from '@tamagui/lucide-icons';
 import { workoutService } from '../../src/features/workout/services/workoutService';
 import { useWorkoutState } from '../../src/features/workout/hooks';
 import { FilterRow } from '../../src/features/workout/components';
@@ -24,7 +22,7 @@ import type { Exercise } from '../../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';
 
 export default function AddExercisesScreen() {
-  const { mode, targetExerciseId } = useLocalSearchParams<{
+  const { mode } = useLocalSearchParams<{
     mode?: 'append' | 'empty' | 'template';
     targetExerciseId?: string;
   }>();
@@ -155,9 +153,9 @@ export default function AddExercisesScreen() {
         );
         router.push(`/logging/${session.id}` as any);
       } else {
-        // Append mode - navigate back with selected exercises
-        // This would typically pass data back to the calling screen
-        router.back();
+        // Append mode - add exercises to current session
+        await actions.appendExercises(exerciseIds);
+        router.back(); // Return to logging screen
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start workout');

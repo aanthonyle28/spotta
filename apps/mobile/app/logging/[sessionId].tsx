@@ -1,6 +1,14 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Alert } from 'react-native';
-import { YStack, XStack, Text, Button, ScrollView, Separator, PortalProvider } from 'tamagui';
+import {
+  YStack,
+  XStack,
+  Text,
+  Button,
+  ScrollView,
+  Separator,
+  PortalProvider,
+} from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Plus, Clock, Trophy, Dumbbell } from '@tamagui/lucide-icons';
@@ -297,157 +305,157 @@ export default function LoggingScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <PortalProvider>
         <YStack flex={1}>
-        {/* Header */}
-        <YStack padding="$4" backgroundColor="$background" space="$3">
-          <XStack justifyContent="space-between" alignItems="flex-start">
-            <YStack flex={1} space="$2" marginRight="$3">
-              <Text fontSize="$5" fontWeight="600" numberOfLines={1}>
-                {state.activeSession.name}
-              </Text>
-              <Text fontSize="$4" color="$gray11" fontWeight="500">
-                {sessionStats.formattedDate}
-              </Text>
-            </YStack>
+          {/* Header */}
+          <YStack padding="$4" backgroundColor="$background" space="$3">
+            <XStack justifyContent="space-between" alignItems="flex-start">
+              <YStack flex={1} space="$2" marginRight="$3">
+                <Text fontSize="$5" fontWeight="600" numberOfLines={1}>
+                  {state.activeSession.name}
+                </Text>
+                <Text fontSize="$4" color="$gray11" fontWeight="500">
+                  {sessionStats.formattedDate}
+                </Text>
+              </YStack>
 
-            <Button
-              size="$3"
-              backgroundColor="$green9"
-              onPress={handleFinishWorkout}
-              disabled={isFinishing}
-              minWidth={100}
-            >
-              {isFinishing ? 'Finishing...' : 'Finish'}
-            </Button>
-          </XStack>
-
-          <XStack justifyContent="space-between" alignItems="center">
-            <XStack space="$3" alignItems="center">
-              <XStack space="$1" alignItems="center">
-                <Clock size={12} color="$gray10" />
-                <Text fontSize="$2" color="$gray10">
-                  {sessionStats.duration}
-                </Text>
-              </XStack>
-              <XStack space="$1" alignItems="center">
-                <Trophy size={12} color="$gray10" />
-                <Text fontSize="$2" color="$gray10">
-                  {sessionStats.volume} lbs
-                </Text>
-              </XStack>
-              <XStack space="$1" alignItems="center">
-                <Dumbbell size={12} color="$gray10" />
-                <Text fontSize="$2" color="$gray10">
-                  {sessionStats.exerciseCount} exercises
-                </Text>
-              </XStack>
+              <Button
+                size="$3"
+                backgroundColor="$green9"
+                onPress={handleFinishWorkout}
+                disabled={isFinishing}
+                minWidth={100}
+              >
+                {isFinishing ? 'Finishing...' : 'Finish'}
+              </Button>
             </XStack>
 
-            <Button
-              size="$2"
-              backgroundColor="$gray3"
-              borderRadius="$2"
-              onPress={() => setShowRestPresetSheet(true)}
-              accessibilityLabel="Template rest timer settings"
-              paddingHorizontal="$2"
-              paddingVertical="$1"
-              pressStyle={{
-                backgroundColor: '$gray4',
-              }}
-            >
-              <Text fontSize="$2" color="$gray11" fontWeight="500">
-                Rest: 90s
-              </Text>
-            </Button>
-          </XStack>
-        </YStack>
+            <XStack justifyContent="space-between" alignItems="center">
+              <XStack space="$3" alignItems="center">
+                <XStack space="$1" alignItems="center">
+                  <Clock size={12} color="$gray10" />
+                  <Text fontSize="$2" color="$gray10">
+                    {sessionStats.duration}
+                  </Text>
+                </XStack>
+                <XStack space="$1" alignItems="center">
+                  <Trophy size={12} color="$gray10" />
+                  <Text fontSize="$2" color="$gray10">
+                    {sessionStats.volume} lbs
+                  </Text>
+                </XStack>
+                <XStack space="$1" alignItems="center">
+                  <Dumbbell size={12} color="$gray10" />
+                  <Text fontSize="$2" color="$gray10">
+                    {sessionStats.exerciseCount} exercises
+                  </Text>
+                </XStack>
+              </XStack>
 
-        <Separator />
-
-        {/* Exercise List with Buttons - All Scrollable */}
-        <ScrollView flex={1} showsVerticalScrollIndicator={false}>
-          <YStack>
-            {state.activeSession.exercises.map((item, index) => (
-              <CollapsibleExerciseCard
-                key={`${item.id}-${index}`}
-                exercise={item}
-                index={index}
-                isExpanded={expandedExercises.has(index)}
-                onToggleExpanded={() => handleToggleExercise(index)}
-                onSetComplete={handleSetComplete}
-                onSetUpdate={handleSetUpdate}
-                onAddSet={() => handleAddSet(item.id)}
-                onShowRestPreset={() => {
-                  setSelectedExerciseForRest(item.id);
-                  setShowRestPresetSheet(true);
+              <Button
+                size="$2"
+                backgroundColor="$gray3"
+                borderRadius="$2"
+                onPress={() => setShowRestPresetSheet(true)}
+                accessibilityLabel="Template rest timer settings"
+                paddingHorizontal="$2"
+                paddingVertical="$1"
+                pressStyle={{
+                  backgroundColor: '$gray4',
                 }}
-              />
-            ))}
-
-            {/* Add Exercise Button - In Scrollable Content */}
-            <Button
-              size="$3"
-              margin="$4"
-              onPress={() => router.push('/workout/add?mode=append' as any)}
-              icon={<Plus size={16} />}
-              variant="outlined"
-              borderColor="$gray6"
-              backgroundColor="transparent"
-            >
-              Add Exercise
-            </Button>
-
-            {/* Cancel Workout Button - In Scrollable Content */}
-            <Button
-              size="$3"
-              marginHorizontal="$4"
-              marginBottom="$4"
-              backgroundColor="$red9"
-              onPress={handleDiscardWorkout}
-            >
-              Cancel workout
-            </Button>
+              >
+                <Text fontSize="$2" color="$gray11" fontWeight="500">
+                  Rest: 90s
+                </Text>
+              </Button>
+            </XStack>
           </YStack>
-        </ScrollView>
 
-        {/* Rest Timer Bar - Sticky */}
-        {state.restTimer.isActive && (
-          <RestBar
-            restTimer={state.restTimer}
-            onSkip={actions.skipRest}
-            onAdjust={actions.adjustRestTimer}
-            onPause={actions.pauseRestTimer}
-            onResume={actions.resumeRestTimer}
-            exerciseName={currentExerciseName || 'Exercise'}
+          <Separator />
+
+          {/* Exercise List with Buttons - All Scrollable */}
+          <ScrollView flex={1} showsVerticalScrollIndicator={false}>
+            <YStack>
+              {state.activeSession.exercises.map((item, index) => (
+                <CollapsibleExerciseCard
+                  key={`${item.id}-${index}`}
+                  exercise={item}
+                  index={index}
+                  isExpanded={expandedExercises.has(index)}
+                  onToggleExpanded={() => handleToggleExercise(index)}
+                  onSetComplete={handleSetComplete}
+                  onSetUpdate={handleSetUpdate}
+                  onAddSet={() => handleAddSet(item.id)}
+                  onShowRestPreset={() => {
+                    setSelectedExerciseForRest(item.id);
+                    setShowRestPresetSheet(true);
+                  }}
+                />
+              ))}
+
+              {/* Add Exercise Button - In Scrollable Content */}
+              <Button
+                size="$3"
+                margin="$4"
+                onPress={() => router.push('/workout/add?mode=append' as any)}
+                icon={<Plus size={16} />}
+                variant="outlined"
+                borderColor="$gray6"
+                backgroundColor="transparent"
+              >
+                Add Exercise
+              </Button>
+
+              {/* Cancel Workout Button - In Scrollable Content */}
+              <Button
+                size="$3"
+                marginHorizontal="$4"
+                marginBottom="$4"
+                backgroundColor="$red9"
+                onPress={handleDiscardWorkout}
+              >
+                Cancel workout
+              </Button>
+            </YStack>
+          </ScrollView>
+
+          {/* Rest Timer Bar - Sticky */}
+          {state.restTimer.isActive && (
+            <RestBar
+              restTimer={state.restTimer}
+              onSkip={actions.skipRest}
+              onAdjust={actions.adjustRestTimer}
+              onPause={actions.pauseRestTimer}
+              onResume={actions.resumeRestTimer}
+              exerciseName={currentExerciseName || 'Exercise'}
+            />
+          )}
+
+          {/* Rest Preset Sheet */}
+          <RestPresetSheet
+            isOpen={showRestPresetSheet}
+            onClose={() => {
+              setShowRestPresetSheet(false);
+              setSelectedExerciseForRest(null);
+            }}
+            currentRestTime={
+              selectedExerciseForRest
+                ? state.activeSession?.exercises.find(
+                    (ex) => ex.id === selectedExerciseForRest
+                  )?.restPreset || 90
+                : 90
+            }
+            exerciseName={
+              selectedExerciseForRest
+                ? state.activeSession?.exercises.find(
+                    (ex) => ex.id === selectedExerciseForRest
+                  )?.exercise.name
+                : undefined
+            }
+            onApplyToThis={(seconds) => handleRestPresetApply('this', seconds)}
+            onApplyToAll={(seconds) => handleRestPresetApply('all', seconds)}
+            onRememberForExercise={(seconds) =>
+              handleRestPresetApply('remember', seconds)
+            }
           />
-        )}
-
-        {/* Rest Preset Sheet */}
-        <RestPresetSheet
-          isOpen={showRestPresetSheet}
-          onClose={() => {
-            setShowRestPresetSheet(false);
-            setSelectedExerciseForRest(null);
-          }}
-          currentRestTime={
-            selectedExerciseForRest
-              ? state.activeSession?.exercises.find(
-                  (ex) => ex.id === selectedExerciseForRest
-                )?.restPreset || 90
-              : 90
-          }
-          exerciseName={
-            selectedExerciseForRest
-              ? state.activeSession?.exercises.find(
-                  (ex) => ex.id === selectedExerciseForRest
-                )?.exercise.name
-              : undefined
-          }
-          onApplyToThis={(seconds) => handleRestPresetApply('this', seconds)}
-          onApplyToAll={(seconds) => handleRestPresetApply('all', seconds)}
-          onRememberForExercise={(seconds) =>
-            handleRestPresetApply('remember', seconds)
-          }
-        />
         </YStack>
       </PortalProvider>
     </SafeAreaView>

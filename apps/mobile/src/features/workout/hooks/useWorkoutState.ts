@@ -384,6 +384,75 @@ export const useWorkoutState = () => {
     }));
   }, []);
 
+  const appendExercises = useCallback(
+    async (exerciseIds: ExerciseId[]) => {
+      if (!state.activeSession) return;
+
+      try {
+        // Get the exercises data first
+        const allExercises = await workoutService.getAllExercises();
+        const exercisesToAdd = allExercises.filter((ex) =>
+          exerciseIds.includes(ex.id)
+        );
+
+        if (exercisesToAdd.length === 0) {
+          throw new Error('No valid exercises found');
+        }
+
+        // Optimistic update - immediately update local state
+        setState((prev) => {
+          if (!prev.activeSession) return prev;
+
+          const currentMaxOrderIndex = Math.max(
+            ...prev.activeSession.exercises.map((ex) => ex.orderIndex),
+            -1
+          );
+
+          const newSessionExercises = exercisesToAdd.map((exercise, index) => ({
+            id: exercise.id,
+            exercise,
+            sets: [
+              {
+                id: `set-1-${exercise.id}-${Date.now()}` as SetEntryId,
+                setNumber: 1,
+                completed: false,
+              },
+            ],
+            orderIndex: currentMaxOrderIndex + 1 + index,
+            restPreset: 120,
+          }));
+
+          return {
+            ...prev,
+            activeSession: {
+              ...prev.activeSession,
+              exercises: [
+                ...prev.activeSession.exercises,
+                ...newSessionExercises,
+              ],
+            },
+          };
+        });
+
+        // Background sync with service
+        await workoutService.appendExercises(
+          state.activeSession.id,
+          exerciseIds
+        );
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to append exercises',
+        }));
+        throw error;
+      }
+    },
+    [state.activeSession]
+  );
+
   const clearError = useCallback(() => {
     setState((prev) => ({ ...prev, error: null }));
   }, []);
@@ -397,6 +466,7 @@ export const useWorkoutState = () => {
       updateSet,
       completeSet,
       addSet,
+      appendExercises,
       finishSession,
       discardSession,
       startRestTimer,

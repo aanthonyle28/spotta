@@ -119,6 +119,12 @@ type StartWorkoutCommand = {
   exerciseIds: ExerciseId[];
   mode: 'empty' | 'template';
 };
+
+type AppendExercisesCommand = {
+  type: 'APPEND_EXERCISES';
+  exerciseIds: ExerciseId[];
+  mode: 'append';
+};
 ```
 
 **Component Architecture**:
@@ -239,8 +245,9 @@ type CreateExerciseCommand = {
 **Route**: `/logging/[sessionId]`
 
 **Navigation & Presentation**:
+
 - Presented as navigation modal (`presentation: "modal"`) from root layout
-- Entry: From workout template selection or active session  
+- Entry: From workout template selection or active session
 - Exit: Finish workout → workout tab, Cancel → workout tab
 
 **Information Architecture**:
@@ -249,7 +256,7 @@ type CreateExerciseCommand = {
 // Session data (real-time calculated)
 interface SessionStats {
   duration: string; // "12:34" format
-  volume: number; // total weight × reps  
+  volume: number; // total weight × reps
   exerciseCount: number; // number of exercises
   formattedDate: string; // "Aug, 21 2025" format
   sets: number; // completed sets count
@@ -264,6 +271,7 @@ selectedExerciseForRest: string | null; // Context for rest settings
 **UI Components & Layout**:
 
 1. **Header Section** - Fixed at top with session info and controls
+
    ```tsx
    // Title row: Session name + Finish button
    <XStack justifyContent="space-between">
@@ -274,7 +282,7 @@ selectedExerciseForRest: string | null; // Context for rest settings
      <Button backgroundColor="$green9">Finish</Button>
    </XStack>
 
-   // Metrics row: Timer, Volume, Exercise count + Rest timer button  
+   // Metrics row: Timer, Volume, Exercise count + Rest timer button
    <XStack justifyContent="space-between">
      <XStack space="$3">
        <Clock + Timer />
@@ -290,7 +298,8 @@ selectedExerciseForRest: string | null; // Context for rest settings
    - Rest timer buttons at exercise level (small gray buttons)
    - Weight/Reps steppers for each set
    - Set completion checkboxes (no validation required)
-   - Add Exercise and Cancel buttons within scrollable content
+   - **Add Exercise Button**: Navigates to `/workout/add?mode=append` for adding exercises to active session
+   - Cancel workout button within scrollable content
 
 3. **Rest Timer Bar** - Sticky bottom bar when rest timer active
    - Countdown display with exercise name
@@ -302,16 +311,19 @@ selectedExerciseForRest: string | null; // Context for rest settings
    - Apply to: this exercise, all exercises, remember for exercise type
 
 **UI States**:
+
 - **Loading**: Loading spinner while fetching session data
-- **Active Session**: Main logging interface with exercises  
+- **Active Session**: Main logging interface with exercises
 - **No Session**: Error state redirects to workout tab
 - **Finishing**: Disabled finish button during save
 
 **Events**:
+
 - **onToggleExpanded**: Expand/collapse exercise sets
 - **onSetComplete**: Mark set as complete (no validation)
-- **onSetUpdate**: Update weight/reps values  
+- **onSetUpdate**: Update weight/reps values
 - **onAddSet**: Add new set to exercise
+- **onAppendExercises**: Add new exercises to active session (append mode)
 - **onShowRestPreset**: Open rest timer settings modal
 - **onFinishWorkout**: Complete session with confirmation
 - **onDiscardWorkout**: Cancel session with confirmation
@@ -340,6 +352,7 @@ interface SetData {
 actions.completeSet(setData: SetData)
 actions.updateSet(exerciseId, setId, updates: Partial<SetData>)
 actions.addSet(exerciseId: string)
+actions.appendExercises(exerciseIds: ExerciseId[])
 actions.finishSession()
 actions.discardSession()
 actions.startRestTimer(seconds: number, exerciseId: string)
@@ -347,12 +360,14 @@ actions.skipRest()
 ```
 
 **Accessibility**:
+
 - All buttons have `accessibilityLabel`
-- Exercise headers have `accessibilityRole="button"`  
+- Exercise headers have `accessibilityRole="button"`
 - Rest timer buttons properly labeled for screen readers
 - Maintain 44×44 hit targets for all interactive elements
 
 **Technical Implementation**:
+
 - **Modal Context**: PortalProvider wrapper required for Tamagui Sheet components within navigation modals
 - **Real-time Updates**: Timer updates every second using `setInterval`
 - **Performance**: Session stats recalculated via `useMemo` on state changes
@@ -383,17 +398,20 @@ actions.skipRest()
 ## 7. Test Plan
 
 ### Unit Tests
+
 - **Components**: ExerciseCard, WeightRepsStepper, RestBar, CollapsibleExerciseCard, RestPresetSheet
 - **Hooks**: useWorkoutState, useRestTimer
 - **Utilities**: Session stats calculation, date/timer formatting
 
-### Integration Tests  
+### Integration Tests
+
 - **Full workout flow**: Start → add exercises → log sets → finish/cancel
 - **Rest timer modal**: Rendering within navigation modal context
 - **PortalProvider integration**: Tamagui Sheet components work correctly
 - **Set operations**: Complete, update, add without validation requirements
 
 ### Accessibility Tests
+
 - **VoiceOver**: All buttons and inputs properly labeled
 - **Touch targets**: All interactive elements ≥44px
 - **Focus order**: Logical navigation through exercise cards and modals
@@ -402,21 +420,35 @@ actions.skipRest()
 ## 8. Risks & Mitigations
 
 ### Performance
+
 - **Real-time updates**: Use `useMemo` for expensive calculations, `useCallback` for handlers
 - **List rendering**: Memoized components, stable style objects, virtualization ready
 - **State management**: Optimistic updates, minimal re-renders
 
 ### UX & Interaction
+
 - **Modal rendering**: PortalProvider wrapper for Tamagui Sheet components within navigation modals
 - **Set logging**: Simple stepper controls, clear visual feedback for completed sets
 - **Rest timer**: Sticky bar with intuitive controls, exercise-level customization
 
 ### Technical
+
 - **Navigation**: Proper routing with Expo Router, deep link support
 - **Modal context**: Follow Tamagui best practices for modals within navigation contexts
 - **Accessibility**: Maintain focus order and screen reader compatibility across modal interactions
 
 ## 9. Changelog (auto-appended by Scribe)
+
+- 2025-08-22 — Mobile — Append exercises functionality with optimistic updates — [append-exercises-feature]
+  - ✅ Optimistic updates: Exercises appear immediately on logging screen when added
+  - ✅ useWorkoutState integration: Added `appendExercises` method with error handling
+  - ✅ Service layer: Extended workoutService with `appendExercises` mock implementation
+  - ✅ Add mode fix: Fixed append mode in Add Exercises screen to call proper action
+  - ✅ State management: Proper exercise ordering with `orderIndex` calculation
+  - ✅ Error recovery: Rollback state on service failures with user-facing error messages
+  - ✅ Type safety: Full TypeScript support with branded ExerciseId types
+  - ✅ Performance: Immediate UI feedback with background sync following TanStack Query patterns
+  - ✅ Documentation: Updated workout spec with append exercises data flow and events
 
 - 2025-08-20 — Mobile — Create Exercise screen redesign and Add Exercises modal conversion — [create-exercise-redesign]
   - ✅ Header redesign: Back arrow (left) + left-aligned title + Save button (right) matching Add Exercises pattern
