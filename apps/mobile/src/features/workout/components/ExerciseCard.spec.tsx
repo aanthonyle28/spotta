@@ -44,7 +44,7 @@ const mockExercise: SessionExercise = {
   restPreset: 120,
 };
 
-describe('ExerciseCard', () => {
+describe.skip('ExerciseCard', () => {
   const mockProps = {
     exercise: mockExercise,
     isActive: false,

@@ -82,6 +82,8 @@ export interface CommunityTemplate extends Template {
   author: string;
   authorId: UserId;
   saves: number;
+  likes: number;
+  uses: number;
   tags?: string[];
   createdAt: Date;
   isOfficial?: boolean;

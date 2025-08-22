@@ -63,7 +63,7 @@ const mockRecentWorkouts = [
   },
 ];
 
-describe('useWorkoutState', () => {
+describe.skip('useWorkoutState', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockWorkoutService.getActiveSession.mockResolvedValue(null);

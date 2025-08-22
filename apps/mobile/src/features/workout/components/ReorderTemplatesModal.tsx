@@ -55,7 +55,7 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
               <H4>Reorder Templates</H4>
               <Button
                 size="$2"
-                variant="ghost"
+                chromeless
                 onPress={handleCancel}
                 padding="$2"
                 accessibilityLabel="Close modal"
@@ -90,7 +90,7 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
                     <XStack space="$1">
                       <Button
                         size="$2"
-                        variant="ghost"
+                        chromeless
                         onPress={() => moveTemplate(index, 'up')}
                         disabled={index === 0}
                         padding="$2"
@@ -101,7 +101,7 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
                       </Button>
                       <Button
                         size="$2"
-                        variant="ghost"
+                        chromeless
                         onPress={() => moveTemplate(index, 'down')}
                         disabled={index === reorderedTemplates.length - 1}
                         padding="$2"

@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from 'react';
-import { YStack, XStack, H3, Text, Button } from 'tamagui';
-import { ChevronDown } from '@tamagui/lucide-icons';
+import { YStack, XStack, Text, Button } from 'tamagui';
+import { ChevronDown, Clock } from '@tamagui/lucide-icons';
 import type { SessionExercise, SetData } from '../types';
 import type { SetEntryId } from '@spotta/shared';
 import { WeightRepsStepper } from './WeightRepsStepper';
@@ -13,7 +13,7 @@ interface CollapsibleExerciseCardProps {
   onSetComplete: (setData: SetData) => void;
   onSetUpdate: (setId: SetEntryId, updates: Partial<SetData>) => void;
   onAddSet: () => void;
-  onShowRestPreset?: () => void;
+  onShowRestPreset: () => void;
 }
 
 export const CollapsibleExerciseCard = memo(
@@ -91,6 +91,28 @@ export const CollapsibleExerciseCard = memo(
               <Text fontSize="$3" color="$gray10">
                 {exerciseStats.completedSets}/{exerciseStats.totalSets} sets
               </Text>
+
+              {/* Rest Timer Button - Next to sets with light gray background */}
+              <Button
+                size="$2"
+                backgroundColor="$gray3"
+                borderRadius="$2"
+                onPress={onShowRestPreset}
+                accessibilityLabel="Rest timer settings"
+                paddingHorizontal="$2"
+                paddingVertical="$1"
+                pressStyle={{
+                  backgroundColor: '$gray4',
+                }}
+              >
+                <XStack space="$1" alignItems="center">
+                  <Clock size={12} color="$gray11" />
+                  <Text fontSize="$2" color="$gray11" fontWeight="500">
+                    {exercise.restPreset}s
+                  </Text>
+                </XStack>
+              </Button>
+
               {exerciseStats.lastCompletedSet &&
                 exerciseStats.lastCompletedSet.weight &&
                 exerciseStats.lastCompletedSet.reps && (
@@ -213,7 +235,7 @@ export const CollapsibleExerciseCard = memo(
                           handleSetComplete(set);
                         }
                       }}
-                      disabled={!set.completed && (!set.weight || !set.reps)}
+                      disabled={false}
                       minWidth={32}
                       minHeight={32}
                       padding={0}
@@ -239,7 +261,6 @@ export const CollapsibleExerciseCard = memo(
             })}
 
             <XStack
-              space="$2"
               paddingHorizontal="$4"
               paddingVertical="$3"
               backgroundColor="$background"
@@ -257,18 +278,6 @@ export const CollapsibleExerciseCard = memo(
               >
                 Add Set
               </Button>
-
-              {/* Rest Preset Button */}
-              {onShowRestPreset && (
-                <Button
-                  size="$3"
-                  chromeless
-                  onPress={onShowRestPreset}
-                  accessibilityLabel="Rest timer settings"
-                >
-                  Rest: {exercise.restPreset}s ⚙️
-                </Button>
-              )}
             </XStack>
           </YStack>
         )}

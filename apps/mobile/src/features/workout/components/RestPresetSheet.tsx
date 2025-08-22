@@ -1,5 +1,15 @@
 import { memo, useState } from 'react';
-import { Sheet, YStack, XStack, H4, Text, Button, Input, Label } from 'tamagui';
+import {
+  Sheet,
+  YStack,
+  XStack,
+  H4,
+  Text,
+  Button,
+  Input,
+  Label,
+  Portal,
+} from 'tamagui';
 import { Clock, Settings } from '@tamagui/lucide-icons';
 
 interface RestPresetSheetProps {
@@ -57,112 +67,115 @@ export const RestPresetSheet = memo<RestPresetSheetProps>(
     };
 
     return (
-      <Sheet
-        modal
-        open={isOpen}
-        onOpenChange={onClose}
-        snapPoints={[40]}
-        dismissOnSnapToBottom
-      >
-        <Sheet.Overlay />
-        <Sheet.Handle />
-        <Sheet.Frame padding="$4" space="$4">
-          {/* Header */}
-          <YStack space="$2">
-            <XStack alignItems="center" space="$2">
-              <Settings size={20} color="$gray11" />
-              <H4>Rest Timer Settings</H4>
-            </XStack>
-            {exerciseName && (
-              <Text fontSize="$3" color="$gray10">
-                For {exerciseName}
-              </Text>
-            )}
-          </YStack>
+      <Portal>
+        <Sheet
+          modal
+          open={isOpen}
+          onOpenChange={onClose}
+          snapPoints={[40]}
+          dismissOnSnapToBottom
+          zIndex={999999}
+        >
+          <Sheet.Overlay zIndex={999998} />
+          <Sheet.Handle />
+          <Sheet.Frame padding="$4" space="$4">
+            {/* Header */}
+            <YStack space="$2">
+              <XStack alignItems="center" space="$2">
+                <Settings size={20} color="$gray11" />
+                <H4>Rest Timer Settings</H4>
+              </XStack>
+              {exerciseName && (
+                <Text fontSize="$3" color="$gray10">
+                  For {exerciseName}
+                </Text>
+              )}
+            </YStack>
 
-          {/* Preset Options */}
-          <YStack space="$3">
-            <Label fontSize="$4" fontWeight="500">
-              Quick Presets
-            </Label>
-            <XStack space="$2" flexWrap="wrap">
-              {PRESET_OPTIONS.map((preset) => (
-                <Button
-                  key={preset.value}
-                  size="$3"
-                  theme={selectedPreset === preset.value ? 'active' : null}
-                  onPress={() => handlePresetSelect(preset.value)}
-                  icon={<Clock size={16} />}
-                >
-                  {preset.label}
-                </Button>
-              ))}
-            </XStack>
-          </YStack>
+            {/* Preset Options */}
+            <YStack space="$3">
+              <Label fontSize="$4" fontWeight="500">
+                Quick Presets
+              </Label>
+              <XStack space="$2" flexWrap="wrap">
+                {PRESET_OPTIONS.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    size="$3"
+                    theme={selectedPreset === preset.value ? 'active' : null}
+                    onPress={() => handlePresetSelect(preset.value)}
+                    icon={<Clock size={16} />}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </XStack>
+            </YStack>
 
-          {/* Custom Time */}
-          <YStack space="$2">
-            <Label fontSize="$4" fontWeight="500">
-              Custom Time (seconds)
-            </Label>
-            <XStack space="$2" alignItems="center">
-              <Input
-                flex={1}
-                placeholder="90"
-                value={customTime}
-                onChangeText={handleCustomTimeChange}
-                keyboardType="numeric"
-                accessibilityLabel="Custom rest time in seconds"
-              />
-              <Text fontSize="$3" color="$gray10" minWidth={60}>
-                = {formatTime(getSelectedTime())}
-              </Text>
-            </XStack>
-          </YStack>
+            {/* Custom Time */}
+            <YStack space="$2">
+              <Label fontSize="$4" fontWeight="500">
+                Custom Time (seconds)
+              </Label>
+              <XStack space="$2" alignItems="center">
+                <Input
+                  flex={1}
+                  placeholder="90"
+                  value={customTime}
+                  onChangeText={handleCustomTimeChange}
+                  keyboardType="numeric"
+                  accessibilityLabel="Custom rest time in seconds"
+                />
+                <Text fontSize="$3" color="$gray10" minWidth={60}>
+                  = {formatTime(getSelectedTime())}
+                </Text>
+              </XStack>
+            </YStack>
 
-          {/* Action Buttons */}
-          <YStack space="$3" marginTop="$2">
-            <Button
-              size="$4"
-              backgroundColor="$blue9"
-              onPress={() => {
-                onApplyToThis(getSelectedTime());
-                onClose();
-              }}
-            >
-              Apply to this exercise
-            </Button>
-
-            <Button
-              size="$4"
-              backgroundColor="$green9"
-              onPress={() => {
-                onApplyToAll(getSelectedTime());
-                onClose();
-              }}
-            >
-              Apply to all exercises (this session)
-            </Button>
-
-            {exerciseName && (
+            {/* Action Buttons */}
+            <YStack space="$3" marginTop="$2">
               <Button
                 size="$4"
-                backgroundColor="$purple9"
+                backgroundColor="$blue9"
                 onPress={() => {
-                  onRememberForExercise(getSelectedTime());
+                  onApplyToThis(getSelectedTime());
                   onClose();
                 }}
               >
-                Remember for {exerciseName}
+                Apply to this exercise
               </Button>
-            )}
 
-            <Button size="$3" chromeless onPress={onClose}>
-              Cancel
-            </Button>
-          </YStack>
-        </Sheet.Frame>
-      </Sheet>
+              <Button
+                size="$4"
+                backgroundColor="$green9"
+                onPress={() => {
+                  onApplyToAll(getSelectedTime());
+                  onClose();
+                }}
+              >
+                Apply to all exercises (this session)
+              </Button>
+
+              {exerciseName && (
+                <Button
+                  size="$4"
+                  backgroundColor="$purple9"
+                  onPress={() => {
+                    onRememberForExercise(getSelectedTime());
+                    onClose();
+                  }}
+                >
+                  Remember for {exerciseName}
+                </Button>
+              )}
+
+              <Button size="$3" chromeless onPress={onClose}>
+                Cancel
+              </Button>
+            </YStack>
+          </Sheet.Frame>
+        </Sheet>
+      </Portal>
     );
   }
 );

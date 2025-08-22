@@ -1,25 +1,9 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { FlatList, Alert } from 'react-native';
-import {
-  YStack,
-  XStack,
-  H3,
-  Text,
-  Button,
-  ScrollView,
-  Card,
-  Separator,
-} from 'tamagui';
+import { Alert } from 'react-native';
+import { YStack, XStack, Text, Button, ScrollView, Separator } from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import {
-  CheckCircle,
-  MoreHorizontal,
-  Plus,
-  Clock,
-  Trophy,
-  Hash,
-} from '@tamagui/lucide-icons';
+import { Plus, Clock, Trophy, Dumbbell } from '@tamagui/lucide-icons';
 import {
   useWorkoutState,
   useRestTimer,
@@ -29,24 +13,24 @@ import {
   RestBar,
   RestPresetSheet,
 } from '../../src/features/workout/components';
-import type {
-  SetData,
-  SessionExercise,
-} from '../../src/features/workout/types';
-import type { ExerciseId, SetEntryId } from '@spotta/shared';
+import type { SetData } from '../../src/features/workout/types';
+import type { SetEntryId } from '@spotta/shared';
 
 export default function LoggingScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const { state, actions } = useWorkoutState();
-  const [activeExerciseIndex, setActiveExerciseIndex] = useState(0);
+  const activeExerciseIndex = 0;
   const [showRestPresetSheet, setShowRestPresetSheet] = useState(false);
+  const [selectedExerciseForRest, setSelectedExerciseForRest] = useState<
+    string | null
+  >(null);
   const [isFinishing, setIsFinishing] = useState(false);
   const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
     new Set([0])
   );
   const addSetTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
-  const restTimer = useRestTimer({
+  useRestTimer({
     restTimer: state.restTimer,
     onComplete: () => {
       actions.skipRest();
@@ -59,9 +43,16 @@ export default function LoggingScreen() {
     },
   });
 
-  // Calculate session stats
+  // Calculate session stats with real-time updates
   const sessionStats = useMemo(() => {
-    if (!state.activeSession) return { duration: 0, volume: 0, sets: 0 };
+    if (!state.activeSession)
+      return {
+        duration: 0,
+        volume: 0,
+        exerciseCount: 0,
+        formattedDate: 'Today',
+        sets: 0,
+      };
 
     const completedSets = state.activeSession.exercises.reduce(
       (total, ex) => total + ex.sets.filter((set) => set.completed).length,
@@ -81,11 +72,32 @@ export default function LoggingScreen() {
       0
     );
 
+    // Format current date as "Aug, 21 2025"
+    const formatDate = (date: Date) => {
+      const options: Intl.DateTimeFormatOptions = {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      };
+      return date.toLocaleDateString('en-US', options);
+    };
+
+    // Format timer
+    const formatTime = (seconds: number): string => {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const durationInSeconds = Math.floor(
+      (Date.now() - state.activeSession.startedAt.getTime()) / 1000
+    );
+
     return {
-      duration: Math.floor(
-        (Date.now() - state.activeSession.startedAt.getTime()) / 1000 / 60
-      ),
+      duration: formatTime(durationInSeconds),
       volume: Math.round(totalVolume),
+      exerciseCount: state.activeSession.exercises.length,
+      formattedDate: formatDate(new Date()),
       sets: completedSets,
     };
   }, [state.activeSession]);
@@ -99,7 +111,7 @@ export default function LoggingScreen() {
       // Add a small delay to allow for state updates during navigation
       const timeoutId = setTimeout(() => {
         if (!state.activeSession || state.activeSession.id !== sessionId) {
-          console.log('No matching session found, redirecting to workout');
+          console.warn('No matching session found, redirecting to workout');
           router.replace('/(tabs)/workout');
         }
       }, 100);
@@ -233,7 +245,7 @@ export default function LoggingScreen() {
 
   const handleRestPresetApply = useCallback(
     (scope: 'this' | 'all' | 'remember', seconds: number) => {
-      if (!activeExercise) return;
+      if (!selectedExerciseForRest) return;
 
       switch (scope) {
         case 'this':
@@ -248,8 +260,9 @@ export default function LoggingScreen() {
       }
 
       setShowRestPresetSheet(false);
+      setSelectedExerciseForRest(null);
     },
-    [activeExercise]
+    [selectedExerciseForRest]
   );
 
   // Cleanup timeouts on unmount
@@ -284,65 +297,77 @@ export default function LoggingScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <YStack flex={1}>
         {/* Header */}
-        <XStack
-          padding="$4"
-          justifyContent="space-between"
-          alignItems="center"
-          backgroundColor="$background"
-        >
-          <YStack flex={1}>
-            <Text fontSize="$5" fontWeight="600" numberOfLines={1}>
-              {state.activeSession.name}
-            </Text>
-            <XStack space="$3" alignItems="center">
-              <XStack space="$1" alignItems="center">
-                <Clock size={12} color="$gray10" />
-                <Text fontSize="$2" color="$gray10">
-                  {sessionStats.duration}m
-                </Text>
-              </XStack>
-              <XStack space="$1" alignItems="center">
-                <Trophy size={12} color="$gray10" />
-                <Text fontSize="$2" color="$gray10">
-                  {sessionStats.volume}lbs
-                </Text>
-              </XStack>
-              <XStack space="$1" alignItems="center">
-                <Hash size={12} color="$gray10" />
-                <Text fontSize="$2" color="$gray10">
-                  {sessionStats.sets}
-                </Text>
-              </XStack>
-            </XStack>
-          </YStack>
+        <YStack padding="$4" backgroundColor="$background" space="$3">
+          <XStack justifyContent="space-between" alignItems="flex-start">
+            <YStack flex={1} space="$2" marginRight="$3">
+              <Text fontSize="$5" fontWeight="600" numberOfLines={1}>
+                {state.activeSession.name}
+              </Text>
+              <Text fontSize="$4" color="$gray11" fontWeight="500">
+                {sessionStats.formattedDate}
+              </Text>
+            </YStack>
 
-          <XStack space="$2">
-            <Button
-              size="$3"
-              chromeless
-              onPress={handleDiscardWorkout}
-              icon={<MoreHorizontal size={16} />}
-              accessibilityLabel="More options"
-            />
             <Button
               size="$3"
               backgroundColor="$green9"
               onPress={handleFinishWorkout}
               disabled={isFinishing}
+              minWidth={100}
             >
               {isFinishing ? 'Finishing...' : 'Finish'}
             </Button>
           </XStack>
-        </XStack>
+
+          <XStack justifyContent="space-between" alignItems="center">
+            <XStack space="$3" alignItems="center">
+              <XStack space="$1" alignItems="center">
+                <Clock size={12} color="$gray10" />
+                <Text fontSize="$2" color="$gray10">
+                  {sessionStats.duration}
+                </Text>
+              </XStack>
+              <XStack space="$1" alignItems="center">
+                <Trophy size={12} color="$gray10" />
+                <Text fontSize="$2" color="$gray10">
+                  {sessionStats.volume} lbs
+                </Text>
+              </XStack>
+              <XStack space="$1" alignItems="center">
+                <Dumbbell size={12} color="$gray10" />
+                <Text fontSize="$2" color="$gray10">
+                  {sessionStats.exerciseCount} exercises
+                </Text>
+              </XStack>
+            </XStack>
+
+            <Button
+              size="$2"
+              backgroundColor="$gray3"
+              borderRadius="$2"
+              onPress={() => setShowRestPresetSheet(true)}
+              accessibilityLabel="Template rest timer settings"
+              paddingHorizontal="$2"
+              paddingVertical="$1"
+              pressStyle={{
+                backgroundColor: '$gray4',
+              }}
+            >
+              <Text fontSize="$2" color="$gray11" fontWeight="500">
+                Rest: 90s
+              </Text>
+            </Button>
+          </XStack>
+        </YStack>
 
         <Separator />
 
-        {/* Exercise List - Fullwidth with No Horizontal Padding */}
-        <YStack flex={1}>
-          <FlatList
-            data={state.activeSession.exercises}
-            renderItem={({ item, index }) => (
+        {/* Exercise List with Buttons - All Scrollable */}
+        <ScrollView flex={1} showsVerticalScrollIndicator={false}>
+          <YStack>
+            {state.activeSession.exercises.map((item, index) => (
               <CollapsibleExerciseCard
+                key={`${item.id}-${index}`}
                 exercise={item}
                 index={index}
                 isExpanded={expandedExercises.has(index)}
@@ -350,58 +375,38 @@ export default function LoggingScreen() {
                 onSetComplete={handleSetComplete}
                 onSetUpdate={handleSetUpdate}
                 onAddSet={() => handleAddSet(item.id)}
-                onShowRestPreset={
-                  index === activeExerciseIndex
-                    ? () => setShowRestPresetSheet(true)
-                    : undefined
-                }
+                onShowRestPreset={() => {
+                  setSelectedExerciseForRest(item.id);
+                  setShowRestPresetSheet(true);
+                }}
               />
-            )}
-            keyExtractor={(item, index) => `${item.id}-${index}`}
-            showsVerticalScrollIndicator={false}
-            getItemLayout={(data, index) => ({
-              length: expandedExercises.has(index) ? 300 : 80,
-              offset: data
-                ? Array.from(data)
-                    .slice(0, index)
-                    .reduce(
-                      (sum, _, i) =>
-                        sum + (expandedExercises.has(i) ? 300 : 80),
-                      0
-                    )
-                : 0,
-              index,
-            })}
-          />
+            ))}
 
-          {/* Cancel Workout Button */}
-          <Button
-            size="$3"
-            margin="$4"
-            backgroundColor="$red9"
-            onPress={handleDiscardWorkout}
-          >
-            Cancel workout
-          </Button>
-        </YStack>
+            {/* Add Exercise Button - In Scrollable Content */}
+            <Button
+              size="$3"
+              margin="$4"
+              onPress={() => router.push('/workout/add?mode=append' as any)}
+              icon={<Plus size={16} />}
+              variant="outlined"
+              borderColor="$gray6"
+              backgroundColor="transparent"
+            >
+              Add Exercise
+            </Button>
 
-        {/* Footer Bar */}
-        <XStack
-          padding="$4"
-          backgroundColor="$background"
-          borderTopWidth={1}
-          borderTopColor="$gray6"
-          space="$3"
-        >
-          <Button
-            flex={1}
-            size="$3"
-            onPress={() => router.push('/workout/add?mode=append' as any)}
-            icon={<Plus size={16} />}
-          >
-            Add Exercise
-          </Button>
-        </XStack>
+            {/* Cancel Workout Button - In Scrollable Content */}
+            <Button
+              size="$3"
+              marginHorizontal="$4"
+              marginBottom="$4"
+              backgroundColor="$red9"
+              onPress={handleDiscardWorkout}
+            >
+              Cancel workout
+            </Button>
+          </YStack>
+        </ScrollView>
 
         {/* Rest Timer Bar - Sticky */}
         {state.restTimer.isActive && (
@@ -418,9 +423,24 @@ export default function LoggingScreen() {
         {/* Rest Preset Sheet */}
         <RestPresetSheet
           isOpen={showRestPresetSheet}
-          onClose={() => setShowRestPresetSheet(false)}
-          currentRestTime={activeExercise?.restPreset || 90}
-          exerciseName={currentExerciseName ?? undefined}
+          onClose={() => {
+            setShowRestPresetSheet(false);
+            setSelectedExerciseForRest(null);
+          }}
+          currentRestTime={
+            selectedExerciseForRest
+              ? state.activeSession?.exercises.find(
+                  (ex) => ex.id === selectedExerciseForRest
+                )?.restPreset || 90
+              : 90
+          }
+          exerciseName={
+            selectedExerciseForRest
+              ? state.activeSession?.exercises.find(
+                  (ex) => ex.id === selectedExerciseForRest
+                )?.exercise.name
+              : undefined
+          }
           onApplyToThis={(seconds) => handleRestPresetApply('this', seconds)}
           onApplyToAll={(seconds) => handleRestPresetApply('all', seconds)}
           onRememberForExercise={(seconds) =>

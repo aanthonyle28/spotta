@@ -122,7 +122,7 @@ export default function WorkoutStartScreen() {
               <H3>Templates</H3>
               <Button
                 size="$2"
-                variant="ghost"
+                chromeless
                 onPress={handleReorderTemplates}
                 padding="$2"
                 accessibilityLabel="Reorder templates"

@@ -60,7 +60,7 @@ const RoutineCard = memo<RoutineCardProps>(
             </Text>
             <Button
               size="$2"
-              variant="ghost"
+              chromeless
               onPress={handleMenuPress}
               padding="$1"
               marginLeft="$2"
@@ -259,7 +259,7 @@ export const RoutineCarousel = memo<RoutineCarouselProps>(
             >
               <YStack space="$1">
                 <Button
-                  variant="ghost"
+                  chromeless
                   onPress={() => handleMenuAction('edit')}
                   justifyContent="flex-start"
                   padding="$3"
@@ -270,7 +270,7 @@ export const RoutineCarousel = memo<RoutineCarouselProps>(
                   <Text fontSize="$4">Edit</Text>
                 </Button>
                 <Button
-                  variant="ghost"
+                  chromeless
                   onPress={() => handleMenuAction('duplicate')}
                   justifyContent="flex-start"
                   padding="$3"
@@ -281,7 +281,7 @@ export const RoutineCarousel = memo<RoutineCarouselProps>(
                   <Text fontSize="$4">Duplicate</Text>
                 </Button>
                 <Button
-                  variant="ghost"
+                  chromeless
                   onPress={() => handleMenuAction('share')}
                   justifyContent="flex-start"
                   padding="$3"
@@ -292,7 +292,7 @@ export const RoutineCarousel = memo<RoutineCarouselProps>(
                   <Text fontSize="$4">Share</Text>
                 </Button>
                 <Button
-                  variant="ghost"
+                  chromeless
                   onPress={() => handleMenuAction('delete')}
                   justifyContent="flex-start"
                   padding="$3"
