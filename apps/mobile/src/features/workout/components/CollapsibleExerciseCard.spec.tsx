@@ -132,20 +132,18 @@ describe.skip('CollapsibleExerciseCard', () => {
     expect(mockProps.onAddSet).toHaveBeenCalledTimes(1);
   });
 
-  it('shows rest preset button when expanded and callback provided', () => {
-    renderWithProvider(
-      <CollapsibleExerciseCard {...mockProps} isExpanded={true} />
-    );
+  it('shows rest preset button and callback provided', () => {
+    renderWithProvider(<CollapsibleExerciseCard {...mockProps} />);
 
-    expect(screen.getByText('Rest: 120s ⚙️')).toBeTruthy();
+    // Rest timer should be visible in header with just the time value
+    expect(screen.getByText('120s')).toBeTruthy();
   });
 
   it('calls onShowRestPreset when rest preset button is pressed', () => {
-    renderWithProvider(
-      <CollapsibleExerciseCard {...mockProps} isExpanded={true} />
-    );
+    renderWithProvider(<CollapsibleExerciseCard {...mockProps} />);
 
-    const restButton = screen.getByText('Rest: 120s ⚙️');
+    // Find by the text content in the rest timer button
+    const restButton = screen.getByText('120s').parent;
     fireEvent.press(restButton);
 
     expect(mockProps.onShowRestPreset).toHaveBeenCalledTimes(1);

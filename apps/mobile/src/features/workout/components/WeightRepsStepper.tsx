@@ -1,5 +1,5 @@
 import { memo, useCallback, useState, useEffect, useRef } from 'react';
-import { XStack, YStack, Text, Button, Input } from 'tamagui';
+import { XStack, Button, Input } from 'tamagui';
 import { Minus, Plus } from '@tamagui/lucide-icons';
 
 interface WeightRepsStepperProps {

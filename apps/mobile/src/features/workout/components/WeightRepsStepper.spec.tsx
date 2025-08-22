@@ -193,7 +193,8 @@ describe.skip('WeightRepsStepper', () => {
       </TestWrapper>
     );
 
-    const weightInput = screen.getByPlaceholderText('0');
+    const weightInputs = screen.getAllByPlaceholderText('0');
+    const weightInput = weightInputs[0]; // First input is weight
     fireEvent.changeText(weightInput, '12345');
 
     expect(weightInput.props.value).toBe('12345');
@@ -214,29 +215,41 @@ describe.skip('WeightRepsStepper', () => {
   });
 
   it('rejects non-numeric input', () => {
+    const mockOnWeightChange = jest.fn();
     render(
       <TestWrapper>
-        <WeightRepsStepper {...mockProps} weight={135} />
+        <WeightRepsStepper
+          {...mockProps}
+          weight={135}
+          onWeightChange={mockOnWeightChange}
+        />
       </TestWrapper>
     );
 
     const weightInput = screen.getByDisplayValue('135');
     fireEvent.changeText(weightInput, 'abc');
 
-    expect(weightInput.props.value).toBe('135'); // Should remain unchanged
+    // Component should not call onWeightChange for invalid input
+    expect(mockOnWeightChange).not.toHaveBeenCalled();
   });
 
   it('handles empty input gracefully', () => {
+    const mockOnWeightChange = jest.fn();
     render(
       <TestWrapper>
-        <WeightRepsStepper {...mockProps} weight={135} />
+        <WeightRepsStepper
+          {...mockProps}
+          weight={135}
+          onWeightChange={mockOnWeightChange}
+        />
       </TestWrapper>
     );
 
     const weightInput = screen.getByDisplayValue('135');
     fireEvent.changeText(weightInput, '');
 
-    expect(weightInput.props.value).toBe('');
+    // Component should call onWeightChange with 0 for empty input
+    expect(mockOnWeightChange).toHaveBeenCalledWith(0);
   });
 
   it('responds immediately to stepper button presses', () => {

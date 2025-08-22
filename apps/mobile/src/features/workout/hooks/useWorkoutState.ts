@@ -1,11 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { ExerciseId, WorkoutId, SetEntryId } from '@spotta/shared';
-import type {
-  WorkoutState,
-  ActiveSession,
-  SetData,
-  RestTimerState,
-} from '../types';
+import type { ExerciseId, SetEntryId } from '@spotta/shared';
+import type { WorkoutState, SetData, RestTimerState } from '../types';
 import { workoutService } from '../services/workoutService';
 
 const initialRestTimer: RestTimerState = {

@@ -185,7 +185,6 @@ describe.skip('useWorkoutState', () => {
     });
 
     expect(mockWorkoutService.updateSet).toHaveBeenCalledWith(
-      mockActiveSession.id,
       'bench-press',
       'set-1',
       { weight: 140 }

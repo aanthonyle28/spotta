@@ -244,7 +244,7 @@ export default function LoggingScreen() {
   }, []);
 
   const handleRestPresetApply = useCallback(
-    (scope: 'this' | 'all' | 'remember', seconds: number) => {
+    (scope: 'this' | 'all' | 'remember', _seconds: number) => {
       if (!selectedExerciseForRest) return;
 
       switch (scope) {

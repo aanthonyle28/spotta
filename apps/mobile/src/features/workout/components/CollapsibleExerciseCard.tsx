@@ -19,7 +19,7 @@ interface CollapsibleExerciseCardProps {
 export const CollapsibleExerciseCard = memo(
   ({
     exercise,
-    index,
+    index: _index,
     isExpanded,
     onToggleExpanded,
     onSetComplete,
