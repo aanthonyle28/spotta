@@ -234,11 +234,134 @@ type CreateExerciseCommand = {
 - Screen reader support for validation states
 - Consistent with existing FilterDropdown accessibility patterns
 
+### Logging Screen (`/logging/[sessionId]`)
+
+**Route**: `/logging/[sessionId]`
+
+**Navigation & Presentation**:
+- Presented as navigation modal (`presentation: "modal"`) from root layout
+- Entry: From workout template selection or active session  
+- Exit: Finish workout → workout tab, Cancel → workout tab
+
+**Information Architecture**:
+
+```tsx
+// Session data (real-time calculated)
+interface SessionStats {
+  duration: string; // "12:34" format
+  volume: number; // total weight × reps  
+  exerciseCount: number; // number of exercises
+  formattedDate: string; // "Aug, 21 2025" format
+  sets: number; // completed sets count
+}
+
+// State management
+expandedExercises: Set<number>; // Which exercise cards are expanded
+showRestPresetSheet: boolean; // Rest timer modal state
+selectedExerciseForRest: string | null; // Context for rest settings
+```
+
+**UI Components & Layout**:
+
+1. **Header Section** - Fixed at top with session info and controls
+   ```tsx
+   // Title row: Session name + Finish button
+   <XStack justifyContent="space-between">
+     <YStack>
+       <Text fontSize="$5">{session.name}</Text>
+       <Text fontSize="$4" color="$gray11">{formattedDate}</Text>
+     </YStack>
+     <Button backgroundColor="$green9">Finish</Button>
+   </XStack>
+
+   // Metrics row: Timer, Volume, Exercise count + Rest timer button  
+   <XStack justifyContent="space-between">
+     <XStack space="$3">
+       <Clock + Timer />
+       <Trophy + Volume />
+       <Dumbbell + Exercise count />
+     </XStack>
+     <Button backgroundColor="$gray3">Rest: 90s</Button>
+   </XStack>
+   ```
+
+2. **Scrollable Exercise List** - Collapsible exercise cards with set logging
+   - CollapsibleExerciseCard components with expansion state
+   - Rest timer buttons at exercise level (small gray buttons)
+   - Weight/Reps steppers for each set
+   - Set completion checkboxes (no validation required)
+   - Add Exercise and Cancel buttons within scrollable content
+
+3. **Rest Timer Bar** - Sticky bottom bar when rest timer active
+   - Countdown display with exercise name
+   - -15/+15/Skip controls for timer adjustment
+
+4. **Rest Preset Sheet** - Modal for rest timer settings
+   - **Portal Context**: Uses PortalProvider wrapper to render above navigation modal
+   - Quick presets (60s, 90s, 2min, 3min) + custom time input
+   - Apply to: this exercise, all exercises, remember for exercise type
+
+**UI States**:
+- **Loading**: Loading spinner while fetching session data
+- **Active Session**: Main logging interface with exercises  
+- **No Session**: Error state redirects to workout tab
+- **Finishing**: Disabled finish button during save
+
+**Events**:
+- **onToggleExpanded**: Expand/collapse exercise sets
+- **onSetComplete**: Mark set as complete (no validation)
+- **onSetUpdate**: Update weight/reps values  
+- **onAddSet**: Add new set to exercise
+- **onShowRestPreset**: Open rest timer settings modal
+- **onFinishWorkout**: Complete session with confirmation
+- **onDiscardWorkout**: Cancel session with confirmation
+
+**Data Flow**:
+
+```tsx
+// Read models (what UI consumes)
+interface SessionExercise {
+  id: string;
+  exercise: { name: string };
+  sets: SetData[];
+  restPreset: number; // seconds
+}
+
+interface SetData {
+  id: SetEntryId;
+  setNumber: number;
+  weight?: number;
+  reps?: number;
+  completed: boolean;
+  completedAt?: Date;
+}
+
+// Write commands (what UI sends)
+actions.completeSet(setData: SetData)
+actions.updateSet(exerciseId, setId, updates: Partial<SetData>)
+actions.addSet(exerciseId: string)
+actions.finishSession()
+actions.discardSession()
+actions.startRestTimer(seconds: number, exerciseId: string)
+actions.skipRest()
+```
+
+**Accessibility**:
+- All buttons have `accessibilityLabel`
+- Exercise headers have `accessibilityRole="button"`  
+- Rest timer buttons properly labeled for screen readers
+- Maintain 44×44 hit targets for all interactive elements
+
+**Technical Implementation**:
+- **Modal Context**: PortalProvider wrapper required for Tamagui Sheet components within navigation modals
+- **Real-time Updates**: Timer updates every second using `setInterval`
+- **Performance**: Session stats recalculated via `useMemo` on state changes
+- **State Management**: Local component state with useWorkoutState hook integration
+
 ### Other Screens
 
 - **Main Screen**: Start quick workout, browse templates, recent workouts with active session banner
-- **Logging Screen**: One active exercise at a time, collapsible cards, custom steppers for Weight/Reps
-- **Rest Timer**: Sticky bar with countdown, -15/+15/Skip controls
+- **Rest Timer**: Integrated as RestBar component and RestPresetSheet modal
 
 ## 4. Data & Contracts
 
@@ -259,15 +382,39 @@ type CreateExerciseCommand = {
 
 ## 7. Test Plan
 
-- **Unit Tests**: Components (ExerciseCard, WeightRepsStepper, RestBar), Hooks (useWorkoutState, useRestTimer)
-- **Integration**: Full workout flow from start to finish
-- **Accessibility**: VoiceOver labels, touch targets ≥44px
+### Unit Tests
+- **Components**: ExerciseCard, WeightRepsStepper, RestBar, CollapsibleExerciseCard, RestPresetSheet
+- **Hooks**: useWorkoutState, useRestTimer
+- **Utilities**: Session stats calculation, date/timer formatting
+
+### Integration Tests  
+- **Full workout flow**: Start → add exercises → log sets → finish/cancel
+- **Rest timer modal**: Rendering within navigation modal context
+- **PortalProvider integration**: Tamagui Sheet components work correctly
+- **Set operations**: Complete, update, add without validation requirements
+
+### Accessibility Tests
+- **VoiceOver**: All buttons and inputs properly labeled
+- **Touch targets**: All interactive elements ≥44px
+- **Focus order**: Logical navigation through exercise cards and modals
+- **Screen reader**: Rest timer and exercise state announcements
 
 ## 8. Risks & Mitigations
 
-- **Performance**: Memoized components, stable style objects, virtualization ready
-- **UX**: Simple stepper controls, clear visual feedback for completed sets
+### Performance
+- **Real-time updates**: Use `useMemo` for expensive calculations, `useCallback` for handlers
+- **List rendering**: Memoized components, stable style objects, virtualization ready
+- **State management**: Optimistic updates, minimal re-renders
+
+### UX & Interaction
+- **Modal rendering**: PortalProvider wrapper for Tamagui Sheet components within navigation modals
+- **Set logging**: Simple stepper controls, clear visual feedback for completed sets
+- **Rest timer**: Sticky bar with intuitive controls, exercise-level customization
+
+### Technical
 - **Navigation**: Proper routing with Expo Router, deep link support
+- **Modal context**: Follow Tamagui best practices for modals within navigation contexts
+- **Accessibility**: Maintain focus order and screen reader compatibility across modal interactions
 
 ## 9. Changelog (auto-appended by Scribe)
 
@@ -301,11 +448,17 @@ type CreateExerciseCommand = {
   - ✅ Component architecture: FilterDropdown and FilterRow components with proper props
   - ✅ Accessibility: Maintained proper labels and touch targets throughout redesign
 
+- 2025-08-22 — Mobile — Logging screen rest timer modal fix — [rest-timer-modal-fix]
+  - ✅ Modal context: Added PortalProvider wrapper to logging screen for proper Tamagui Sheet rendering
+  - ✅ Navigation modal support: Fixed rest timer modal visibility within navigation modal context
+  - ✅ Documentation: Merged logging screen specs into main workout feature documentation
+  - ✅ Technical implementation: Follow Tamagui best practices for modals within navigation boundaries
+
 - 2025-01-XX — Mobile — QFRONT Phase 1 implementation completed — [workout-frontend]
-  - ✅ Core UI components: ExerciseCard, WeightRepsStepper, RestBar
-  - ✅ Navigation: Workout main screen, Logging screen with routing
-  - ✅ State management: useWorkoutState hook with React built-ins
-  - ✅ Mock services: Complete workout flow with simulated API
-  - ✅ Performance: Memoized components, optimized re-renders
-  - ✅ Testing: Component and hook tests with React Testing Library
-  - ✅ Types: Comprehensive TypeScript interfaces and Zod schemas
+  - ✅ Core UI components: ExerciseCard, WeightRepsStepper, RestBar, CollapsibleExerciseCard, RestPresetSheet
+  - ✅ Navigation: Workout main screen, Logging screen with modal presentation and routing
+  - ✅ State management: useWorkoutState hook with React built-ins, rest timer integration
+  - ✅ Mock services: Complete workout flow with simulated API, set operations without validation
+  - ✅ Performance: Memoized components, optimized re-renders, real-time stats calculation
+  - ✅ Testing: Component and hook tests with React Testing Library, accessibility compliance
+  - ✅ Types: Comprehensive TypeScript interfaces and Zod schemas for all workout data

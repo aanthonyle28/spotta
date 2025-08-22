@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Alert } from 'react-native';
-import { YStack, XStack, Text, Button, ScrollView, Separator } from 'tamagui';
+import { YStack, XStack, Text, Button, ScrollView, Separator, PortalProvider } from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Plus, Clock, Trophy, Dumbbell } from '@tamagui/lucide-icons';
@@ -295,7 +295,8 @@ export default function LoggingScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <YStack flex={1}>
+      <PortalProvider>
+        <YStack flex={1}>
         {/* Header */}
         <YStack padding="$4" backgroundColor="$background" space="$3">
           <XStack justifyContent="space-between" alignItems="flex-start">
@@ -447,7 +448,8 @@ export default function LoggingScreen() {
             handleRestPresetApply('remember', seconds)
           }
         />
-      </YStack>
+        </YStack>
+      </PortalProvider>
     </SafeAreaView>
   );
 }
