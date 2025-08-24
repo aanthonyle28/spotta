@@ -400,6 +400,99 @@ class WorkoutService {
     exercise.restPreset = restTime;
     this.sessionStorage.set(sessionId, session);
   }
+
+  async removeExercise(sessionId: WorkoutId, exerciseId: ExerciseId): Promise<void> {
+    await delay(150);
+
+    const session = this.sessionStorage.get(sessionId);
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    const exerciseIndex = session.exercises.findIndex((ex) => ex.id === exerciseId);
+    if (exerciseIndex === -1) {
+      throw new Error('Exercise not found in session');
+    }
+
+    // Remove the exercise
+    session.exercises.splice(exerciseIndex, 1);
+
+    // Recalculate total volume
+    session.totalVolume = session.exercises.reduce((total, ex) => {
+      return (
+        total +
+        ex.sets.reduce((exTotal, set) => {
+          return set.completed && set.weight && set.reps
+            ? exTotal + set.weight * set.reps
+            : exTotal;
+        }, 0)
+      );
+    }, 0);
+
+    this.sessionStorage.set(sessionId, session);
+  }
+
+  async replaceExercise(sessionId: WorkoutId, oldExerciseId: ExerciseId, newExerciseId: ExerciseId): Promise<void> {
+    await delay(200);
+
+    const session = this.sessionStorage.get(sessionId);
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    const exerciseIndex = session.exercises.findIndex((ex) => ex.id === oldExerciseId);
+    if (exerciseIndex === -1) {
+      throw new Error('Exercise not found in session');
+    }
+
+    const newExerciseData = mockExercises.find((ex) => ex.id === newExerciseId);
+    if (!newExerciseData) {
+      throw new Error('New exercise not found');
+    }
+
+    const oldExercise = session.exercises[exerciseIndex];
+    
+    // Replace with new exercise, preserving order and rest preset
+    session.exercises[exerciseIndex] = {
+      id: newExerciseId,
+      exercise: newExerciseData,
+      sets: [createMockSet(1, false)], // Start with one empty set
+      orderIndex: oldExercise.orderIndex,
+      restPreset: oldExercise.restPreset,
+    };
+
+    // Recalculate total volume
+    session.totalVolume = session.exercises.reduce((total, ex) => {
+      return (
+        total +
+        ex.sets.reduce((exTotal, set) => {
+          return set.completed && set.weight && set.reps
+            ? exTotal + set.weight * set.reps
+            : exTotal;
+        }, 0)
+      );
+    }, 0);
+
+    this.sessionStorage.set(sessionId, session);
+  }
+
+  async reorderExercises(sessionId: WorkoutId, reorderedExercises: any[]): Promise<void> {
+    await delay(150);
+
+    const session = this.sessionStorage.get(sessionId);
+    if (!session) {
+      throw new Error('Session not found');
+    }
+
+    // Update the order indices based on the new order
+    const updatedExercises = reorderedExercises.map((exercise, index) => ({
+      ...exercise,
+      orderIndex: index,
+    }));
+
+    session.exercises = updatedExercises;
+    this.sessionStorage.set(sessionId, session);
+  }
 }
 
 export const workoutService = new WorkoutService();

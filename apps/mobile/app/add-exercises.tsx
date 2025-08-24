@@ -14,9 +14,9 @@ import type { Exercise } from '../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';
 
 export default function AddExercisesScreen() {
-  const { mode } = useLocalSearchParams<{
-    mode?: 'append' | 'empty' | 'template';
-    targetExerciseId?: string;
+  const { mode, exerciseId } = useLocalSearchParams<{
+    mode?: 'append' | 'empty' | 'template' | 'replace';
+    exerciseId?: string;
   }>();
   const { actions } = useWorkoutState();
   const insets = useSafeAreaInsets();
@@ -116,14 +116,25 @@ export default function AddExercisesScreen() {
       if (newSet.has(exerciseId)) {
         newSet.delete(exerciseId);
       } else {
-        newSet.add(exerciseId);
+        // For replace mode, only allow single selection
+        if (mode === 'replace') {
+          return new Set([exerciseId]);
+        } else {
+          newSet.add(exerciseId);
+        }
       }
       return newSet;
     });
-  }, []);
+  }, [mode]);
 
   const handleStart = async () => {
     if (selectedExercises.size === 0) return;
+    
+    // For replace mode, ensure only one exercise is selected
+    if (mode === 'replace' && selectedExercises.size !== 1) {
+      setError('Please select exactly one exercise to replace with');
+      return;
+    }
 
     try {
       setIsStarting(true);
@@ -144,6 +155,10 @@ export default function AddExercisesScreen() {
           'New Template Workout'
         );
         router.push(`/logging/${session.id}` as any);
+      } else if (mode === 'replace' && exerciseId) {
+        // Replace existing exercise with selected one
+        await actions.replaceExercise(exerciseId as ExerciseId, exerciseIds[0]);
+        router.back(); // Return to logging screen
       } else {
         // Append mode - add exercises to current session
         await actions.appendExercises(exerciseIds);
@@ -349,7 +364,11 @@ export default function AddExercisesScreen() {
                   ? `Start with ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`
                   : mode === 'template'
                     ? `Create template with ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`
-                    : `Add ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`}
+                    : mode === 'replace'
+                      ? selectedExercises.size === 1
+                        ? 'Replace Exercise'
+                        : 'Select 1 exercise to replace'
+                      : `Add ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`}
             </Button>
           </XStack>
         )}

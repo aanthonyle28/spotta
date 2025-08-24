@@ -27,6 +27,9 @@ interface WorkoutStateContextType {
     clearError: () => void;
     loadInitialData: () => Promise<void>;
     checkForActiveSession: () => any;
+    removeExercise: (exerciseId: ExerciseId) => Promise<void>;
+    replaceExercise: (oldExerciseId: ExerciseId, newExerciseId: ExerciseId) => Promise<void>;
+    reorderExercises: (reorderedExercises: any[]) => Promise<void>;
   };
 }
 

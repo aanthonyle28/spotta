@@ -575,6 +575,119 @@ export const useWorkoutState = () => {
     }));
   }, []);
 
+  const removeExercise = useCallback(
+    async (exerciseId: ExerciseId) => {
+      if (!state.activeSession) return;
+
+      try {
+        await workoutService.removeExercise(state.activeSession.id, exerciseId);
+
+        // Update local state
+        setState((prev) => {
+          if (!prev.activeSession) return prev;
+
+          const updatedExercises = prev.activeSession.exercises.filter(
+            (exercise) => exercise.id !== exerciseId
+          );
+
+          // Recalculate total volume
+          const totalVolume = updatedExercises.reduce((total, ex) => {
+            return (
+              total +
+              ex.sets.reduce((exTotal, set) => {
+                return set.completed && set.weight && set.reps
+                  ? exTotal + set.weight * set.reps
+                  : exTotal;
+              }, 0)
+            );
+          }, 0);
+
+          return {
+            ...prev,
+            activeSession: {
+              ...prev.activeSession,
+              exercises: updatedExercises,
+              totalVolume,
+            },
+          };
+        });
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error ? error.message : 'Failed to remove exercise',
+        }));
+        throw error;
+      }
+    },
+    [state.activeSession]
+  );
+
+  const replaceExercise = useCallback(
+    async (oldExerciseId: ExerciseId, newExerciseId: ExerciseId) => {
+      if (!state.activeSession) return;
+
+      try {
+        await workoutService.replaceExercise(
+          state.activeSession.id,
+          oldExerciseId,
+          newExerciseId
+        );
+
+        // Reload the session to get updated data
+        // In a real app, you'd probably optimistically update local state instead
+        const updatedSession = await workoutService.getSessionById(state.activeSession.id);
+        if (updatedSession) {
+          setState((prev) => ({
+            ...prev,
+            activeSession: updatedSession,
+          }));
+        }
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error ? error.message : 'Failed to replace exercise',
+        }));
+        throw error;
+      }
+    },
+    [state.activeSession]
+  );
+
+  const reorderExercises = useCallback(
+    async (reorderedExercises: any[]) => {
+      if (!state.activeSession) return;
+
+      try {
+        await workoutService.reorderExercises(
+          state.activeSession.id,
+          reorderedExercises
+        );
+
+        // Update local state
+        setState((prev) => {
+          if (!prev.activeSession) return prev;
+
+          return {
+            ...prev,
+            activeSession: {
+              ...prev.activeSession,
+              exercises: reorderedExercises,
+            },
+          };
+        });
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error ? error.message : 'Failed to reorder exercises',
+        }));
+        throw error;
+      }
+    },
+    [state.activeSession]
+  );
 
   return {
     state,
@@ -599,6 +712,9 @@ export const useWorkoutState = () => {
       clearError,
       loadInitialData,
       checkForActiveSession,
+      removeExercise,
+      replaceExercise,
+      reorderExercises,
     },
   };
 };

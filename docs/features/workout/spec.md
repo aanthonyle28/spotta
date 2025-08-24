@@ -22,7 +22,7 @@
 
 ### Add Exercises Screen (`/workout/add`)
 
-**Route**: `/workout/add?mode=empty|append|template&targetExerciseId=string`
+**Route**: `/workout/add?mode=empty|append|template|replace&exerciseId=string`
 
 **Navigation & Header**:
 
@@ -36,8 +36,8 @@
 
 ```tsx
 // Props from route params
-mode: 'append' | 'empty' | 'template'
-targetExerciseId?: string
+mode: 'append' | 'empty' | 'template' | 'replace'
+exerciseId?: string // Used for replace mode to identify exercise being replaced
 
 // Local state
 exercises: Exercise[]           // All available exercises
@@ -70,11 +70,13 @@ selectedEquipment: string      // Equipment filter ('all' | equipment)
    - Exercise cards with selection state
    - Blue checkboxes that fill when selected
    - Card background changes when selected ($blue2)
+   - **Replace Mode Behavior**: Single selection only (selecting new exercise deselects others)
 
 4. **Footer CTA**
    - Conditional display when exercises selected
    - Green button matching app theme
    - Dynamic text based on mode and selection count
+   - **Replace Mode**: "Replace Exercise" when 1 selected, "Select 1 exercise to replace" otherwise
 
 **Accessibility**:
 
@@ -124,6 +126,13 @@ type AppendExercisesCommand = {
   type: 'APPEND_EXERCISES';
   exerciseIds: ExerciseId[];
   mode: 'append';
+};
+
+type ReplaceExerciseCommand = {
+  type: 'REPLACE_EXERCISE';
+  oldExerciseId: ExerciseId;
+  newExerciseId: ExerciseId;
+  mode: 'replace';
 };
 ```
 
@@ -298,6 +307,10 @@ selectedExerciseForRest: string | null; // Context for rest settings
    - Rest timer buttons at exercise level (small gray buttons)
    - Weight/Reps steppers for each set
    - Set completion checkboxes (no validation required)
+   - **Exercise Menu System**: 3-dots menu for exercise management
+     - **Remove Exercise**: Shows confirmation alert, removes exercise and recalculates session stats
+     - **Replace Exercise**: Navigates to `/workout/add?mode=replace&exerciseId=X` with single-selection constraint
+     - **Reorder Exercises**: Opens ExerciseReorderModal with drag-to-reorder interface
    - **Add Exercise Button**: Navigates to `/workout/add?mode=append` for adding exercises to active session
    - Cancel workout button within scrollable content
 
@@ -316,6 +329,13 @@ selectedExerciseForRest: string | null; // Context for rest settings
    - **Custom time input**: Numeric input for custom rest durations in seconds
    - **Apply actions**: Configure rest time for this exercise, all exercises, or remember for exercise type
 
+5. **Exercise Reorder Modal** - Modal for reordering exercises in the session
+   - **Portal Context**: Uses PortalProvider and Sheet components from Tamagui
+   - **Exercise List**: Shows all exercises in current session with set counts
+   - **Reorder Controls**: Up/down arrow buttons for each exercise
+   - **Visual Feedback**: Disabled buttons at list boundaries (first/last positions)
+   - **Actions**: Cancel (resets to original order) and Save (applies new order)
+
 **UI States**:
 
 - **Loading**: Loading spinner while fetching session data
@@ -333,6 +353,9 @@ selectedExerciseForRest: string | null; // Context for rest settings
 - **onShowRestPreset**: Open rest timer settings modal
 - **onFinishWorkout**: Complete session with confirmation
 - **onDiscardWorkout**: Cancel session with confirmation
+- **onRemoveExercise**: Remove exercise with confirmation alert
+- **onReplaceExercise**: Navigate to exercise selection in replace mode  
+- **onReorderExercises**: Open exercise reorder modal
 
 **Data Flow**:
 
@@ -380,6 +403,9 @@ actions.startRestTimer(seconds: number, exerciseId: string)
 actions.skipRest()
 actions.updateRestTimerEnabled(enabled: boolean)
 actions.updateShowRestAsModal(showAsModal: boolean)
+actions.removeExercise(exerciseId: ExerciseId)
+actions.replaceExercise(oldExerciseId: ExerciseId, newExerciseId: ExerciseId)  
+actions.reorderExercises(reorderedExercises: SessionExercise[])
 ```
 
 **Accessibility**:
@@ -461,6 +487,19 @@ actions.updateShowRestAsModal(showAsModal: boolean)
 - **Accessibility**: Maintain focus order and screen reader compatibility across modal interactions
 
 ## 9. Changelog (auto-appended by Scribe)
+
+- 2025-08-24 — Mobile — Exercise menu system with remove, replace, and reorder functionality — [exercise-menu-system]
+  - ✅ 3-dots menu: Added MoreVertical icon and dropdown menu to CollapsibleExerciseCard with safe parent-child communication
+  - ✅ Remove exercise: Confirmation alert and service method to remove exercise and recalculate session stats
+  - ✅ Replace exercise: Navigation to add-exercises in replace mode with single-selection constraint and proper service integration
+  - ✅ Reorder exercises: ExerciseReorderModal with up/down arrows following existing ReorderTemplatesModal pattern
+  - ✅ Service methods: Added removeExercise, replaceExercise, and reorderExercises methods to workoutService with mock implementations
+  - ✅ Hook integration: Extended useWorkoutState with new actions and proper state management
+  - ✅ Add-exercises enhancement: Added replace mode support with single selection behavior and validation
+  - ✅ Menu state management: Safe parent-child prop communication to handle menu closing on scroll and multi-menu coordination
+  - ✅ Type safety: Full TypeScript support with proper action signatures in WorkoutStateProvider
+  - ✅ Accessibility: Maintained 44×44 touch targets and proper accessibility labels for all menu actions
+  - ✅ Error handling: Confirmation alerts for destructive actions and proper error states throughout
 
 - 2025-08-24 — Mobile — Fixed active state banner persistence with AsyncStorage integration — [active-banner-persistence-fix]
   - ✅ Persistent storage: Added AsyncStorage dependency and StorageService for data persistence across app restarts

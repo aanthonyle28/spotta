@@ -12,6 +12,7 @@ export { RoutineCarousel } from './RoutineCarousel';
 export { BrowseExercisesTile } from './BrowseExercisesTile';
 export { BrowseTemplatesTile } from './BrowseTemplatesTile';
 export { ReorderTemplatesModal } from './ReorderTemplatesModal';
+export { ExerciseReorderModal } from './ExerciseReorderModal';
 export { FilterDropdown } from './FilterDropdown';
 export { FilterRow } from './FilterRow';
 export { CustomHeader } from './CustomHeader';

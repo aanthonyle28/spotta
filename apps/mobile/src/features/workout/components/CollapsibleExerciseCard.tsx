@@ -1,6 +1,6 @@
-import { memo, useCallback, useMemo } from 'react';
-import { YStack, XStack, Text, Button } from 'tamagui';
-import { ChevronDown, Clock } from '@tamagui/lucide-icons';
+import { memo, useCallback, useMemo, useState, useEffect } from 'react';
+import { YStack, XStack, Text, Button, Card } from 'tamagui';
+import { ChevronDown, Clock, MoreVertical, Trash2, Repeat, ArrowUpDown } from '@tamagui/lucide-icons';
 import type { SessionExercise, SetData } from '../types';
 import type { SetEntryId } from '@spotta/shared';
 import { WeightRepsStepper } from './WeightRepsStepper';
@@ -14,6 +14,11 @@ interface CollapsibleExerciseCardProps {
   onSetUpdate: (setId: SetEntryId, updates: Partial<SetData>) => void;
   onAddSet: () => void;
   onShowRestPreset: () => void;
+  closeAllMenus?: boolean; // Signal from parent to close menu
+  onMenuStateChange?: (isOpen: boolean, exerciseId: string) => void; // Notify parent of menu state
+  onRemoveExercise?: (exerciseId: string) => void;
+  onReplaceExercise?: (exerciseId: string) => void;
+  onReorderExercises?: () => void;
 }
 
 export const CollapsibleExerciseCard = memo(
@@ -26,7 +31,14 @@ export const CollapsibleExerciseCard = memo(
     onSetUpdate,
     onAddSet,
     onShowRestPreset,
+    closeAllMenus,
+    onMenuStateChange,
+    onRemoveExercise,
+    onReplaceExercise,
+    onReorderExercises,
   }: CollapsibleExerciseCardProps) => {
+    const [isMenuVisible, setIsMenuVisible] = useState(false);
+    
     const exerciseStats = useMemo(
       () => ({
         totalSets: exercise.sets.length,
@@ -70,6 +82,30 @@ export const CollapsibleExerciseCard = memo(
     // Exercise header uses modal background (dark/black)
     const headerBackgroundColor = '$color1'; // This should be the dark modal background
 
+    const handleMenuPress = (e: any) => {
+      e.stopPropagation();
+      console.log('Menu pressed for exercise:', exercise.exercise.name);
+      const newState = !isMenuVisible;
+      setIsMenuVisible(newState);
+      onMenuStateChange?.(newState, exercise.id);
+    };
+
+    // Close menu when parent requests it (but not if we're the one that should stay open)
+    useEffect(() => {
+      if (closeAllMenus && isMenuVisible) {
+        setIsMenuVisible(false);
+        onMenuStateChange?.(false, exercise.id);
+      }
+    }, [closeAllMenus, isMenuVisible, onMenuStateChange, exercise.id]);
+
+    const handleCardPress = () => {
+      if (isMenuVisible) {
+        setIsMenuVisible(false);
+      } else {
+        onToggleExpanded();
+      }
+    };
+
     return (
       <YStack borderBottomWidth={1} borderBottomColor="$gray4">
         {/* Exercise Header - Always Visible */}
@@ -79,7 +115,7 @@ export const CollapsibleExerciseCard = memo(
           padding="$4"
           backgroundColor={headerBackgroundColor}
           pressStyle={{ opacity: 0.7 }}
-          onPress={onToggleExpanded}
+          onPress={handleCardPress}
           accessibilityLabel={`${exercise.exercise.name}, ${isExpanded ? 'expanded' : 'collapsed'}, tap to ${isExpanded ? 'collapse' : 'expand'}`}
           accessibilityRole="button"
         >
@@ -139,13 +175,29 @@ export const CollapsibleExerciseCard = memo(
             </XStack>
           </YStack>
 
-          <ChevronDown
-            size={20}
-            color="$gray10"
-            style={{
-              transform: [{ rotate: isExpanded ? '180deg' : '0deg' }],
-            }}
-          />
+          <XStack alignItems="center" space="$2">
+            <ChevronDown
+              size={20}
+              color="$gray10"
+              style={{
+                transform: [{ rotate: isExpanded ? '180deg' : '0deg' }],
+              }}
+            />
+            <Button
+              size="$3"
+              chromeless
+              onPress={handleMenuPress}
+              padding="$0"
+              paddingVertical="$2"
+              paddingHorizontal="$1"
+              marginRight="$-1"
+              minWidth={40}
+              minHeight={44}
+              accessibilityLabel="Exercise options"
+            >
+              <MoreVertical size={16} color="white" />
+            </Button>
+          </XStack>
         </XStack>
 
         {/* Exercise Sets - Expandable */}
@@ -280,6 +332,76 @@ export const CollapsibleExerciseCard = memo(
               </Button>
             </XStack>
           </YStack>
+        )}
+
+        {/* Exercise Menu Dropdown - Following RoutineCarousel pattern */}
+        {isMenuVisible && (
+          <Card
+            position="absolute"
+            top={60} // Position below the 3-dots button
+            right={16} // Align with card edges
+            backgroundColor="$background"
+            borderColor="$gray6"
+            borderWidth={1}
+            padding="$2"
+            zIndex={1000}
+            elevation={10}
+            shadowColor="$shadowColor"
+            shadowOffset={{ width: 0, height: 4 }}
+            shadowOpacity={0.15}
+            shadowRadius={6}
+            borderRadius="$3"
+            width={160}
+          >
+            <YStack space="$1">
+              <Button
+                chromeless
+                onPress={() => {
+                  setIsMenuVisible(false);
+                  onReplaceExercise?.(exercise.id);
+                }}
+                justifyContent="flex-start"
+                padding="$3"
+                minHeight={44}
+                icon={<Repeat size={16} color="$gray11" />}
+                gap="$2"
+              >
+                <Text fontSize="$4">Replace</Text>
+              </Button>
+
+              <Button
+                chromeless
+                onPress={() => {
+                  setIsMenuVisible(false);
+                  onReorderExercises?.();
+                }}
+                justifyContent="flex-start"
+                padding="$3"
+                minHeight={44}
+                icon={<ArrowUpDown size={16} color="$gray11" />}
+                gap="$2"
+              >
+                <Text fontSize="$4">Reorder</Text>
+              </Button>
+
+              <Button
+                chromeless
+                onPress={() => {
+                  setIsMenuVisible(false);
+                  onRemoveExercise?.(exercise.id);
+                }}
+                justifyContent="flex-start"
+                padding="$3"
+                minHeight={44}
+                icon={<Trash2 size={16} color="$red10" />}
+                gap="$2"
+              >
+                <Text fontSize="$4" color="$red10">
+                  Remove
+                </Text>
+              </Button>
+            </YStack>
+          </Card>
         )}
       </YStack>
     );

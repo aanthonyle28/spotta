@@ -18,6 +18,7 @@ import {
   CollapsibleExerciseCard,
   RestBar,
   RestPresetSheet,
+  ExerciseReorderModal,
 } from '../../src/features/workout/components';
 import type { SetData } from '../../src/features/workout/types';
 import type { SetEntryId } from '@spotta/shared';
@@ -34,6 +35,9 @@ export default function LoggingScreen() {
   const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
     new Set([0])
   );
+  const [openMenuExerciseId, setOpenMenuExerciseId] = useState<string | null>(null);
+  const [closeAllMenus, setCloseAllMenus] = useState(false);
+  const [showExerciseReorderModal, setShowExerciseReorderModal] = useState(false);
   const addSetTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   useRestTimer({
@@ -255,6 +259,76 @@ export default function LoggingScreen() {
     });
   }, []);
 
+  const handleMenuStateChange = useCallback((isOpen: boolean, exerciseId: string) => {
+    if (isOpen) {
+      // Close other menus first, then open this one
+      if (openMenuExerciseId && openMenuExerciseId !== exerciseId) {
+        setCloseAllMenus(true);
+        setTimeout(() => {
+          setCloseAllMenus(false);
+          setOpenMenuExerciseId(exerciseId);
+        }, 50);
+      } else {
+        setOpenMenuExerciseId(exerciseId);
+      }
+    } else {
+      setOpenMenuExerciseId(null);
+    }
+  }, [openMenuExerciseId]);
+
+  const handleScrollViewScroll = useCallback(() => {
+    // Close menus when scrolling
+    if (openMenuExerciseId) {
+      setCloseAllMenus(true);
+      setOpenMenuExerciseId(null);
+      setTimeout(() => setCloseAllMenus(false), 50);
+    }
+  }, [openMenuExerciseId]);
+
+  const handleRemoveExercise = useCallback((exerciseId: string) => {
+    if (!state.activeSession) return;
+    
+    const exercise = state.activeSession.exercises.find(ex => ex.id === exerciseId);
+    if (!exercise) return;
+
+    Alert.alert(
+      'Remove Exercise',
+      `Remove "${exercise.exercise.name}" and all its sets?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await actions.removeExercise(exerciseId);
+            } catch (error) {
+              console.error('Failed to remove exercise:', error);
+            }
+          },
+        },
+      ]
+    );
+  }, [state.activeSession, actions]);
+
+  const handleReplaceExercise = useCallback((exerciseId: string) => {
+    // Navigate to exercise selection with replace mode
+    router.push(`/add-exercises?mode=replace&exerciseId=${exerciseId}` as any);
+  }, []);
+
+  const handleReorderExercises = useCallback(() => {
+    setShowExerciseReorderModal(true);
+  }, []);
+
+  const handleExerciseReorderSave = useCallback(async (reorderedExercises: any[]) => {
+    try {
+      await actions.reorderExercises(reorderedExercises);
+      setShowExerciseReorderModal(false);
+    } catch (error) {
+      console.error('Failed to reorder exercises:', error);
+    }
+  }, [actions]);
+
   const handleRestPresetApply = useCallback(
     (scope: 'this' | 'all' | 'remember', _seconds: number) => {
       if (!selectedExerciseForRest) return;
@@ -376,7 +450,12 @@ export default function LoggingScreen() {
           <Separator />
 
           {/* Exercise List with Buttons - All Scrollable */}
-          <ScrollView flex={1} showsVerticalScrollIndicator={false}>
+          <ScrollView 
+            flex={1} 
+            showsVerticalScrollIndicator={false}
+            onScroll={handleScrollViewScroll}
+            scrollEventThrottle={16}
+          >
             <YStack>
               {state.activeSession.exercises.map((item, index) => (
                 <CollapsibleExerciseCard
@@ -392,6 +471,11 @@ export default function LoggingScreen() {
                     setSelectedExerciseForRest(item.id);
                     setShowRestPresetSheet(true);
                   }}
+                  closeAllMenus={closeAllMenus}
+                  onMenuStateChange={handleMenuStateChange}
+                  onRemoveExercise={handleRemoveExercise}
+                  onReplaceExercise={handleReplaceExercise}
+                  onReorderExercises={handleReorderExercises}
                 />
               ))}
 
@@ -459,6 +543,14 @@ export default function LoggingScreen() {
             onRememberForExercise={(seconds) =>
               handleRestPresetApply('remember', seconds)
             }
+          />
+
+          {/* Exercise Reorder Modal */}
+          <ExerciseReorderModal
+            isOpen={showExerciseReorderModal}
+            exercises={state.activeSession?.exercises || []}
+            onClose={() => setShowExerciseReorderModal(false)}
+            onSave={handleExerciseReorderSave}
           />
         </YStack>
       </PortalProvider>
