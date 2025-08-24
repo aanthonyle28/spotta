@@ -5,6 +5,8 @@ export { RestBar } from './RestBar';
 export { RestTimerModal } from './RestTimerModal';
 export { RestPresetSheet } from './RestPresetSheet';
 export { ActiveSessionBanner } from './ActiveSessionBanner';
+export { WorkoutConflictModal } from './WorkoutConflictModal';
+export { WorkoutStateDebugger } from './WorkoutStateDebugger';
 export { StartEmptyButton } from './StartEmptyButton';
 export { RoutineCarousel } from './RoutineCarousel';
 export { BrowseExercisesTile } from './BrowseExercisesTile';

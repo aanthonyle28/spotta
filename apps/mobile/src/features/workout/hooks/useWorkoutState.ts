@@ -1,6 +1,11 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import type { ExerciseId, SetEntryId } from '@spotta/shared';
-import type { WorkoutState, SetData, RestTimerState, WorkoutSettings } from '../types';
+import type {
+  WorkoutState,
+  SetData,
+  RestTimerState,
+  WorkoutSettings,
+} from '../types';
 import { workoutService } from '../services/workoutService';
 
 const initialRestTimer: RestTimerState = {
@@ -466,6 +471,16 @@ export const useWorkoutState = () => {
     setState((prev) => ({ ...prev, error: null }));
   }, []);
 
+  // Enhanced active session management
+  const hasActiveSession = useMemo(
+    () => !!state.activeSession,
+    [state.activeSession]
+  );
+
+  const checkForActiveSession = useCallback(() => {
+    return state.activeSession;
+  }, [state.activeSession]);
+
   // Settings functions
   const updateRestTimerEnabled = useCallback((enabled: boolean) => {
     setState((prev) => ({
@@ -484,17 +499,18 @@ export const useWorkoutState = () => {
       ...prev,
       settings: {
         ...prev.settings,
-        showRestAsModal,
+        showRestAsModal: showAsModal,
       },
       restTimer: {
         ...prev.restTimer,
-        showAsModal,
+        showAsModal: showAsModal,
       },
     }));
   }, []);
 
   return {
     state,
+    hasActiveSession,
     actions: {
       startQuickWorkout,
       startFromTemplate,
@@ -514,6 +530,7 @@ export const useWorkoutState = () => {
       updateShowRestAsModal,
       clearError,
       loadInitialData,
+      checkForActiveSession,
     },
   };
 };

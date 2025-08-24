@@ -3,7 +3,6 @@ import {
   XStack,
   H1,
   H3,
-  H4,
   Text,
   Button,
   Card,
@@ -12,14 +11,7 @@ import {
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import {
-  Play,
-  Clock,
-  Calendar,
-  Plus,
-  Search,
-  ArrowUpDown,
-} from '@tamagui/lucide-icons';
+import { ArrowUpDown } from '@tamagui/lucide-icons';
 import { useWorkoutState } from '../../src/features/workout/hooks';
 import {
   StartEmptyButton,
@@ -27,18 +19,41 @@ import {
   BrowseExercisesTile,
   BrowseTemplatesTile,
   ReorderTemplatesModal,
+  WorkoutConflictModal,
 } from '../../src/features/workout/components';
 import type { Template } from '../../src/features/workout/types';
 
 export default function WorkoutStartScreen() {
-  const { state, actions } = useWorkoutState();
+  const { state, actions, hasActiveSession } = useWorkoutState();
   const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
+  const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   const handleStartEmpty = () => {
+    if (hasActiveSession) {
+      setPendingAction(
+        () => () => router.push('/workout/add?mode=empty' as any)
+      );
+      setIsConflictModalOpen(true);
+      return;
+    }
     router.push('/workout/add?mode=empty' as any);
   };
 
   const handleStartTemplate = async (templateId: string) => {
+    if (hasActiveSession) {
+      setPendingAction(() => async () => {
+        try {
+          const session = await actions.startFromTemplate(templateId);
+          router.push(`/logging/${session.id}` as any);
+        } catch (error) {
+          console.error('Failed to start workout from template:', error);
+        }
+      });
+      setIsConflictModalOpen(true);
+      return;
+    }
+
     try {
       const session = await actions.startFromTemplate(templateId);
       router.push(`/logging/${session.id}` as any);
@@ -92,16 +107,6 @@ export default function WorkoutStartScreen() {
     if (state.activeSession) {
       router.push(`/logging/${state.activeSession.id}` as any);
     }
-  };
-
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const diffTime = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    return `${diffDays} days ago`;
   };
 
   return (
@@ -171,6 +176,30 @@ export default function WorkoutStartScreen() {
           )}
         </YStack>
       </ScrollView>
+
+      {/* Conflict Modal */}
+      <WorkoutConflictModal
+        isOpen={isConflictModalOpen}
+        activeSession={state.activeSession}
+        onClose={() => {
+          setIsConflictModalOpen(false);
+          setPendingAction(null);
+        }}
+        onResume={handleResumeWorkout}
+        onStartNew={async () => {
+          try {
+            if (state.activeSession) {
+              await actions.discardSession();
+            }
+            if (pendingAction) {
+              await pendingAction();
+              setPendingAction(null);
+            }
+          } catch (error) {
+            console.error('Failed to start new workout:', error);
+          }
+        }}
+      />
 
       {/* Reorder Templates Modal */}
       <ReorderTemplatesModal

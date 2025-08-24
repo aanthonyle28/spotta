@@ -14,15 +14,17 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Play, Clock, Target, ChevronLeft } from '@tamagui/lucide-icons';
 import { workoutService } from '../../../src/features/workout/services/workoutService';
 import { useWorkoutState } from '../../../src/features/workout/hooks';
+import { WorkoutConflictModal } from '../../../src/features/workout/components';
 import type { Template } from '../../../src/features/workout/types';
 
 export default function TemplatePreviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { actions } = useWorkoutState();
+  const { state, actions, hasActiveSession } = useWorkoutState();
   const [template, setTemplate] = useState<Template | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
 
   useEffect(() => {
     loadTemplate();
@@ -52,6 +54,11 @@ export default function TemplatePreviewScreen() {
   const handleStart = async () => {
     if (!template) return;
 
+    if (hasActiveSession) {
+      setIsConflictModalOpen(true);
+      return;
+    }
+
     try {
       setIsStarting(true);
       const session = await actions.startFromTemplate(template.id);
@@ -59,6 +66,12 @@ export default function TemplatePreviewScreen() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start workout');
       setIsStarting(false);
+    }
+  };
+
+  const handleResumeWorkout = () => {
+    if (state.activeSession) {
+      router.push(`/logging/${state.activeSession.id}` as any);
     }
   };
 
@@ -216,6 +229,21 @@ export default function TemplatePreviewScreen() {
           )}
         </YStack>
       </ScrollView>
+
+      {/* Conflict Modal */}
+      <WorkoutConflictModal
+        isOpen={isConflictModalOpen}
+        activeSession={state.activeSession}
+        onClose={() => setIsConflictModalOpen(false)}
+        onResume={handleResumeWorkout}
+        onStartNew={async () => {
+          if (state.activeSession) {
+            await actions.discardSession();
+          }
+          setIsConflictModalOpen(false);
+          handleStart();
+        }}
+      />
     </SafeAreaView>
   );
 }
