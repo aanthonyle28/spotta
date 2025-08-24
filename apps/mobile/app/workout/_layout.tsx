@@ -1,12 +1,10 @@
-import { Stack, router } from 'expo-router';
-import { Button } from 'tamagui';
-import { ChevronLeft } from '@tamagui/lucide-icons';
+import { Stack } from 'expo-router';
 
 export default function WorkoutLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         headerTitleStyle: { fontSize: 18, fontWeight: '600' },
         headerStyle: { backgroundColor: 'transparent' },
       }}
@@ -26,7 +24,10 @@ export default function WorkoutLayout() {
       />
       <Stack.Screen
         name="template/[id]"
-        options={{ title: 'Template Preview' }}
+        options={{
+          title: 'Template Preview',
+          headerShown: true,
+        }}
       />
       <Stack.Screen
         name="browse-templates"

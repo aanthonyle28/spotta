@@ -25,13 +25,63 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 // Mock Tamagui
+const MockedComponent = ({ children, ...props }: any) => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return React.createElement(View, props, children);
+};
+const MockedText = ({ children, ...props }: any) => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  return React.createElement(Text, props, children);
+};
+const MockedSheet = Object.assign(
+  ({ children, open, ...props }: any) => {
+    const React = require('react');
+    const { View } = require('react-native');
+    // Only render children when open is true (mimics Sheet behavior)
+    return open ? React.createElement(View, props, children) : null;
+  },
+  {
+    Overlay: MockedComponent,
+    Handle: MockedComponent,
+    Frame: MockedComponent,
+  }
+);
+
 jest.mock('tamagui', () => ({
-  YStack: ({ children }: { children: React.ReactNode }) => children,
-  XStack: ({ children }: { children: React.ReactNode }) => children,
-  H1: ({ children }: { children: React.ReactNode }) => children,
-  Text: ({ children }: { children: React.ReactNode }) => children,
-  Button: ({ children }: { children: React.ReactNode }) => children,
-  Input: () => null,
+  YStack: MockedComponent,
+  XStack: MockedComponent,
+  H1: MockedText,
+  H4: MockedText,
+  Text: MockedText,
+  Button: MockedComponent,
+  Input: MockedComponent,
+  Card: MockedComponent,
+  Sheet: MockedSheet,
+  TamaguiProvider: MockedComponent,
+  createTamagui: () => ({}),
+}));
+
+// Mock Tamagui Lucide Icons
+const MockedIcon = (props: any) => {
+  const React = require('react');
+  return React.createElement('span', { ...props, 'data-testid': 'mocked-icon' });
+};
+
+jest.mock('@tamagui/lucide-icons', () => ({
+  AlertTriangle: MockedIcon,
+  Play: MockedIcon,
+  RotateCcw: MockedIcon,
+  X: MockedIcon,
+  Plus: MockedIcon,
+  Clock: MockedIcon,
+  Trophy: MockedIcon,
+  Dumbbell: MockedIcon,
+  Users: MockedIcon,
+  User: MockedIcon,
+  ChevronLeft: MockedIcon,
+  ArrowUpDown: MockedIcon,
 }));
 
 // Mock navigation
