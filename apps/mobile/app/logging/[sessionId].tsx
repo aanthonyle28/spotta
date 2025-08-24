@@ -12,10 +12,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Plus, Clock, Trophy, Dumbbell } from '@tamagui/lucide-icons';
-import {
-  useWorkoutState,
-  useRestTimer,
-} from '../../src/features/workout/hooks';
+import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
+import { useRestTimer } from '../../src/features/workout/hooks';
 import {
   CollapsibleExerciseCard,
   RestBar,
@@ -204,6 +202,8 @@ export default function LoggingScreen() {
             try {
               setIsFinishing(true);
               await actions.finishSession();
+              // Allow state to propagate before navigation
+              await new Promise(resolve => setTimeout(resolve, 100));
               router.dismiss();
             } catch (error) {
               console.error('Failed to finish workout:', error);
@@ -231,6 +231,8 @@ export default function LoggingScreen() {
           onPress: async () => {
             try {
               await actions.discardSession();
+              // Allow state to propagate before navigation
+              await new Promise(resolve => setTimeout(resolve, 100));
               router.dismiss();
             } catch (error) {
               console.error('Failed to discard workout:', error);

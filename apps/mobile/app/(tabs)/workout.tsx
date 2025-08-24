@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowUpDown } from '@tamagui/lucide-icons';
-import { useWorkoutState } from '../../src/features/workout/hooks';
+import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
 import {
   StartEmptyButton,
   RoutineCarousel,
@@ -101,6 +101,7 @@ export default function WorkoutStartScreen() {
   const handleSaveReorderedTemplates = (reorderedTemplates: Template[]) => {
     console.log('Save reordered templates:', reorderedTemplates);
     // TODO: Update templates order in state/backend
+    // For now, this just shows the modal works correctly
   };
 
   const handleResumeWorkout = () => {

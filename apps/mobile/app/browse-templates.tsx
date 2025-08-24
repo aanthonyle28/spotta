@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Search, ChevronLeft, Download } from '@tamagui/lucide-icons';
 import { workoutService } from '../src/features/workout/services/workoutService';
-import { useWorkoutState } from '../src/features/workout/hooks';
+import { useWorkoutState } from '../src/features/workout/providers/WorkoutStateProvider';
 import { CustomHeader, FilterRow } from '../src/features/workout/components';
 import type { CommunityTemplate } from '../src/features/workout/types';
 

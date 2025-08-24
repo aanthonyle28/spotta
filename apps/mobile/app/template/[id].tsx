@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Play, Clock, Target, ChevronLeft } from '@tamagui/lucide-icons';
 import { workoutService } from '../../src/features/workout/services/workoutService';
-import { useWorkoutState } from '../../src/features/workout/hooks';
+import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
 import { WorkoutConflictModal } from '../../src/features/workout/components';
 import type { Template } from '../../src/features/workout/types';
 

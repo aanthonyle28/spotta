@@ -18,6 +18,7 @@ export const ActiveSessionBanner = memo<ActiveSessionBannerProps>(
     }, [activeSession.startedAt]);
 
     const handlePress = () => {
+      console.log(`[Banner] Navigating to session: ${activeSession.id}`);
       router.push(`/logging/${activeSession.id}` as any);
     };
 

@@ -33,6 +33,9 @@ export const useWorkoutState = () => {
     isLoading: false,
     error: null,
   });
+  
+  // Add transition state to prevent race conditions
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -43,15 +46,40 @@ export const useWorkoutState = () => {
     try {
       setState((prev) => ({ ...prev, isLoading: true }));
 
-      const [activeSession, recentWorkouts, templates] = await Promise.all([
-        workoutService.getActiveSession(),
+      const [recentWorkouts, templates] = await Promise.all([
         workoutService.getRecentWorkouts(),
         workoutService.getTemplates(),
       ]);
 
+      // Initialize with mock session for development (only if no current session)
+      let initialActiveSession: ActiveSession | null = null;
+      if (process.env.NODE_ENV === 'development') {
+        // Only create mock session if we don't already have one
+        if (!state.activeSession) {
+          const mockExercises = await workoutService.getAllExercises();
+          if (mockExercises.length >= 3) {
+            // Import the createMockActiveSession function
+            const { createMockActiveSession } = await import('../services/mockData');
+            const session = createMockActiveSession(mockExercises.slice(0, 3));
+            session.name = 'Push Day';
+            session.startedAt = new Date(Date.now() - 15 * 60 * 1000); // 15 minutes ago
+            
+            // Store in service sessionStorage so service methods can find it
+            await workoutService.storeSession(session);
+            
+            console.log(`[Hook Init] Created mock session with ID: ${session.id}`);
+            initialActiveSession = session;
+          }
+        } else {
+          // Use existing session
+          initialActiveSession = state.activeSession;
+          console.log(`[Hook Init] Preserving existing session with ID: ${state.activeSession.id}`);
+        }
+      }
+
       setState((prev) => ({
         ...prev,
-        activeSession,
+        activeSession: initialActiveSession,
         recentWorkouts,
         templates,
         isLoading: false,
@@ -289,22 +317,34 @@ export const useWorkoutState = () => {
   );
 
   const finishSession = useCallback(async () => {
-    if (!state.activeSession) return;
+    if (!state.activeSession || isTransitioning) return;
 
     try {
+      setIsTransitioning(true);
       setState((prev) => ({ ...prev, isLoading: true }));
 
       const completedWorkout = await workoutService.finishSession(
         state.activeSession.id
       );
 
+      // Reload templates to get updated lastCompleted dates
+      const updatedTemplates = await workoutService.getTemplates();
+      
+      console.log(`[FinishSession Hook] Templates reloaded:`, updatedTemplates.map(t => ({ 
+        title: t.title, 
+        lastCompleted: t.lastCompleted 
+      })));
+
       setState((prev) => ({
         ...prev,
         activeSession: null,
         restTimer: initialRestTimer,
         recentWorkouts: [completedWorkout, ...prev.recentWorkouts],
+        templates: updatedTemplates,
         isLoading: false,
       }));
+      
+      console.log(`[FinishSession Hook] State updated - activeSession cleared, templates updated`);
 
       return completedWorkout;
     } catch (error) {
@@ -315,16 +355,21 @@ export const useWorkoutState = () => {
         isLoading: false,
       }));
       throw error;
+    } finally {
+      setIsTransitioning(false);
     }
-  }, [state.activeSession]);
+  }, [state.activeSession, isTransitioning]);
 
   const discardSession = useCallback(async () => {
-    if (!state.activeSession) return;
+    if (!state.activeSession || isTransitioning) return;
 
     try {
+      setIsTransitioning(true);
       setState((prev) => ({ ...prev, isLoading: true }));
 
       await workoutService.discardSession(state.activeSession.id);
+      
+      console.log(`[DiscardSession Hook] Clearing activeSession from state`);
 
       setState((prev) => ({
         ...prev,
@@ -332,6 +377,8 @@ export const useWorkoutState = () => {
         restTimer: initialRestTimer,
         isLoading: false,
       }));
+      
+      console.log(`[DiscardSession Hook] State updated - activeSession cleared`);
     } catch (error) {
       setState((prev) => ({
         ...prev,
@@ -340,8 +387,10 @@ export const useWorkoutState = () => {
         isLoading: false,
       }));
       throw error;
+    } finally {
+      setIsTransitioning(false);
     }
-  }, [state.activeSession]);
+  }, [state.activeSession, isTransitioning]);
 
   // Rest timer functions
   const startRestTimer = useCallback(
@@ -473,8 +522,8 @@ export const useWorkoutState = () => {
 
   // Enhanced active session management
   const hasActiveSession = useMemo(
-    () => !!state.activeSession,
-    [state.activeSession]
+    () => !!state.activeSession && !isTransitioning,
+    [state.activeSession, isTransitioning]
   );
 
   const checkForActiveSession = useCallback(() => {
@@ -507,6 +556,7 @@ export const useWorkoutState = () => {
       },
     }));
   }, []);
+
 
   return {
     state,

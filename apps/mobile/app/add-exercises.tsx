@@ -8,7 +8,7 @@ import {
 import { router, useLocalSearchParams } from 'expo-router';
 import { Search, ChevronLeft } from '@tamagui/lucide-icons';
 import { workoutService } from '../src/features/workout/services/workoutService';
-import { useWorkoutState } from '../src/features/workout/hooks';
+import { useWorkoutState } from '../src/features/workout/providers/WorkoutStateProvider';
 import { FilterRow } from '../src/features/workout/components';
 import type { Exercise } from '../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';

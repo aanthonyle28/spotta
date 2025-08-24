@@ -10,6 +10,7 @@ import { SplashScreen, Stack } from 'expo-router';
 import { TamaguiProvider, createTamagui } from '@tamagui/core';
 import { PortalProvider } from '@tamagui/portal';
 import { config } from '@tamagui/config';
+import { WorkoutStateProvider } from '../src/features/workout/providers/WorkoutStateProvider';
 
 const tamaguiConfig = createTamagui(config);
 
@@ -52,39 +53,38 @@ function RootLayoutNav() {
         <ThemeProvider
           value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
         >
-          <Stack>
-            <Stack.Screen
-              name="(tabs)"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="auth" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="add-exercises"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="browse-templates"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="create-exercise"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="template/[id]"
-              options={{
-                title: 'Template Preview',
-                headerShown: true,
-              }}
-            />
-            <Stack.Screen
-              name="logging/[sessionId]"
-              options={{
-                headerShown: false,
-                presentation: 'modal',
-              }}
-            />
-          </Stack>
+          <WorkoutStateProvider>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="auth" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="add-exercises"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="browse-templates"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="create-exercise"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="template/[id]"
+                options={{
+                  title: 'Template Preview',
+                  headerShown: true,
+                }}
+              />
+              <Stack.Screen
+                name="logging/[sessionId]"
+                options={{
+                  headerShown: false,
+                  presentation: 'modal',
+                }}
+              />
+            </Stack>
+          </WorkoutStateProvider>
         </ThemeProvider>
       </PortalProvider>
     </TamaguiProvider>

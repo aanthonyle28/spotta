@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Sheet, YStack, XStack, H4, Button, Text, Card } from 'tamagui';
 import { GripVertical, ArrowUp, ArrowDown, X } from '@tamagui/lucide-icons';
 import type { Template } from '../types';
@@ -14,6 +14,26 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
   ({ isOpen, templates, onClose, onSave }) => {
     const [reorderedTemplates, setReorderedTemplates] =
       useState<Template[]>(templates);
+
+    // Sort templates by most recent completion for smart initial ordering
+    const sortTemplatesByRecentCompletion = (templates: Template[]): Template[] => {
+      return [...templates].sort((a, b) => {
+        // Templates with lastCompleted come first, sorted by most recent
+        if (a.lastCompleted && b.lastCompleted) {
+          return new Date(b.lastCompleted).getTime() - new Date(a.lastCompleted).getTime();
+        }
+        if (a.lastCompleted && !b.lastCompleted) return -1;
+        if (!a.lastCompleted && b.lastCompleted) return 1;
+        // Both have no lastCompleted, maintain original order by title
+        return a.title.localeCompare(b.title);
+      });
+    };
+
+    // Sync with templates prop changes to fix loading issue
+    useEffect(() => {
+      const sortedTemplates = sortTemplatesByRecentCompletion(templates);
+      setReorderedTemplates(sortedTemplates);
+    }, [templates]);
 
     const moveTemplate = (index: number, direction: 'up' | 'down') => {
       const newTemplates = [...reorderedTemplates];
@@ -51,18 +71,23 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
         <Sheet.Frame padding="$4" backgroundColor="$background">
           <YStack space="$4">
             {/* Header */}
-            <XStack justifyContent="space-between" alignItems="center">
-              <H4>Reorder Templates</H4>
-              <Button
-                size="$2"
-                chromeless
-                onPress={handleCancel}
-                padding="$2"
-                accessibilityLabel="Close modal"
-              >
-                <X size={18} color="$gray10" />
-              </Button>
-            </XStack>
+            <YStack space="$2">
+              <XStack justifyContent="space-between" alignItems="center">
+                <H4>Reorder Templates</H4>
+                <Button
+                  size="$2"
+                  chromeless
+                  onPress={handleCancel}
+                  padding="$2"
+                  accessibilityLabel="Close modal"
+                >
+                  <X size={18} color="$gray10" />
+                </Button>
+              </XStack>
+              <Text fontSize="$3" color="$gray11" lineHeight="$1">
+                Templates are automatically ordered by most recently completed. Drag to reorder manually.
+              </Text>
+            </YStack>
 
             {/* Template List */}
             <YStack space="$2" maxHeight={400}>

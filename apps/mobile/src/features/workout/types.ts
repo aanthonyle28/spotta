@@ -16,6 +16,7 @@ export interface ActiveSession {
   currentExerciseIndex: number;
   totalVolume: number;
   duration: number;
+  templateId?: TemplateId; // Track which template was used to create this session
 }
 
 export interface SessionExercise {

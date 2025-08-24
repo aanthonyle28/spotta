@@ -22,32 +22,24 @@ import {
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 class WorkoutService {
-  private activeSession: ActiveSession | null = null;
   private sessionStorage: Map<WorkoutId, ActiveSession> = new Map();
+  // Remove internal activeSession state - will be managed by hook only
 
   constructor() {
-    // Initialize with a mock active session for development/testing
-    if (process.env.NODE_ENV === 'development') {
-      this.initializeMockSession();
-    }
+    // Mock session initialization now handled entirely by hook
   }
 
-  private initializeMockSession() {
-    // Create a mock session that started 15 minutes ago
-    const mockSession = createMockActiveSession(mockExercises.slice(0, 3));
-    mockSession.name = 'Push Day';
-    mockSession.startedAt = new Date(Date.now() - 15 * 60 * 1000); // 15 minutes ago
-
-    this.activeSession = mockSession;
-    this.sessionStorage.set(mockSession.id, mockSession);
-  }
 
   // Development helper to clear mock session
   clearMockSession() {
     if (process.env.NODE_ENV === 'development') {
-      this.activeSession = null;
       this.sessionStorage.clear();
     }
+  }
+
+  // Store session in sessionStorage (for hook initialization)
+  async storeSession(session: ActiveSession): Promise<void> {
+    this.sessionStorage.set(session.id, session);
   }
 
   // Exercise operations
@@ -96,6 +88,13 @@ class WorkoutService {
 
   async getTemplates(): Promise<Template[]> {
     return this.getAllTemplates();
+  }
+
+  async updateTemplateOrder(reorderedTemplates: Template[]): Promise<void> {
+    await delay(200);
+    // Update the template order in mock storage
+    // In real app, this would persist to backend with orderIndex or position
+    mockTemplates.splice(0, mockTemplates.length, ...reorderedTemplates);
   }
 
   // Community template operations
@@ -149,8 +148,11 @@ class WorkoutService {
 
     const session = createMockActiveSession(exercises);
     session.name = template.title;
+    session.templateId = template.id;
+    
+    console.log(`[StartFromTemplate] Created session with templateId: ${session.templateId} for template: ${template.title}`);
 
-    this.activeSession = session;
+    // Only store in sessionStorage - activeSession managed by hook
     this.sessionStorage.set(session.id, session);
 
     return session;
@@ -173,7 +175,7 @@ class WorkoutService {
       session.name = name;
     }
 
-    this.activeSession = session;
+    // Only store in sessionStorage - activeSession managed by hook
     this.sessionStorage.set(session.id, session);
 
     return session;
@@ -181,7 +183,8 @@ class WorkoutService {
 
   async getActiveSession(): Promise<ActiveSession | null> {
     await delay(100);
-    return this.activeSession;
+    // Return null - active session is now managed entirely by the hook
+    return null;
   }
 
   async getSessionById(id: WorkoutId): Promise<ActiveSession | null> {
@@ -290,6 +293,20 @@ class WorkoutService {
       throw new Error('Session not found');
     }
 
+    // Update template's lastCompleted date if this session was created from a template
+    console.log(`[FinishSession] Session templateId: ${session.templateId}`);
+    if (session.templateId) {
+      const templateIndex = mockTemplates.findIndex(t => t.id === session.templateId);
+      console.log(`[FinishSession] Template index found: ${templateIndex}`);
+      if (templateIndex !== -1) {
+        const oldDate = mockTemplates[templateIndex].lastCompleted;
+        mockTemplates[templateIndex].lastCompleted = new Date();
+        console.log(`[FinishSession] Updated template "${mockTemplates[templateIndex].title}" lastCompleted from ${oldDate} to ${mockTemplates[templateIndex].lastCompleted}`);
+      }
+    } else {
+      console.log('[FinishSession] No templateId found on session - this workout was not started from a template');
+    }
+
     const completedWorkout: WorkoutSession = {
       id: session.id,
       name: session.name,
@@ -306,8 +323,7 @@ class WorkoutService {
       isActive: false,
     };
 
-    // Clear active session
-    this.activeSession = null;
+    // Clear from storage - activeSession managed by hook
     this.sessionStorage.delete(sessionId);
 
     return completedWorkout;
@@ -315,11 +331,12 @@ class WorkoutService {
 
   async discardSession(sessionId: WorkoutId): Promise<void> {
     await delay(200);
+    
+    console.log(`[DiscardSession] Discarding session: ${sessionId}`);
 
-    if (this.activeSession?.id === sessionId) {
-      this.activeSession = null;
-    }
     this.sessionStorage.delete(sessionId);
+    
+    console.log(`[DiscardSession] Session discarded from storage`);
   }
 
   async getRecentWorkouts(): Promise<WorkoutSession[]> {
