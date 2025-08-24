@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FlatList } from 'react-native';
 import { YStack, XStack, Text, Button, Card, Input } from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { Search, ChevronLeft, Download } from '@tamagui/lucide-icons';
 import { workoutService } from '../src/features/workout/services/workoutService';
 import { useWorkoutState } from '../src/features/workout/providers/WorkoutStateProvider';
@@ -111,14 +111,14 @@ export default function BrowseTemplatesScreen() {
   const handleStartTemplate = async (templateId: string) => {
     try {
       const session = await actions.startFromTemplate(templateId);
-      router.push(`/logging/${session.id}` as any);
+      router.push(`/logging/${session.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start workout');
     }
   };
 
   const handlePreviewTemplate = (templateId: string) => {
-    router.push(`/template/${templateId}?source=community` as any);
+    router.push(`/template/${templateId}?source=community`);
   };
 
   const renderTemplateItem = ({ item }: { item: CommunityTemplate }) => {

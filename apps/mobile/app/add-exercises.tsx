@@ -110,26 +110,29 @@ export default function AddExercisesScreen() {
     selectedEquipment,
   ]);
 
-  const toggleExerciseSelection = useCallback((exerciseId: ExerciseId) => {
-    setSelectedExercises((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(exerciseId)) {
-        newSet.delete(exerciseId);
-      } else {
-        // For replace mode, only allow single selection
-        if (mode === 'replace') {
-          return new Set([exerciseId]);
+  const toggleExerciseSelection = useCallback(
+    (exerciseId: ExerciseId) => {
+      setSelectedExercises((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(exerciseId)) {
+          newSet.delete(exerciseId);
         } else {
-          newSet.add(exerciseId);
+          // For replace mode, only allow single selection
+          if (mode === 'replace') {
+            return new Set([exerciseId]);
+          } else {
+            newSet.add(exerciseId);
+          }
         }
-      }
-      return newSet;
-    });
-  }, [mode]);
+        return newSet;
+      });
+    },
+    [mode]
+  );
 
   const handleStart = async () => {
     if (selectedExercises.size === 0) return;
-    
+
     // For replace mode, ensure only one exercise is selected
     if (mode === 'replace' && selectedExercises.size !== 1) {
       setError('Please select exactly one exercise to replace with');
@@ -146,7 +149,7 @@ export default function AddExercisesScreen() {
           exerciseIds,
           'Quick Workout'
         );
-        router.push(`/logging/${session.id}` as any);
+        router.push(`/logging/${session.id}`);
       } else if (mode === 'template') {
         // For template mode, we'll show save options first
         // For now, just start the session
@@ -154,7 +157,7 @@ export default function AddExercisesScreen() {
           exerciseIds,
           'New Template Workout'
         );
-        router.push(`/logging/${session.id}` as any);
+        router.push(`/logging/${session.id}`);
       } else if (mode === 'replace' && exerciseId) {
         // Replace existing exercise with selected one
         await actions.replaceExercise(exerciseId as ExerciseId, exerciseIds[0]);
@@ -243,7 +246,7 @@ export default function AddExercisesScreen() {
               <Button
                 size="$3"
                 backgroundColor="$green9"
-                onPress={() => router.push('/create-exercise' as any)}
+                onPress={() => router.push('/create-exercise')}
                 accessibilityLabel="Create exercise"
               >
                 Create +

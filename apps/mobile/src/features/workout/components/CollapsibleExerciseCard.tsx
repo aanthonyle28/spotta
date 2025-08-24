@@ -1,9 +1,18 @@
 import { memo, useCallback, useMemo, useState, useEffect } from 'react';
 import { YStack, XStack, Text, Button, Card } from 'tamagui';
-import { ChevronDown, Clock, MoreVertical, Trash2, Repeat, ArrowUpDown } from '@tamagui/lucide-icons';
+import {
+  ChevronDown,
+  Clock,
+  MoreVertical,
+  Trash2,
+  Repeat,
+  ArrowUpDown,
+} from '@tamagui/lucide-icons';
 import type { SessionExercise, SetData } from '../types';
-import type { SetEntryId } from '@spotta/shared';
+import type { SetEntryId, ExerciseId } from '@spotta/shared';
+import type { GestureResponderEvent } from 'react-native';
 import { WeightRepsStepper } from './WeightRepsStepper';
+import { logger } from '../../../utils/logger';
 
 interface CollapsibleExerciseCardProps {
   exercise: SessionExercise;
@@ -15,9 +24,9 @@ interface CollapsibleExerciseCardProps {
   onAddSet: () => void;
   onShowRestPreset: () => void;
   closeAllMenus?: boolean; // Signal from parent to close menu
-  onMenuStateChange?: (isOpen: boolean, exerciseId: string) => void; // Notify parent of menu state
-  onRemoveExercise?: (exerciseId: string) => void;
-  onReplaceExercise?: (exerciseId: string) => void;
+  onMenuStateChange?: (isOpen: boolean, exerciseId: ExerciseId) => void; // Notify parent of menu state
+  onRemoveExercise?: (exerciseId: ExerciseId) => void;
+  onReplaceExercise?: (exerciseId: ExerciseId) => void;
   onReorderExercises?: () => void;
 }
 
@@ -38,7 +47,7 @@ export const CollapsibleExerciseCard = memo(
     onReorderExercises,
   }: CollapsibleExerciseCardProps) => {
     const [isMenuVisible, setIsMenuVisible] = useState(false);
-    
+
     const exerciseStats = useMemo(
       () => ({
         totalSets: exercise.sets.length,
@@ -82,9 +91,9 @@ export const CollapsibleExerciseCard = memo(
     // Exercise header uses modal background (dark/black)
     const headerBackgroundColor = '$color1'; // This should be the dark modal background
 
-    const handleMenuPress = (e: any) => {
+    const handleMenuPress = (e: GestureResponderEvent) => {
       e.stopPropagation();
-      console.log('Menu pressed for exercise:', exercise.exercise.name);
+      logger.debug('Menu pressed for exercise:', exercise.exercise.name);
       const newState = !isMenuVisible;
       setIsMenuVisible(newState);
       onMenuStateChange?.(newState, exercise.id);
@@ -278,7 +287,7 @@ export const CollapsibleExerciseCard = memo(
                       onPress={() => {
                         if (set.completed) {
                           // Toggle off - mark as incomplete
-                          onSetUpdate(set.id as any, {
+                          onSetUpdate(set.id, {
                             completed: false,
                             completedAt: undefined,
                           });

@@ -16,11 +16,16 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
       useState<Template[]>(templates);
 
     // Sort templates by most recent completion for smart initial ordering
-    const sortTemplatesByRecentCompletion = (templates: Template[]): Template[] => {
+    const sortTemplatesByRecentCompletion = (
+      templates: Template[]
+    ): Template[] => {
       return [...templates].sort((a, b) => {
         // Templates with lastCompleted come first, sorted by most recent
         if (a.lastCompleted && b.lastCompleted) {
-          return new Date(b.lastCompleted).getTime() - new Date(a.lastCompleted).getTime();
+          return (
+            new Date(b.lastCompleted).getTime() -
+            new Date(a.lastCompleted).getTime()
+          );
         }
         if (a.lastCompleted && !b.lastCompleted) return -1;
         if (!a.lastCompleted && b.lastCompleted) return 1;
@@ -85,7 +90,8 @@ export const ReorderTemplatesModal = memo<ReorderTemplatesModalProps>(
                 </Button>
               </XStack>
               <Text fontSize="$3" color="$gray11" lineHeight="$1">
-                Templates are automatically ordered by most recently completed. Drag to reorder manually.
+                Templates are automatically ordered by most recently completed.
+                Drag to reorder manually.
               </Text>
             </YStack>
 

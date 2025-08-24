@@ -21,24 +21,25 @@ import {
   ExerciseReorderModal,
 } from '../../src/features/workout/components';
 import type { SetData } from '../../src/features/workout/types';
-import type { SetEntryId } from '@spotta/shared';
+import type { SetEntryId, ExerciseId } from '@spotta/shared';
 
 export default function LoggingScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const { state, actions } = useWorkoutState();
   const activeExerciseIndex = 0;
   const [showRestPresetSheet, setShowRestPresetSheet] = useState(false);
-  const [selectedExerciseForRest, setSelectedExerciseForRest] = useState<
-    string | null
-  >(null);
+  const [selectedExerciseForRest, setSelectedExerciseForRest] =
+    useState<ExerciseId | null>(null);
   const [isFinishing, setIsFinishing] = useState(false);
   const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
     new Set([0])
   );
-  const [openMenuExerciseId, setOpenMenuExerciseId] = useState<string | null>(null);
+  const [openMenuExerciseId, setOpenMenuExerciseId] =
+    useState<ExerciseId | null>(null);
   const [closeAllMenus, setCloseAllMenus] = useState(false);
-  const [showExerciseReorderModal, setShowExerciseReorderModal] = useState(false);
-  const addSetTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const [showExerciseReorderModal, setShowExerciseReorderModal] =
+    useState(false);
+  const addSetTimeouts = useRef<Map<ExerciseId, NodeJS.Timeout>>(new Map());
 
   useRestTimer({
     restTimer: state.restTimer,
@@ -165,7 +166,7 @@ export default function LoggingScreen() {
   );
 
   const handleAddSet = useCallback(
-    async (exerciseId: string) => {
+    async (exerciseId: ExerciseId) => {
       const timeoutKey = exerciseId;
 
       // Clear existing timeout for this exercise
@@ -207,7 +208,7 @@ export default function LoggingScreen() {
               setIsFinishing(true);
               await actions.finishSession();
               // Allow state to propagate before navigation
-              await new Promise(resolve => setTimeout(resolve, 100));
+              await new Promise((resolve) => setTimeout(resolve, 100));
               router.dismiss();
             } catch (error) {
               console.error('Failed to finish workout:', error);
@@ -236,7 +237,7 @@ export default function LoggingScreen() {
             try {
               await actions.discardSession();
               // Allow state to propagate before navigation
-              await new Promise(resolve => setTimeout(resolve, 100));
+              await new Promise((resolve) => setTimeout(resolve, 100));
               router.dismiss();
             } catch (error) {
               console.error('Failed to discard workout:', error);
@@ -259,22 +260,25 @@ export default function LoggingScreen() {
     });
   }, []);
 
-  const handleMenuStateChange = useCallback((isOpen: boolean, exerciseId: string) => {
-    if (isOpen) {
-      // Close other menus first, then open this one
-      if (openMenuExerciseId && openMenuExerciseId !== exerciseId) {
-        setCloseAllMenus(true);
-        setTimeout(() => {
-          setCloseAllMenus(false);
+  const handleMenuStateChange = useCallback(
+    (isOpen: boolean, exerciseId: ExerciseId) => {
+      if (isOpen) {
+        // Close other menus first, then open this one
+        if (openMenuExerciseId && openMenuExerciseId !== exerciseId) {
+          setCloseAllMenus(true);
+          setTimeout(() => {
+            setCloseAllMenus(false);
+            setOpenMenuExerciseId(exerciseId);
+          }, 50);
+        } else {
           setOpenMenuExerciseId(exerciseId);
-        }, 50);
+        }
       } else {
-        setOpenMenuExerciseId(exerciseId);
+        setOpenMenuExerciseId(null);
       }
-    } else {
-      setOpenMenuExerciseId(null);
-    }
-  }, [openMenuExerciseId]);
+    },
+    [openMenuExerciseId]
+  );
 
   const handleScrollViewScroll = useCallback(() => {
     // Close menus when scrolling
@@ -285,33 +289,38 @@ export default function LoggingScreen() {
     }
   }, [openMenuExerciseId]);
 
-  const handleRemoveExercise = useCallback((exerciseId: string) => {
-    if (!state.activeSession) return;
-    
-    const exercise = state.activeSession.exercises.find(ex => ex.id === exerciseId);
-    if (!exercise) return;
+  const handleRemoveExercise = useCallback(
+    (exerciseId: ExerciseId) => {
+      if (!state.activeSession) return;
 
-    Alert.alert(
-      'Remove Exercise',
-      `Remove "${exercise.exercise.name}" and all its sets?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await actions.removeExercise(exerciseId);
-            } catch (error) {
-              console.error('Failed to remove exercise:', error);
-            }
+      const exercise = state.activeSession.exercises.find(
+        (ex) => ex.id === exerciseId
+      );
+      if (!exercise) return;
+
+      Alert.alert(
+        'Remove Exercise',
+        `Remove "${exercise.exercise.name}" and all its sets?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Remove',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await actions.removeExercise(exerciseId);
+              } catch (error) {
+                console.error('Failed to remove exercise:', error);
+              }
+            },
           },
-        },
-      ]
-    );
-  }, [state.activeSession, actions]);
+        ]
+      );
+    },
+    [state.activeSession, actions]
+  );
 
-  const handleReplaceExercise = useCallback((exerciseId: string) => {
+  const handleReplaceExercise = useCallback((exerciseId: ExerciseId) => {
     // Navigate to exercise selection with replace mode
     router.push(`/add-exercises?mode=replace&exerciseId=${exerciseId}` as any);
   }, []);
@@ -320,14 +329,17 @@ export default function LoggingScreen() {
     setShowExerciseReorderModal(true);
   }, []);
 
-  const handleExerciseReorderSave = useCallback(async (reorderedExercises: any[]) => {
-    try {
-      await actions.reorderExercises(reorderedExercises);
-      setShowExerciseReorderModal(false);
-    } catch (error) {
-      console.error('Failed to reorder exercises:', error);
-    }
-  }, [actions]);
+  const handleExerciseReorderSave = useCallback(
+    async (reorderedExercises: any[]) => {
+      try {
+        await actions.reorderExercises(reorderedExercises);
+        setShowExerciseReorderModal(false);
+      } catch (error) {
+        console.error('Failed to reorder exercises:', error);
+      }
+    },
+    [actions]
+  );
 
   const handleRestPresetApply = useCallback(
     (scope: 'this' | 'all' | 'remember', _seconds: number) => {
@@ -450,8 +462,8 @@ export default function LoggingScreen() {
           <Separator />
 
           {/* Exercise List with Buttons - All Scrollable */}
-          <ScrollView 
-            flex={1} 
+          <ScrollView
+            flex={1}
             showsVerticalScrollIndicator={false}
             onScroll={handleScrollViewScroll}
             scrollEventThrottle={16}

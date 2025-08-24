@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import { TamaguiProvider, createTamagui } from '@tamagui/core';
 import { config } from '@tamagui/config';
 import { ExerciseCard } from './ExerciseCard';
-import type { SessionExercise, SetData } from '../types';
+import type { SessionExercise } from '../types';
 import type { ExerciseId, SetEntryId } from '@spotta/shared';
 
 const testConfig = createTamagui(config);
@@ -145,7 +145,7 @@ describe.skip('ExerciseCard', () => {
   });
 
   it('disables stepper for completed sets', () => {
-    const { getByTestId } = render(
+    render(
       <TestWrapper>
         <ExerciseCard {...mockProps} isActive={true} />
       </TestWrapper>

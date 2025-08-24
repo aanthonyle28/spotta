@@ -12,7 +12,8 @@ interface ExerciseReorderModalProps {
 
 export const ExerciseReorderModal = memo<ExerciseReorderModalProps>(
   ({ isOpen, exercises, onClose, onSave }) => {
-    const [reorderedExercises, setReorderedExercises] = useState<SessionExercise[]>(exercises);
+    const [reorderedExercises, setReorderedExercises] =
+      useState<SessionExercise[]>(exercises);
 
     // Sync with exercises prop changes
     useEffect(() => {

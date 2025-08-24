@@ -97,7 +97,7 @@ export const ExerciseCard = memo(
 
         {isActive && (
           <YStack space="$3" marginTop="$4">
-            {exercise.sets.map((set, index) => {
+            {exercise.sets.map((set, _index) => {
               // Stable styles to avoid recreation
               const setRowStyle = {
                 alignItems: 'center' as const,

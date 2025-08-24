@@ -71,10 +71,7 @@ function RootLayoutNav() {
               />
               <Stack.Screen
                 name="template/[id]"
-                options={{
-                  title: 'Template Preview',
-                  headerShown: true,
-                }}
+                options={{ headerShown: false }}
               />
               <Stack.Screen
                 name="logging/[sessionId]"

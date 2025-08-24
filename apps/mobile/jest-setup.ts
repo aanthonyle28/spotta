@@ -1,6 +1,8 @@
 // Setup for React Native Testing Library
 // Note: extend-expect is now built-in to @testing-library/react-native v12.4+
 
+import type React from 'react';
+
 // Mock Expo modules that don't work in Jest
 jest.mock('expo-font', () => ({
   useFonts: () => [true, null],
@@ -25,18 +27,38 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 // Mock Tamagui
-const MockedComponent = ({ children, ...props }: any) => {
+const MockedComponent = ({
+  children,
+  ...props
+}: {
+  children?: React.ReactNode;
+  [key: string]: unknown;
+}) => {
   const React = require('react');
   const { View } = require('react-native');
   return React.createElement(View, props, children);
 };
-const MockedText = ({ children, ...props }: any) => {
+const MockedText = ({
+  children,
+  ...props
+}: {
+  children?: React.ReactNode;
+  [key: string]: unknown;
+}) => {
   const React = require('react');
   const { Text } = require('react-native');
   return React.createElement(Text, props, children);
 };
 const MockedSheet = Object.assign(
-  ({ children, open, ...props }: any) => {
+  ({
+    children,
+    open,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    open?: boolean;
+    [key: string]: unknown;
+  }) => {
     const React = require('react');
     const { View } = require('react-native');
     // Only render children when open is true (mimics Sheet behavior)
@@ -64,7 +86,7 @@ jest.mock('tamagui', () => ({
 }));
 
 // Mock Tamagui Lucide Icons
-const MockedIcon = (props: any) => {
+const MockedIcon = (props: { [key: string]: unknown }) => {
   const React = require('react');
   return React.createElement('span', {
     ...props,

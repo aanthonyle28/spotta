@@ -49,7 +49,7 @@ describe.skip('FilterDropdown', () => {
   });
 
   it('opens sheet when pressed', () => {
-    const { getByText, getByAccessibilityHint } = render(
+    const { getByText } = render(
       <TestWrapper>
         <FilterDropdown
           placeholder="All Categories"

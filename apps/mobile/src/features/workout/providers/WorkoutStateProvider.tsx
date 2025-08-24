@@ -1,21 +1,35 @@
 import React, { createContext, useContext, type ReactNode } from 'react';
 import { useWorkoutState as useWorkoutStateHook } from '../hooks/useWorkoutState';
-import type { WorkoutState } from '../types';
+import type {
+  WorkoutState,
+  ActiveSession,
+  SessionExercise,
+  WorkoutSession,
+} from '../types';
 import type { ExerciseId, SetEntryId } from '@spotta/shared';
-import type { SetData, Template } from '../types';
+import type { SetData } from '../types';
 
 interface WorkoutStateContextType {
   state: WorkoutState;
   hasActiveSession: boolean;
   actions: {
-    startQuickWorkout: () => Promise<any>;
-    startFromTemplate: (templateId: string) => Promise<any>;
-    startSessionWithExercises: (exerciseIds: ExerciseId[], name?: string) => Promise<any>;
-    updateSet: (exerciseId: ExerciseId, setId: SetEntryId, updates: Partial<SetData>) => Promise<SetData>;
-    completeSet: (setData: SetData) => Promise<any>;
+    startQuickWorkout: () => Promise<ActiveSession>;
+    startFromTemplate: (templateId: string) => Promise<ActiveSession>;
+    startSessionWithExercises: (
+      exerciseIds: ExerciseId[],
+      name?: string
+    ) => Promise<ActiveSession>;
+    updateSet: (
+      exerciseId: ExerciseId,
+      setId: SetEntryId,
+      updates: Partial<SetData>
+    ) => Promise<SetData>;
+    completeSet: (
+      setData: SetData
+    ) => Promise<{ set: SetData; restTime?: number } | undefined>;
     addSet: (exerciseId: ExerciseId) => Promise<SetData>;
     appendExercises: (exerciseIds: ExerciseId[]) => Promise<void>;
-    finishSession: () => Promise<any>;
+    finishSession: () => Promise<WorkoutSession | undefined>;
     discardSession: () => Promise<void>;
     startRestTimer: (duration: number, exerciseId?: ExerciseId) => void;
     skipRest: () => void;
@@ -26,20 +40,27 @@ interface WorkoutStateContextType {
     updateShowRestAsModal: (showAsModal: boolean) => void;
     clearError: () => void;
     loadInitialData: () => Promise<void>;
-    checkForActiveSession: () => any;
+    checkForActiveSession: () => void;
     removeExercise: (exerciseId: ExerciseId) => Promise<void>;
-    replaceExercise: (oldExerciseId: ExerciseId, newExerciseId: ExerciseId) => Promise<void>;
-    reorderExercises: (reorderedExercises: any[]) => Promise<void>;
+    replaceExercise: (
+      oldExerciseId: ExerciseId,
+      newExerciseId: ExerciseId
+    ) => Promise<void>;
+    reorderExercises: (reorderedExercises: SessionExercise[]) => Promise<void>;
   };
 }
 
-const WorkoutStateContext = createContext<WorkoutStateContextType | undefined>(undefined);
+const WorkoutStateContext = createContext<WorkoutStateContextType | undefined>(
+  undefined
+);
 
 interface WorkoutStateProviderProps {
   children: ReactNode;
 }
 
-export const WorkoutStateProvider: React.FC<WorkoutStateProviderProps> = ({ children }) => {
+export const WorkoutStateProvider: React.FC<WorkoutStateProviderProps> = ({
+  children,
+}) => {
   const workoutState = useWorkoutStateHook();
 
   return (
@@ -52,7 +73,9 @@ export const WorkoutStateProvider: React.FC<WorkoutStateProviderProps> = ({ chil
 export const useWorkoutState = (): WorkoutStateContextType => {
   const context = useContext(WorkoutStateContext);
   if (context === undefined) {
-    throw new Error('useWorkoutState must be used within a WorkoutStateProvider');
+    throw new Error(
+      'useWorkoutState must be used within a WorkoutStateProvider'
+    );
   }
   return context;
 };

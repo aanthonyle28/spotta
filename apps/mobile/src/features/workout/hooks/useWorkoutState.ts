@@ -5,8 +5,11 @@ import type {
   SetData,
   RestTimerState,
   WorkoutSettings,
+  ActiveSession,
+  SessionExercise,
 } from '../types';
 import { workoutService } from '../services/workoutService';
+import { logger } from '../../../utils/logger';
 
 const initialRestTimer: RestTimerState = {
   isActive: false,
@@ -33,7 +36,7 @@ export const useWorkoutState = () => {
     isLoading: false,
     error: null,
   });
-  
+
   // Add transition state to prevent race conditions
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -56,30 +59,39 @@ export const useWorkoutState = () => {
       if (process.env.NODE_ENV === 'development') {
         // Check if user has previously completed a development session (now async)
         const { developmentState } = await import('../utils/developmentState');
-        const hasCompletedSession = await developmentState.hasUserCompletedSession();
-        
+        const hasCompletedSession =
+          await developmentState.hasUserCompletedSession();
+
         // Only create mock session if we don't already have one AND user hasn't completed one before
         if (!state.activeSession && !hasCompletedSession) {
           const mockExercises = await workoutService.getAllExercises();
           if (mockExercises.length >= 3) {
             // Import the createMockActiveSession function
-            const { createMockActiveSession } = await import('../services/mockData');
+            const { createMockActiveSession } = await import(
+              '../services/mockData'
+            );
             const session = createMockActiveSession(mockExercises.slice(0, 3));
             session.name = 'Push Day';
             session.startedAt = new Date(Date.now() - 15 * 60 * 1000); // 15 minutes ago
-            
+
             // Store in service sessionStorage so service methods can find it
             await workoutService.storeSession(session);
-            
-            console.log(`[Hook Init] Created mock session with ID: ${session.id}`);
+
+            logger.info(
+              `[Hook Init] Created mock session with ID: ${session.id}`
+            );
             initialActiveSession = session;
           }
         } else if (hasCompletedSession) {
-          console.log(`[Hook Init] User has completed a session before - not creating mock session`);
+          logger.info(
+            `[Hook Init] User has completed a session before - not creating mock session`
+          );
         } else {
           // Use existing session
           initialActiveSession = state.activeSession;
-          console.log(`[Hook Init] Preserving existing session with ID: ${state.activeSession?.id}`);
+          logger.info(
+            `[Hook Init] Preserving existing session with ID: ${state.activeSession?.id}`
+          );
         }
       }
 
@@ -187,7 +199,9 @@ export const useWorkoutState = () => {
       setId: SetEntryId,
       updates: Partial<SetData>
     ) => {
-      if (!state.activeSession) return;
+      if (!state.activeSession) {
+        throw new Error('No active session');
+      }
 
       try {
         const updatedSet = await workoutService.updateSet(
@@ -278,7 +292,9 @@ export const useWorkoutState = () => {
 
   const addSet = useCallback(
     async (exerciseId: ExerciseId) => {
-      if (!state.activeSession) return;
+      if (!state.activeSession) {
+        throw new Error('No active session');
+      }
 
       try {
         const newSet = await workoutService.addSet(
@@ -335,11 +351,14 @@ export const useWorkoutState = () => {
 
       // Reload templates to get updated lastCompleted dates
       const updatedTemplates = await workoutService.getTemplates();
-      
-      console.log(`[FinishSession Hook] Templates reloaded:`, updatedTemplates.map(t => ({ 
-        title: t.title, 
-        lastCompleted: t.lastCompleted 
-      })));
+
+      logger.info(
+        `[FinishSession Hook] Templates reloaded:`,
+        updatedTemplates.map((t) => ({
+          title: t.title,
+          lastCompleted: t.lastCompleted,
+        }))
+      );
 
       setState((prev) => ({
         ...prev,
@@ -349,8 +368,10 @@ export const useWorkoutState = () => {
         templates: updatedTemplates,
         isLoading: false,
       }));
-      
-      console.log(`[FinishSession Hook] State updated - activeSession cleared, templates updated`);
+
+      logger.info(
+        `[FinishSession Hook] State updated - activeSession cleared, templates updated`
+      );
 
       // Mark that user has completed a session in development mode (now async)
       if (process.env.NODE_ENV === 'development') {
@@ -380,8 +401,8 @@ export const useWorkoutState = () => {
       setState((prev) => ({ ...prev, isLoading: true }));
 
       await workoutService.discardSession(state.activeSession.id);
-      
-      console.log(`[DiscardSession Hook] Clearing activeSession from state`);
+
+      logger.info(`[DiscardSession Hook] Clearing activeSession from state`);
 
       setState((prev) => ({
         ...prev,
@@ -389,8 +410,10 @@ export const useWorkoutState = () => {
         restTimer: initialRestTimer,
         isLoading: false,
       }));
-      
-      console.log(`[DiscardSession Hook] State updated - activeSession cleared`);
+
+      logger.info(
+        `[DiscardSession Hook] State updated - activeSession cleared`
+      );
 
       // Mark that user has completed a session in development mode (discarding also counts as completion)
       if (process.env.NODE_ENV === 'development') {
@@ -615,7 +638,9 @@ export const useWorkoutState = () => {
         setState((prev) => ({
           ...prev,
           error:
-            error instanceof Error ? error.message : 'Failed to remove exercise',
+            error instanceof Error
+              ? error.message
+              : 'Failed to remove exercise',
         }));
         throw error;
       }
@@ -636,7 +661,9 @@ export const useWorkoutState = () => {
 
         // Reload the session to get updated data
         // In a real app, you'd probably optimistically update local state instead
-        const updatedSession = await workoutService.getSessionById(state.activeSession.id);
+        const updatedSession = await workoutService.getSessionById(
+          state.activeSession.id
+        );
         if (updatedSession) {
           setState((prev) => ({
             ...prev,
@@ -647,7 +674,9 @@ export const useWorkoutState = () => {
         setState((prev) => ({
           ...prev,
           error:
-            error instanceof Error ? error.message : 'Failed to replace exercise',
+            error instanceof Error
+              ? error.message
+              : 'Failed to replace exercise',
         }));
         throw error;
       }
@@ -656,7 +685,7 @@ export const useWorkoutState = () => {
   );
 
   const reorderExercises = useCallback(
-    async (reorderedExercises: any[]) => {
+    async (reorderedExercises: SessionExercise[]) => {
       if (!state.activeSession) return;
 
       try {
@@ -681,7 +710,9 @@ export const useWorkoutState = () => {
         setState((prev) => ({
           ...prev,
           error:
-            error instanceof Error ? error.message : 'Failed to reorder exercises',
+            error instanceof Error
+              ? error.message
+              : 'Failed to reorder exercises',
         }));
         throw error;
       }

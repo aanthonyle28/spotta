@@ -6,7 +6,9 @@ import type {
   Template,
   CommunityTemplate,
   WorkoutSession,
+  SessionExercise,
 } from '../types';
+import type { UserId } from '@spotta/shared';
 import {
   mockExercises,
   mockTemplates,
@@ -17,6 +19,7 @@ import {
   searchExercises,
   getExercisesByIds,
 } from './mockData';
+import { logger } from '../../../utils/logger';
 
 // Simulate network delays
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,7 +31,6 @@ class WorkoutService {
   constructor() {
     // Mock session initialization now handled entirely by hook
   }
-
 
   // Development helper to clear mock session
   clearMockSession() {
@@ -66,7 +68,7 @@ class WorkoutService {
     const newExercise: Exercise = {
       ...exerciseData,
       id: `custom-${Date.now()}` as ExerciseId,
-      userId: 'user-1' as any, // In real app, this would come from auth
+      userId: 'user-1' as UserId, // In real app, this would come from auth
     };
 
     // Add to mock exercises (in real app, this would persist to backend)
@@ -149,8 +151,10 @@ class WorkoutService {
     const session = createMockActiveSession(exercises);
     session.name = template.title;
     session.templateId = template.id;
-    
-    console.log(`[StartFromTemplate] Created session with templateId: ${session.templateId} for template: ${template.title}`);
+
+    logger.debug(
+      `[StartFromTemplate] Created session with templateId: ${session.templateId} for template: ${template.title}`
+    );
 
     // Only store in sessionStorage - activeSession managed by hook
     this.sessionStorage.set(session.id, session);
@@ -294,17 +298,23 @@ class WorkoutService {
     }
 
     // Update template's lastCompleted date if this session was created from a template
-    console.log(`[FinishSession] Session templateId: ${session.templateId}`);
+    logger.debug(`[FinishSession] Session templateId: ${session.templateId}`);
     if (session.templateId) {
-      const templateIndex = mockTemplates.findIndex(t => t.id === session.templateId);
-      console.log(`[FinishSession] Template index found: ${templateIndex}`);
+      const templateIndex = mockTemplates.findIndex(
+        (t) => t.id === session.templateId
+      );
+      logger.debug(`[FinishSession] Template index found: ${templateIndex}`);
       if (templateIndex !== -1) {
         const oldDate = mockTemplates[templateIndex].lastCompleted;
         mockTemplates[templateIndex].lastCompleted = new Date();
-        console.log(`[FinishSession] Updated template "${mockTemplates[templateIndex].title}" lastCompleted from ${oldDate} to ${mockTemplates[templateIndex].lastCompleted}`);
+        logger.debug(
+          `[FinishSession] Updated template "${mockTemplates[templateIndex].title}" lastCompleted from ${oldDate} to ${mockTemplates[templateIndex].lastCompleted}`
+        );
       }
     } else {
-      console.log('[FinishSession] No templateId found on session - this workout was not started from a template');
+      logger.debug(
+        '[FinishSession] No templateId found on session - this workout was not started from a template'
+      );
     }
 
     const completedWorkout: WorkoutSession = {
@@ -331,12 +341,12 @@ class WorkoutService {
 
   async discardSession(sessionId: WorkoutId): Promise<void> {
     await delay(200);
-    
-    console.log(`[DiscardSession] Discarding session: ${sessionId}`);
+
+    logger.debug(`[DiscardSession] Discarding session: ${sessionId}`);
 
     this.sessionStorage.delete(sessionId);
-    
-    console.log(`[DiscardSession] Session discarded from storage`);
+
+    logger.debug(`[DiscardSession] Session discarded from storage`);
   }
 
   async getRecentWorkouts(): Promise<WorkoutSession[]> {
@@ -401,7 +411,10 @@ class WorkoutService {
     this.sessionStorage.set(sessionId, session);
   }
 
-  async removeExercise(sessionId: WorkoutId, exerciseId: ExerciseId): Promise<void> {
+  async removeExercise(
+    sessionId: WorkoutId,
+    exerciseId: ExerciseId
+  ): Promise<void> {
     await delay(150);
 
     const session = this.sessionStorage.get(sessionId);
@@ -409,7 +422,9 @@ class WorkoutService {
       throw new Error('Session not found');
     }
 
-    const exerciseIndex = session.exercises.findIndex((ex) => ex.id === exerciseId);
+    const exerciseIndex = session.exercises.findIndex(
+      (ex) => ex.id === exerciseId
+    );
     if (exerciseIndex === -1) {
       throw new Error('Exercise not found in session');
     }
@@ -432,7 +447,11 @@ class WorkoutService {
     this.sessionStorage.set(sessionId, session);
   }
 
-  async replaceExercise(sessionId: WorkoutId, oldExerciseId: ExerciseId, newExerciseId: ExerciseId): Promise<void> {
+  async replaceExercise(
+    sessionId: WorkoutId,
+    oldExerciseId: ExerciseId,
+    newExerciseId: ExerciseId
+  ): Promise<void> {
     await delay(200);
 
     const session = this.sessionStorage.get(sessionId);
@@ -440,7 +459,9 @@ class WorkoutService {
       throw new Error('Session not found');
     }
 
-    const exerciseIndex = session.exercises.findIndex((ex) => ex.id === oldExerciseId);
+    const exerciseIndex = session.exercises.findIndex(
+      (ex) => ex.id === oldExerciseId
+    );
     if (exerciseIndex === -1) {
       throw new Error('Exercise not found in session');
     }
@@ -451,7 +472,7 @@ class WorkoutService {
     }
 
     const oldExercise = session.exercises[exerciseIndex];
-    
+
     // Replace with new exercise, preserving order and rest preset
     session.exercises[exerciseIndex] = {
       id: newExerciseId,
@@ -476,7 +497,10 @@ class WorkoutService {
     this.sessionStorage.set(sessionId, session);
   }
 
-  async reorderExercises(sessionId: WorkoutId, reorderedExercises: any[]): Promise<void> {
+  async reorderExercises(
+    sessionId: WorkoutId,
+    reorderedExercises: SessionExercise[]
+  ): Promise<void> {
     await delay(150);
 
     const session = this.sessionStorage.get(sessionId);

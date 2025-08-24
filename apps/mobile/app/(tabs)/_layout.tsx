@@ -17,10 +17,10 @@ export default function TabLayout() {
     const isLoggingScreen = pathname.includes('/logging/');
     // Use hasActiveSession computed property for consistency
     const result = hasActiveSession && !isLoggingScreen;
-    
+
     // Debug logging - can be removed in production
     // console.log(`[Banner Logic] isLoading: ${state.isLoading}, hasActiveSession: ${hasActiveSession}, isLoggingScreen: ${isLoggingScreen}, showBanner: ${result}, sessionId: ${state.activeSession?.id || 'null'}, pathname: ${pathname}`);
-    
+
     return result;
   }, [hasActiveSession, state.isLoading, pathname]);
 

@@ -1,5 +1,5 @@
 import type { WorkoutSession, SetEntryInput, WorkoutState } from './types';
-import type { WorkoutId, ExerciseId, UserId } from '@spotta/shared';
+import type { WorkoutId, ExerciseId } from '@spotta/shared';
 
 describe('Workout types', () => {
   describe('WorkoutSession', () => {

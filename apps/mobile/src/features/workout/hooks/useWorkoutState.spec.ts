@@ -119,7 +119,7 @@ describe.skip('useWorkoutState', () => {
     await act(async () => {
       try {
         await result.current.actions.startQuickWorkout();
-      } catch (e) {
+      } catch {
         // Expected to throw
       }
     });

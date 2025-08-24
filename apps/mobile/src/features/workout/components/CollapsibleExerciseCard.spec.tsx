@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { TamaguiProvider } from '@tamagui/core';
 import { CollapsibleExerciseCard } from './CollapsibleExerciseCard';
-import type { SessionExercise, SetData } from '../types';
+import type { SessionExercise } from '../types';
 import type { SetEntryId } from '@spotta/shared';
 import { createTamagui } from '@tamagui/core';
 import { config } from '@tamagui/config';

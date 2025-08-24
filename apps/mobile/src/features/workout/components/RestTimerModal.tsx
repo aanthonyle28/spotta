@@ -1,17 +1,7 @@
 import { memo, useEffect, useState } from 'react';
-import {
-  Sheet,
-  YStack,
-  XStack,
-  Text,
-  Button,
-  Circle,
-  styled,
-  Progress,
-} from 'tamagui';
+import { Sheet, YStack, XStack, Text, Button, styled, Progress } from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Pause, Play, SkipForward } from '@tamagui/lucide-icons';
-import { Dimensions } from 'react-native';
+import { SkipForward } from '@tamagui/lucide-icons';
 import type { RestTimerState } from '../types';
 
 interface RestTimerModalProps {
@@ -51,7 +41,13 @@ const ActionButton = styled(Button, {
 });
 
 export const RestTimerModal = memo(
-  ({ restTimer, onSkip, onAdjust, onPause, onResume }: RestTimerModalProps) => {
+  ({
+    restTimer,
+    onSkip,
+    onAdjust,
+    onPause: _onPause,
+    onResume: _onResume,
+  }: RestTimerModalProps) => {
     const [currentTime, setCurrentTime] = useState(restTimer.remainingTime);
 
     const formatTime = (seconds: number): string => {

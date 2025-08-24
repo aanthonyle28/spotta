@@ -1,16 +1,14 @@
 import { memo, useMemo, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native';
-import { XStack, YStack, Card, Text, Button, H4 } from 'tamagui';
+import { XStack, YStack, Card, Text, Button } from 'tamagui';
 import {
   Play,
   Plus,
-  Clock,
   MoreHorizontal,
   Edit3,
   Copy,
   Share2,
   Trash2,
-  Dumbbell,
 } from '@tamagui/lucide-icons';
 import type { Template } from '../types';
 import { getDaysAgoText } from '../services/mockData';
@@ -35,7 +33,7 @@ interface RoutineCardProps {
 }
 
 const RoutineCard = memo<RoutineCardProps>(
-  ({ routine, onStart, onPreview, onMenuPress, showMenu }) => {
+  ({ routine, onStart, onPreview, onMenuPress, showMenu: _showMenu }) => {
     const handleMenuPress = (e: any) => {
       e.stopPropagation();
       onMenuPress(routine.id);

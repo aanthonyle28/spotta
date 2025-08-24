@@ -2,15 +2,12 @@ import { useState } from 'react';
 import {
   YStack,
   XStack,
-  H2,
   Text,
   Button,
   Card,
   Input,
-  TextArea,
   ScrollView,
   Label,
-  Checkbox,
 } from 'tamagui';
 import {
   SafeAreaView,
@@ -20,7 +17,6 @@ import { router } from 'expo-router';
 import { ChevronLeft, Save } from '@tamagui/lucide-icons';
 import { workoutService } from '../src/features/workout/services/workoutService';
 import { FilterDropdown } from '../src/features/workout/components/FilterDropdown';
-import type { Exercise } from '../src/features/workout/types';
 
 interface CreateExerciseForm {
   name: string;
@@ -72,7 +68,6 @@ export default function CreateExerciseScreen() {
     category: 'strength',
   });
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [showNameError, setShowNameError] = useState(false);
 
   const updateForm = <K extends keyof CreateExerciseForm>(
@@ -102,7 +97,7 @@ export default function CreateExerciseScreen() {
     try {
       setIsSaving(true);
 
-      const newExercise = await workoutService.createCustomExercise({
+      await workoutService.createCustomExercise({
         name: form.name.trim(),
         category: form.category,
         equipment: form.equipment === 'all' ? ['bodyweight'] : [form.equipment],
@@ -114,7 +109,7 @@ export default function CreateExerciseScreen() {
 
       // Navigate back to AddExercises with new exercise pre-selected
       router.back();
-    } catch (err) {
+    } catch {
       // Handle error silently or with toast notification
       setIsSaving(false);
     }
@@ -190,7 +185,17 @@ export default function CreateExerciseScreen() {
                 placeholder="Category"
                 options={CATEGORY_OPTIONS}
                 value={form.category}
-                onValueChange={(value) => updateForm('category', value as any)}
+                onValueChange={(value) =>
+                  updateForm(
+                    'category',
+                    value as
+                      | 'strength'
+                      | 'cardio'
+                      | 'flexibility'
+                      | 'balance'
+                      | 'sports'
+                  )
+                }
                 accessibilityLabel="Select category"
               />
             </YStack>

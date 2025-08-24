@@ -13,10 +13,15 @@ class StorageService {
   // Development state management
   async getDevelopmentSessionCompleted(): Promise<boolean> {
     try {
-      const value = await AsyncStorage.getItem(STORAGE_KEYS.DEVELOPMENT_SESSION_COMPLETED);
+      const value = await AsyncStorage.getItem(
+        STORAGE_KEYS.DEVELOPMENT_SESSION_COMPLETED
+      );
       return value === 'true';
     } catch (error) {
-      console.error('[StorageService] Error reading development session completed:', error);
+      console.error(
+        '[StorageService] Error reading development session completed:',
+        error
+      );
       return false; // Default to false on error
     }
   }
@@ -24,11 +29,14 @@ class StorageService {
   async setDevelopmentSessionCompleted(completed: boolean): Promise<void> {
     try {
       await AsyncStorage.setItem(
-        STORAGE_KEYS.DEVELOPMENT_SESSION_COMPLETED, 
+        STORAGE_KEYS.DEVELOPMENT_SESSION_COMPLETED,
         completed.toString()
       );
     } catch (error) {
-      console.error('[StorageService] Error saving development session completed:', error);
+      console.error(
+        '[StorageService] Error saving development session completed:',
+        error
+      );
       throw error; // Re-throw to allow error handling in calling code
     }
   }
@@ -37,7 +45,10 @@ class StorageService {
     try {
       await AsyncStorage.removeItem(STORAGE_KEYS.DEVELOPMENT_SESSION_COMPLETED);
     } catch (error) {
-      console.error('[StorageService] Error clearing development session completed:', error);
+      console.error(
+        '[StorageService] Error clearing development session completed:',
+        error
+      );
       throw error;
     }
   }
@@ -55,7 +66,8 @@ class StorageService {
 
   async getAllKeys(): Promise<string[]> {
     try {
-      return await AsyncStorage.getAllKeys();
+      const keys = await AsyncStorage.getAllKeys();
+      return [...keys];
     } catch (error) {
       console.error('[StorageService] Error getting all keys:', error);
       return [];

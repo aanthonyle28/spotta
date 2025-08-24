@@ -354,7 +354,7 @@ selectedExerciseForRest: string | null; // Context for rest settings
 - **onFinishWorkout**: Complete session with confirmation
 - **onDiscardWorkout**: Cancel session with confirmation
 - **onRemoveExercise**: Remove exercise with confirmation alert
-- **onReplaceExercise**: Navigate to exercise selection in replace mode  
+- **onReplaceExercise**: Navigate to exercise selection in replace mode
 - **onReorderExercises**: Open exercise reorder modal
 
 **Data Flow**:
@@ -404,7 +404,7 @@ actions.skipRest()
 actions.updateRestTimerEnabled(enabled: boolean)
 actions.updateShowRestAsModal(showAsModal: boolean)
 actions.removeExercise(exerciseId: ExerciseId)
-actions.replaceExercise(oldExerciseId: ExerciseId, newExerciseId: ExerciseId)  
+actions.replaceExercise(oldExerciseId: ExerciseId, newExerciseId: ExerciseId)
 actions.reorderExercises(reorderedExercises: SessionExercise[])
 ```
 

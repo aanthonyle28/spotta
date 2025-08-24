@@ -3,6 +3,7 @@ import { XStack, YStack, Text, Card } from 'tamagui';
 import { ChevronRight, Clock } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import type { ActiveSession } from '../types';
+import { logger } from '../../../utils/logger';
 
 interface ActiveSessionBannerProps {
   activeSession: ActiveSession;
@@ -18,8 +19,8 @@ export const ActiveSessionBanner = memo<ActiveSessionBannerProps>(
     }, [activeSession.startedAt]);
 
     const handlePress = () => {
-      console.log(`[Banner] Navigating to session: ${activeSession.id}`);
-      router.push(`/logging/${activeSession.id}` as any);
+      logger.debug(`[Banner] Navigating to session: ${activeSession.id}`);
+      router.push(`/logging/${activeSession.id}`);
     };
 
     return (
