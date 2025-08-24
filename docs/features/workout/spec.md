@@ -462,6 +462,17 @@ actions.updateShowRestAsModal(showAsModal: boolean)
 
 ## 9. Changelog (auto-appended by Scribe)
 
+- 2025-08-24 — Mobile — Fixed active state banner persistence with AsyncStorage integration — [active-banner-persistence-fix]
+  - ✅ Persistent storage: Added AsyncStorage dependency and StorageService for data persistence across app restarts
+  - ✅ Development state fixes: Replaced in-memory developmentState with persistent storage to prevent mock session recreation
+  - ✅ Hook initialization: Updated useWorkoutState to await persistent state check before creating mock sessions
+  - ✅ Service layer: Created StorageService following existing patterns with async methods and error handling
+  - ✅ Type safety: Full TypeScript support with proper error handling throughout storage operations
+  - ✅ Session lifecycle: Both finishSession and discardSession now properly mark completion in persistent storage
+  - ✅ Error resilience: Graceful fallback behavior when storage operations fail
+  - ✅ Architecture consistency: Maintains existing React Context + hooks pattern with service layer
+  - ✅ Foundation: Establishes persistent storage foundation for future features requiring data persistence
+
 - 2025-08-22 — Mobile — Enhanced rest timer modal with user controls — [rest-timer-modal-enhancement]
   - ✅ RestTimerModal component: Compact, non-blocking bottom modal with real-time countdown
   - ✅ Real-time updates: Smooth countdown with 100ms intervals and linear progress indicator

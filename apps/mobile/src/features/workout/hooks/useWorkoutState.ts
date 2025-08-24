@@ -51,11 +51,15 @@ export const useWorkoutState = () => {
         workoutService.getTemplates(),
       ]);
 
-      // Initialize with mock session for development (only if no current session)
+      // Initialize with mock session for development (only if no current session and user hasn't completed one)
       let initialActiveSession: ActiveSession | null = null;
       if (process.env.NODE_ENV === 'development') {
-        // Only create mock session if we don't already have one
-        if (!state.activeSession) {
+        // Check if user has previously completed a development session (now async)
+        const { developmentState } = await import('../utils/developmentState');
+        const hasCompletedSession = await developmentState.hasUserCompletedSession();
+        
+        // Only create mock session if we don't already have one AND user hasn't completed one before
+        if (!state.activeSession && !hasCompletedSession) {
           const mockExercises = await workoutService.getAllExercises();
           if (mockExercises.length >= 3) {
             // Import the createMockActiveSession function
@@ -70,10 +74,12 @@ export const useWorkoutState = () => {
             console.log(`[Hook Init] Created mock session with ID: ${session.id}`);
             initialActiveSession = session;
           }
+        } else if (hasCompletedSession) {
+          console.log(`[Hook Init] User has completed a session before - not creating mock session`);
         } else {
           // Use existing session
           initialActiveSession = state.activeSession;
-          console.log(`[Hook Init] Preserving existing session with ID: ${state.activeSession.id}`);
+          console.log(`[Hook Init] Preserving existing session with ID: ${state.activeSession?.id}`);
         }
       }
 
@@ -346,6 +352,12 @@ export const useWorkoutState = () => {
       
       console.log(`[FinishSession Hook] State updated - activeSession cleared, templates updated`);
 
+      // Mark that user has completed a session in development mode (now async)
+      if (process.env.NODE_ENV === 'development') {
+        const { developmentState } = await import('../utils/developmentState');
+        await developmentState.markSessionCompleted();
+      }
+
       return completedWorkout;
     } catch (error) {
       setState((prev) => ({
@@ -379,6 +391,12 @@ export const useWorkoutState = () => {
       }));
       
       console.log(`[DiscardSession Hook] State updated - activeSession cleared`);
+
+      // Mark that user has completed a session in development mode (discarding also counts as completion)
+      if (process.env.NODE_ENV === 'development') {
+        const { developmentState } = await import('../utils/developmentState');
+        await developmentState.markSessionCompleted();
+      }
     } catch (error) {
       setState((prev) => ({
         ...prev,
