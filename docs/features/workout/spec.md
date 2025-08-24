@@ -519,6 +519,8 @@ actions.updateShowRestAsModal(showAsModal: boolean)
   - ✅ Documentation: Merged logging screen specs into main workout feature documentation
   - ✅ Technical implementation: Follow Tamagui best practices for modals within navigation boundaries
 
+- 2025-08-24 — UI Navigation Fix — Fixed ActiveSessionBanner navigation race condition causing banner to disappear immediately when tapping to go to logging screen. Enhanced banner visibility logic with loading state check and improved session validation logging. — [banner-navigation-fix]
+
 - 2025-01-XX — Mobile — QFRONT Phase 1 implementation completed — [workout-frontend]
   - ✅ Core UI components: ExerciseCard, WeightRepsStepper, RestBar, CollapsibleExerciseCard, RestPresetSheet
   - ✅ Navigation: Workout main screen, Logging screen with modal presentation and routing

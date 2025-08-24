@@ -119,7 +119,9 @@ export default function LoggingScreen() {
       // Add a small delay to allow for state updates during navigation
       const timeoutId = setTimeout(() => {
         if (!state.activeSession || state.activeSession.id !== sessionId) {
-          console.warn('No matching session found, redirecting to workout');
+          console.warn(
+            `[Logging] No matching session found. Expected: ${sessionId}, Current: ${state.activeSession?.id || 'null'}, Loading: ${state.isLoading}`
+          );
           router.dismiss();
         }
       }, 100);

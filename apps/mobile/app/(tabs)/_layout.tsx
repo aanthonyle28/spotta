@@ -11,10 +11,13 @@ export default function TabLayout() {
 
   // Enhanced banner logic - more reliable detection
   const showBanner = useMemo(() => {
+    // Don't show during initial load or navigation to prevent race conditions
+    if (state.isLoading) return false;
+
     const isLoggingScreen = pathname.includes('/logging/');
     const hasSession = !!state.activeSession;
     return hasSession && !isLoggingScreen;
-  }, [state.activeSession, pathname]);
+  }, [state.activeSession, state.isLoading, pathname]);
 
   return (
     <YStack flex={1}>

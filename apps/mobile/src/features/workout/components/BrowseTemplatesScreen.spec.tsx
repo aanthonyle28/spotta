@@ -4,7 +4,7 @@ import {
   fireEvent,
   waitFor,
 } from '@testing-library/react-native';
-import BrowseTemplatesScreen from '../../../../app/workout/browse-templates';
+import BrowseTemplatesScreen from '../../../../app/browse-templates';
 import { workoutService } from '../services/workoutService';
 import type { CommunityTemplate } from '../types';
 
