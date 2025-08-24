@@ -25,6 +25,31 @@ class WorkoutService {
   private activeSession: ActiveSession | null = null;
   private sessionStorage: Map<WorkoutId, ActiveSession> = new Map();
 
+  constructor() {
+    // Initialize with a mock active session for development/testing
+    if (process.env.NODE_ENV === 'development') {
+      this.initializeMockSession();
+    }
+  }
+
+  private initializeMockSession() {
+    // Create a mock session that started 15 minutes ago
+    const mockSession = createMockActiveSession(mockExercises.slice(0, 3));
+    mockSession.name = 'Push Day';
+    mockSession.startedAt = new Date(Date.now() - 15 * 60 * 1000); // 15 minutes ago
+
+    this.activeSession = mockSession;
+    this.sessionStorage.set(mockSession.id, mockSession);
+  }
+
+  // Development helper to clear mock session
+  clearMockSession() {
+    if (process.env.NODE_ENV === 'development') {
+      this.activeSession = null;
+      this.sessionStorage.clear();
+    }
+  }
+
   // Exercise operations
   async getAllExercises(): Promise<Exercise[]> {
     await delay(200);

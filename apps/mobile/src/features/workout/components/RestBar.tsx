@@ -58,7 +58,7 @@ export const RestBar = memo(
           onPause={onPause}
           onResume={onResume}
         />
-        
+
         {/* Only show bar if not in modal mode */}
         {!restTimer.showAsModal && (
           <YStack

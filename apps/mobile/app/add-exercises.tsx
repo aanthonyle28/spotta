@@ -1,24 +1,16 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FlatList } from 'react-native';
-import {
-  YStack,
-  XStack,
-  Text,
-  Button,
-  Card,
-  Input,
-  Checkbox,
-} from 'tamagui';
+import { YStack, XStack, Text, Button, Card, Input, Checkbox } from 'tamagui';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Search, ChevronLeft } from '@tamagui/lucide-icons';
-import { workoutService } from '../../src/features/workout/services/workoutService';
-import { useWorkoutState } from '../../src/features/workout/hooks';
-import { FilterRow } from '../../src/features/workout/components';
-import type { Exercise } from '../../src/features/workout/types';
+import { workoutService } from '../src/features/workout/services/workoutService';
+import { useWorkoutState } from '../src/features/workout/hooks';
+import { FilterRow } from '../src/features/workout/components';
+import type { Exercise } from '../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';
 
 export default function AddExercisesScreen() {
@@ -236,7 +228,7 @@ export default function AddExercisesScreen() {
               <Button
                 size="$3"
                 backgroundColor="$green9"
-                onPress={() => router.push('/workout/create-exercise' as any)}
+                onPress={() => router.push('/create-exercise' as any)}
                 accessibilityLabel="Create exercise"
               >
                 Create +

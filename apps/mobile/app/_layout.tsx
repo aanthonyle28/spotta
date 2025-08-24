@@ -53,9 +53,30 @@ function RootLayoutNav() {
           value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
         >
           <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="(tabs)"
+              options={{ headerShown: false }}
+            />
             <Stack.Screen name="auth" options={{ headerShown: false }} />
-            <Stack.Screen name="workout" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="add-exercises"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="browse-templates"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="create-exercise"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="template/[id]"
+              options={{
+                title: 'Template Preview',
+                headerShown: true,
+              }}
+            />
             <Stack.Screen
               name="logging/[sessionId]"
               options={{

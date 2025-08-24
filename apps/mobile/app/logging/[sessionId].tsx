@@ -120,7 +120,7 @@ export default function LoggingScreen() {
       const timeoutId = setTimeout(() => {
         if (!state.activeSession || state.activeSession.id !== sessionId) {
           console.warn('No matching session found, redirecting to workout');
-          router.replace('/(tabs)/workout');
+          router.dismiss();
         }
       }, 100);
 
@@ -202,7 +202,7 @@ export default function LoggingScreen() {
             try {
               setIsFinishing(true);
               await actions.finishSession();
-              router.replace('/(tabs)/workout');
+              router.dismiss();
             } catch (error) {
               console.error('Failed to finish workout:', error);
               setIsFinishing(false);
@@ -229,7 +229,7 @@ export default function LoggingScreen() {
           onPress: async () => {
             try {
               await actions.discardSession();
-              router.replace('/(tabs)/workout');
+              router.dismiss();
             } catch (error) {
               console.error('Failed to discard workout:', error);
             }
@@ -395,7 +395,7 @@ export default function LoggingScreen() {
               <Button
                 size="$3"
                 margin="$4"
-                onPress={() => router.push('/workout/add?mode=append' as any)}
+                onPress={() => router.push('/add-exercises?mode=append' as any)}
                 icon={<Plus size={16} />}
                 variant="outlined"
                 borderColor="$gray6"

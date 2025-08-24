@@ -18,9 +18,9 @@ import {
 } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ChevronLeft, Save } from '@tamagui/lucide-icons';
-import { workoutService } from '../../src/features/workout/services/workoutService';
-import { FilterDropdown } from '../../src/features/workout/components/FilterDropdown';
-import type { Exercise } from '../../src/features/workout/types';
+import { workoutService } from '../src/features/workout/services/workoutService';
+import { FilterDropdown } from '../src/features/workout/components/FilterDropdown';
+import type { Exercise } from '../src/features/workout/types';
 
 interface CreateExerciseForm {
   name: string;

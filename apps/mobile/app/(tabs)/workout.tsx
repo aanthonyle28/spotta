@@ -32,12 +32,12 @@ export default function WorkoutStartScreen() {
   const handleStartEmpty = () => {
     if (hasActiveSession) {
       setPendingAction(
-        () => () => router.push('/workout/add?mode=empty' as any)
+        () => () => router.push('/add-exercises?mode=empty' as any)
       );
       setIsConflictModalOpen(true);
       return;
     }
-    router.push('/workout/add?mode=empty' as any);
+    router.push('/add-exercises?mode=empty' as any);
   };
 
   const handleStartTemplate = async (templateId: string) => {
@@ -63,11 +63,11 @@ export default function WorkoutStartScreen() {
   };
 
   const handleTemplatePreview = (templateId: string) => {
-    router.push(`/workout/template/${templateId}` as any);
+    router.push(`/template/${templateId}` as any);
   };
 
   const handleAddTemplate = () => {
-    router.push('/workout/add?mode=template' as any);
+    router.push('/add-exercises?mode=template' as any);
   };
 
   const handleEditTemplate = (templateId: string) => {
@@ -91,7 +91,7 @@ export default function WorkoutStartScreen() {
   };
 
   const handleBrowseTemplates = () => {
-    router.push('/workout/browse-templates' as any);
+    router.push('/browse-templates' as any);
   };
 
   const handleReorderTemplates = () => {
@@ -149,7 +149,7 @@ export default function WorkoutStartScreen() {
 
           {/* Browse Exercises */}
           <BrowseExercisesTile
-            onPress={() => router.push('/workout/add?mode=append' as any)}
+            onPress={() => router.push('/add-exercises?mode=append' as any)}
           />
 
           {/* Browse Templates */}

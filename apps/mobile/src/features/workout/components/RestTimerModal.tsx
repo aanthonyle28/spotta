@@ -51,13 +51,7 @@ const ActionButton = styled(Button, {
 });
 
 export const RestTimerModal = memo(
-  ({
-    restTimer,
-    onSkip,
-    onAdjust,
-    onPause,
-    onResume,
-  }: RestTimerModalProps) => {
+  ({ restTimer, onSkip, onAdjust, onPause, onResume }: RestTimerModalProps) => {
     const [currentTime, setCurrentTime] = useState(restTimer.remainingTime);
 
     const formatTime = (seconds: number): string => {
@@ -69,7 +63,10 @@ export const RestTimerModal = memo(
     // Calculate progress for countdown (remaining time as percentage)
     const progress =
       restTimer.totalTime > 0
-        ? Math.max(0, Math.min(100, Math.round((currentTime / restTimer.totalTime) * 100)))
+        ? Math.max(
+            0,
+            Math.min(100, Math.round((currentTime / restTimer.totalTime) * 100))
+          )
         : 0;
 
     // Update current time in real-time
@@ -81,7 +78,9 @@ export const RestTimerModal = memo(
 
       const interval = setInterval(() => {
         const now = Date.now();
-        const elapsed = Math.floor((now - restTimer.startedAt!.getTime()) / 1000);
+        const elapsed = Math.floor(
+          (now - restTimer.startedAt!.getTime()) / 1000
+        );
         const remaining = Math.max(0, restTimer.remainingTime - elapsed);
         setCurrentTime(remaining);
       }, 100); // Update more frequently for smooth countdown
@@ -140,19 +139,13 @@ export const RestTimerModal = memo(
                   {formatTime(currentTime)}
                 </Text>
 
-                <ActionButton
-                  variant="secondary"
-                  onPress={() => onAdjust(15)}
-                >
+                <ActionButton variant="secondary" onPress={() => onAdjust(15)}>
                   <Text color="white" fontSize="$2" fontWeight="600">
                     +15
                   </Text>
                 </ActionButton>
 
-                <ActionButton
-                  variant="skip"
-                  onPress={onSkip}
-                >
+                <ActionButton variant="skip" onPress={onSkip}>
                   <XStack space="$1" alignItems="center">
                     <SkipForward size={14} color="white" />
                     <Text color="white" fontSize="$2" fontWeight="600">

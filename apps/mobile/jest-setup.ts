@@ -66,7 +66,10 @@ jest.mock('tamagui', () => ({
 // Mock Tamagui Lucide Icons
 const MockedIcon = (props: any) => {
   const React = require('react');
-  return React.createElement('span', { ...props, 'data-testid': 'mocked-icon' });
+  return React.createElement('span', {
+    ...props,
+    'data-testid': 'mocked-icon',
+  });
 };
 
 jest.mock('@tamagui/lucide-icons', () => ({

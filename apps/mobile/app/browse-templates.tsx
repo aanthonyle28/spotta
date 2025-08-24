@@ -4,10 +4,10 @@ import { YStack, XStack, Text, Button, Card, Input } from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Search, ChevronLeft, Download } from '@tamagui/lucide-icons';
-import { workoutService } from '../../src/features/workout/services/workoutService';
-import { useWorkoutState } from '../../src/features/workout/hooks';
-import { CustomHeader, FilterRow } from '../../src/features/workout/components';
-import type { CommunityTemplate } from '../../src/features/workout/types';
+import { workoutService } from '../src/features/workout/services/workoutService';
+import { useWorkoutState } from '../src/features/workout/hooks';
+import { CustomHeader, FilterRow } from '../src/features/workout/components';
+import type { CommunityTemplate } from '../src/features/workout/types';
 
 export default function BrowseTemplatesScreen() {
   const { actions } = useWorkoutState();
@@ -118,7 +118,7 @@ export default function BrowseTemplatesScreen() {
   };
 
   const handlePreviewTemplate = (templateId: string) => {
-    router.push(`/workout/template/${templateId}?source=community` as any);
+    router.push(`/template/${templateId}?source=community` as any);
   };
 
   const renderTemplateItem = ({ item }: { item: CommunityTemplate }) => {

@@ -1,16 +1,20 @@
 import { Tabs, usePathname } from 'expo-router';
 import { YStack } from 'tamagui';
+import { useMemo } from 'react';
 import { Dumbbell, Users, User } from '@tamagui/lucide-icons';
 import { useWorkoutState } from '../../src/features/workout/hooks';
-import { ActiveSessionBanner } from '../../src/features/workout/components/ActiveSessionBanner';
+import { ActiveSessionBanner } from '../../src/features/workout/components';
 
 export default function TabLayout() {
   const { state } = useWorkoutState();
   const pathname = usePathname();
 
-  // Don't show banner on logging screen
-  const isLoggingScreen = pathname.includes('/logging/');
-  const showBanner = state.activeSession && !isLoggingScreen;
+  // Enhanced banner logic - more reliable detection
+  const showBanner = useMemo(() => {
+    const isLoggingScreen = pathname.includes('/logging/');
+    const hasSession = !!state.activeSession;
+    return hasSession && !isLoggingScreen;
+  }, [state.activeSession, pathname]);
 
   return (
     <YStack flex={1}>
