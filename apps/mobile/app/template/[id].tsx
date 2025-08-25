@@ -11,7 +11,7 @@ import {
 } from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Play, Clock, Target, ChevronLeft } from '@tamagui/lucide-icons';
+import { Play, Clock, Target, ChevronLeft, Edit3 } from '@tamagui/lucide-icons';
 import { workoutService } from '../../src/features/workout/services/workoutService';
 import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
 import {
@@ -19,6 +19,7 @@ import {
   CustomHeader,
 } from '../../src/features/workout/components';
 import type { Template } from '../../src/features/workout/types';
+import type { TemplateId } from '@spotta/shared';
 
 export default function TemplatePreviewScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -64,7 +65,9 @@ export default function TemplatePreviewScreen() {
 
     try {
       setIsStarting(true);
-      const session = await actions.startFromTemplate(template.id);
+      const session = await actions.startFromTemplate(
+        template.id as TemplateId
+      );
       router.push(`/logging/${session.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start workout');
@@ -75,6 +78,12 @@ export default function TemplatePreviewScreen() {
   const handleResumeWorkout = () => {
     if (state.activeSession) {
       router.push(`/logging/${state.activeSession.id}`);
+    }
+  };
+
+  const handleEditTemplate = () => {
+    if (template && id) {
+      router.push(`/edit-template/${id}` as any);
     }
   };
 
@@ -161,6 +170,15 @@ export default function TemplatePreviewScreen() {
               onPress={() => router.back()}
               icon={<ChevronLeft size={20} />}
               accessibilityLabel="Go back"
+            />
+          }
+          rightAction={
+            <Button
+              size="$3"
+              chromeless
+              onPress={handleEditTemplate}
+              icon={<Edit3 size={20} />}
+              accessibilityLabel="Edit template"
             />
           }
         />
@@ -290,6 +308,7 @@ export default function TemplatePreviewScreen() {
             handleStart();
           }}
         />
+
       </YStack>
     </SafeAreaView>
   );

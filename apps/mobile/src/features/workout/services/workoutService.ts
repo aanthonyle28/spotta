@@ -1,4 +1,9 @@
-import type { ExerciseId, WorkoutId, SetEntryId } from '@spotta/shared';
+import type {
+  ExerciseId,
+  WorkoutId,
+  SetEntryId,
+  TemplateId,
+} from '@spotta/shared';
 import type {
   ActiveSession,
   Exercise,
@@ -97,6 +102,60 @@ class WorkoutService {
     // Update the template order in mock storage
     // In real app, this would persist to backend with orderIndex or position
     mockTemplates.splice(0, mockTemplates.length, ...reorderedTemplates);
+  }
+
+  async createTemplate(
+    templateData: Omit<Template, 'id' | 'userId'>
+  ): Promise<Template> {
+    await delay(200);
+
+    const newTemplate: Template = {
+      ...templateData,
+      id: `template-${Date.now()}` as TemplateId,
+      userId: 'user-1' as UserId,
+    };
+
+    mockTemplates.push(newTemplate);
+    return newTemplate;
+  }
+
+  async updateTemplate(
+    templateId: TemplateId,
+    updates: Partial<Template>
+  ): Promise<Template> {
+    await delay(200);
+
+    const index = mockTemplates.findIndex((t) => t.id === templateId);
+    if (index === -1) throw new Error('Template not found');
+
+    mockTemplates[index] = { ...mockTemplates[index], ...updates };
+    return mockTemplates[index];
+  }
+
+  async deleteTemplate(templateId: TemplateId): Promise<void> {
+    await delay(150);
+
+    const index = mockTemplates.findIndex((t) => t.id === templateId);
+    if (index === -1) throw new Error('Template not found');
+
+    mockTemplates.splice(index, 1);
+  }
+
+  async duplicateTemplate(templateId: TemplateId): Promise<Template> {
+    await delay(200);
+
+    const originalTemplate = mockTemplates.find((t) => t.id === templateId);
+    if (!originalTemplate) throw new Error('Template not found');
+
+    const duplicatedTemplate: Template = {
+      ...originalTemplate,
+      id: `template-${Date.now()}` as TemplateId,
+      title: `${originalTemplate.title} (Copy)`,
+      lastCompleted: undefined, // Reset completion date for duplicate
+    };
+
+    mockTemplates.push(duplicatedTemplate);
+    return duplicatedTemplate;
   }
 
   // Community template operations

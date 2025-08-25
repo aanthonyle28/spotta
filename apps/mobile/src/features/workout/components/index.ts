@@ -16,3 +16,4 @@ export { ExerciseReorderModal } from './ExerciseReorderModal';
 export { FilterDropdown } from './FilterDropdown';
 export { FilterRow } from './FilterRow';
 export { CustomHeader } from './CustomHeader';
+export { AddExerciseModal } from './AddExerciseModal';

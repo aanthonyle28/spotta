@@ -10,6 +10,7 @@ import {
 } from 'tamagui';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Share } from 'react-native';
 import { router } from 'expo-router';
 import { ArrowUpDown } from '@tamagui/lucide-icons';
 import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
@@ -23,6 +24,7 @@ import {
   WorkoutConflictModal,
 } from '../../src/features/workout/components';
 import type { Template } from '../../src/features/workout/types';
+import type { TemplateId } from '@spotta/shared';
 
 export default function WorkoutStartScreen() {
   const { state, actions, hasActiveSession } = useWorkoutState();
@@ -43,7 +45,9 @@ export default function WorkoutStartScreen() {
     if (hasActiveSession) {
       setPendingAction(() => async () => {
         try {
-          const session = await actions.startFromTemplate(templateId);
+          const session = await actions.startFromTemplate(
+            templateId as TemplateId
+          );
           router.push(`/logging/${session.id}`);
         } catch (error) {
           console.error('Failed to start workout from template:', error);
@@ -54,7 +58,7 @@ export default function WorkoutStartScreen() {
     }
 
     try {
-      const session = await actions.startFromTemplate(templateId);
+      const session = await actions.startFromTemplate(templateId as TemplateId);
       router.push(`/logging/${session.id}`);
     } catch (error) {
       console.error('Failed to start workout from template:', error);
@@ -66,12 +70,11 @@ export default function WorkoutStartScreen() {
   };
 
   const handleAddTemplate = () => {
-    router.push('/add-exercises?mode=template' as any);
+    router.push('/create-template' as any);
   };
 
   const handleEditTemplate = (templateId: string) => {
-    logger.info('Edit template:', templateId);
-    // TODO: Navigate to edit template screen
+    router.push(`/edit-template/${templateId}` as any);
   };
 
   const handleDeleteTemplate = (templateId: string) => {
@@ -79,14 +82,40 @@ export default function WorkoutStartScreen() {
     // TODO: Show confirmation dialog and delete template
   };
 
-  const handleDuplicateTemplate = (templateId: string) => {
-    logger.info('Duplicate template:', templateId);
-    // TODO: Create copy of template
+  const handleDuplicateTemplate = async (templateId: string) => {
+    try {
+      await actions.duplicateTemplate(templateId as TemplateId);
+      logger.info('Template duplicated successfully');
+    } catch (error) {
+      logger.error('Failed to duplicate template:', error);
+    }
   };
 
-  const handleShareTemplate = (templateId: string) => {
-    logger.info('Share template:', templateId);
-    // TODO: Open share sheet
+  const handleShareTemplate = async (templateId: string) => {
+    try {
+      const template = state.templates?.find((t) => t.id === templateId);
+      if (!template) {
+        logger.error('Template not found for sharing:', templateId);
+        return;
+      }
+
+      const exerciseList = template.exercises
+        .map(
+          (ex, index) =>
+            `${index + 1}. ${ex.name} (${ex.sets} sets${ex.reps ? ` × ${ex.reps} reps` : ''})`
+        )
+        .join('\n');
+
+      const shareContent = {
+        title: `Workout Template: ${template.title}`,
+        message: `Check out this workout template!\n\n📋 ${template.title}\n${template.description ? `\n📝 ${template.description}\n` : ''}\n💪 Exercises:\n${exerciseList}\n\n⏱️ ${template.estimatedDuration} min • ${template.difficulty.charAt(0).toUpperCase() + template.difficulty.slice(1)}\n\nCreated with Spotta`,
+      };
+
+      await Share.share(shareContent);
+      logger.info('Template shared:', template.title);
+    } catch (error) {
+      logger.error('Failed to share template:', error);
+    }
   };
 
   const handleBrowseTemplates = () => {
@@ -102,6 +131,7 @@ export default function WorkoutStartScreen() {
     // TODO: Update templates order in state/backend
     // For now, this just shows the modal works correctly
   };
+
 
   const handleResumeWorkout = () => {
     if (state.activeSession) {
@@ -208,6 +238,7 @@ export default function WorkoutStartScreen() {
         onClose={() => setIsReorderModalOpen(false)}
         onSave={handleSaveReorderedTemplates}
       />
+
     </SafeAreaView>
   );
 }

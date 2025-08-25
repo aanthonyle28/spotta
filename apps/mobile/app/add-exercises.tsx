@@ -9,8 +9,10 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Search, ChevronLeft } from '@tamagui/lucide-icons';
 import { workoutService } from '../src/features/workout/services/workoutService';
 import { useWorkoutState } from '../src/features/workout/providers/WorkoutStateProvider';
-import { FilterRow } from '../src/features/workout/components';
-import type { Exercise } from '../src/features/workout/types';
+import {
+  FilterRow,
+} from '../src/features/workout/components';
+import type { Exercise, Template } from '../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';
 
 export default function AddExercisesScreen() {
@@ -130,6 +132,7 @@ export default function AddExercisesScreen() {
     [mode]
   );
 
+
   const handleStart = async () => {
     if (selectedExercises.size === 0) return;
 
@@ -151,15 +154,10 @@ export default function AddExercisesScreen() {
         );
         router.push(`/logging/${session.id}`);
       } else if (mode === 'template') {
-        // For template mode, we'll show save options first
-        // For now, just start the session
-        const session = await actions.startSessionWithExercises(
-          exerciseIds,
-          'New Template Workout'
-        );
-        router.push(`/logging/${session.id}`);
+        // For original template mode, navigate to create-template screen
+        router.push(`/create-template?exercises=${JSON.stringify(exerciseIds)}` as any);
       } else if (mode === 'replace' && exerciseId) {
-        // Replace existing exercise with selected one
+        // Replace existing exercise with selected one in active session
         await actions.replaceExercise(exerciseId as ExerciseId, exerciseIds[0]);
         router.back(); // Return to logging screen
       } else {
@@ -368,10 +366,10 @@ export default function AddExercisesScreen() {
                   : mode === 'template'
                     ? `Create template with ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`
                     : mode === 'replace'
-                      ? selectedExercises.size === 1
-                        ? 'Replace Exercise'
-                        : 'Select 1 exercise to replace'
-                      : `Add ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`}
+                          ? selectedExercises.size === 1
+                            ? 'Replace Exercise'
+                            : 'Select 1 exercise to replace'
+                          : `Add ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`}
             </Button>
           </XStack>
         )}
@@ -387,6 +385,7 @@ export default function AddExercisesScreen() {
             <Text color="$red11">{error}</Text>
           </Card>
         )}
+
       </YStack>
     </SafeAreaView>
   );

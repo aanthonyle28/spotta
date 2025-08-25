@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import type { ExerciseId, SetEntryId } from '@spotta/shared';
+import type { ExerciseId, SetEntryId, TemplateId } from '@spotta/shared';
 import type {
   WorkoutState,
   SetData,
@@ -7,6 +7,7 @@ import type {
   WorkoutSettings,
   ActiveSession,
   SessionExercise,
+  Template,
 } from '../types';
 import { workoutService } from '../services/workoutService';
 import { logger } from '../../../utils/logger';
@@ -684,6 +685,94 @@ export const useWorkoutState = () => {
     [state.activeSession]
   );
 
+  // Template actions
+  const createTemplate = useCallback(
+    async (templateData: Omit<Template, 'id' | 'userId'>) => {
+      try {
+        const newTemplate = await workoutService.createTemplate(templateData);
+        await loadInitialData(); // Refresh templates
+        return newTemplate;
+      } catch (error) {
+        logger.error('Failed to create template:', error);
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to create template',
+        }));
+        throw error;
+      }
+    },
+    [loadInitialData]
+  );
+
+  const updateTemplate = useCallback(
+    async (templateId: TemplateId, updates: Partial<Template>) => {
+      try {
+        const updatedTemplate = await workoutService.updateTemplate(
+          templateId,
+          updates
+        );
+        await loadInitialData(); // Refresh templates
+        return updatedTemplate;
+      } catch (error) {
+        logger.error('Failed to update template:', error);
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to update template',
+        }));
+        throw error;
+      }
+    },
+    [loadInitialData]
+  );
+
+  const deleteTemplate = useCallback(
+    async (templateId: TemplateId) => {
+      try {
+        await workoutService.deleteTemplate(templateId);
+        await loadInitialData(); // Refresh templates
+      } catch (error) {
+        logger.error('Failed to delete template:', error);
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to delete template',
+        }));
+        throw error;
+      }
+    },
+    [loadInitialData]
+  );
+
+  const duplicateTemplate = useCallback(
+    async (templateId: TemplateId) => {
+      try {
+        const duplicatedTemplate =
+          await workoutService.duplicateTemplate(templateId);
+        await loadInitialData(); // Refresh templates
+        return duplicatedTemplate;
+      } catch (error) {
+        logger.error('Failed to duplicate template:', error);
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to duplicate template',
+        }));
+        throw error;
+      }
+    },
+    [loadInitialData]
+  );
+
   const reorderExercises = useCallback(
     async (reorderedExercises: SessionExercise[]) => {
       if (!state.activeSession) return;
@@ -746,6 +835,11 @@ export const useWorkoutState = () => {
       removeExercise,
       replaceExercise,
       reorderExercises,
+      // Template actions
+      createTemplate,
+      updateTemplate,
+      deleteTemplate,
+      duplicateTemplate,
     },
   };
 };

@@ -5,8 +5,9 @@ import type {
   ActiveSession,
   SessionExercise,
   WorkoutSession,
+  Template,
 } from '../types';
-import type { ExerciseId, SetEntryId } from '@spotta/shared';
+import type { ExerciseId, SetEntryId, TemplateId } from '@spotta/shared';
 import type { SetData } from '../types';
 
 interface WorkoutStateContextType {
@@ -47,6 +48,16 @@ interface WorkoutStateContextType {
       newExerciseId: ExerciseId
     ) => Promise<void>;
     reorderExercises: (reorderedExercises: SessionExercise[]) => Promise<void>;
+    // Template actions
+    createTemplate: (
+      templateData: Omit<Template, 'id' | 'userId'>
+    ) => Promise<Template>;
+    updateTemplate: (
+      templateId: TemplateId,
+      updates: Partial<Template>
+    ) => Promise<Template>;
+    deleteTemplate: (templateId: TemplateId) => Promise<void>;
+    duplicateTemplate: (templateId: TemplateId) => Promise<Template>;
   };
 }
 
