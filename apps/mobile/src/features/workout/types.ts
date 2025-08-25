@@ -17,6 +17,7 @@ export interface ActiveSession {
   totalVolume: number;
   duration: number;
   templateId?: TemplateId; // Track which template was used to create this session
+  templateRestTime: number; // Template-level rest timer setting (separate from individual exercise timers)
 }
 
 export interface SessionExercise {

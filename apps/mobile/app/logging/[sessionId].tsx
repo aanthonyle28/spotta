@@ -134,22 +134,17 @@ export default function LoggingScreen() {
   }, [state.activeSession, state.isLoading, sessionId]);
 
   const activeExercise = state.activeSession?.exercises[activeExerciseIndex];
-  const currentExerciseName = activeExercise?.exercise.name;
 
   const handleSetComplete = useCallback(
     async (setData: SetData) => {
       try {
         await actions.completeSet(setData);
-
-        // Start rest timer after completing a set
-        if (activeExercise) {
-          actions.startRestTimer(activeExercise.restPreset, activeExercise.id);
-        }
+        // Rest timer is now started automatically by useWorkoutState.completeSet
       } catch (error) {
         console.error('Failed to complete set:', error);
       }
     },
-    [actions, activeExercise]
+    [actions]
   );
 
   const handleSetUpdate = useCallback(
@@ -342,25 +337,39 @@ export default function LoggingScreen() {
   );
 
   const handleRestPresetApply = useCallback(
-    (scope: 'this' | 'all' | 'remember', _seconds: number) => {
-      if (!selectedExerciseForRest) return;
-
+    (scope: 'this' | 'all' | 'remember', seconds: number) => {
       switch (scope) {
         case 'this':
-          // Apply to current exercise only - would update exercise rest preset
+          // Apply to current exercise only
+          if (selectedExerciseForRest) {
+            actions.updateExerciseRestPreset(selectedExerciseForRest, seconds);
+          }
           break;
         case 'all':
-          // Apply to all exercises in session
+          // Apply to template-level timer and all exercises in session
+          actions.updateTemplateRestTime(seconds);
+          actions.updateAllExerciseRestPresets(seconds);
           break;
         case 'remember':
-          // Remember for this exercise type
+          // Remember for this exercise type - update all exercises with same name
+          if (selectedExerciseForRest) {
+            const exercise = state.activeSession?.exercises.find(
+              (ex) => ex.id === selectedExerciseForRest
+            );
+            if (exercise) {
+              actions.updateRestPresetForExerciseType(
+                exercise.exercise.name,
+                seconds
+              );
+            }
+          }
           break;
       }
 
       setShowRestPresetSheet(false);
       setSelectedExerciseForRest(null);
     },
-    [selectedExerciseForRest]
+    [selectedExerciseForRest, actions, state.activeSession]
   );
 
   // Cleanup timeouts on unmount
@@ -444,7 +453,10 @@ export default function LoggingScreen() {
                 size="$2"
                 backgroundColor="$gray3"
                 borderRadius="$2"
-                onPress={() => setShowRestPresetSheet(true)}
+                onPress={() => {
+                  setSelectedExerciseForRest(null); // null = template level
+                  setShowRestPresetSheet(true);
+                }}
                 accessibilityLabel="Template rest timer settings"
                 paddingHorizontal="$2"
                 paddingVertical="$1"
@@ -453,7 +465,7 @@ export default function LoggingScreen() {
                 }}
               >
                 <Text fontSize="$2" color="$gray11" fontWeight="500">
-                  Rest: 90s
+                  Rest: {state.activeSession?.templateRestTime || 90}s
                 </Text>
               </Button>
             </XStack>
@@ -525,7 +537,13 @@ export default function LoggingScreen() {
               onAdjust={actions.adjustRestTimer}
               onPause={actions.pauseRestTimer}
               onResume={actions.resumeRestTimer}
-              exerciseName={currentExerciseName || 'Exercise'}
+              exerciseName={
+                state.restTimer.exerciseId
+                  ? state.activeSession?.exercises.find(
+                      (ex) => ex.id === state.restTimer.exerciseId
+                    )?.exercise.name || 'Exercise'
+                  : 'Exercise'
+              }
             />
           )}
 
@@ -541,7 +559,7 @@ export default function LoggingScreen() {
                 ? state.activeSession?.exercises.find(
                     (ex) => ex.id === selectedExerciseForRest
                   )?.restPreset || 90
-                : 90
+                : state.activeSession?.templateRestTime || 90
             }
             exerciseName={
               selectedExerciseForRest
@@ -550,6 +568,7 @@ export default function LoggingScreen() {
                   )?.exercise.name
                 : undefined
             }
+            isTemplate={selectedExerciseForRest === null}
             onApplyToThis={(seconds) => handleRestPresetApply('this', seconds)}
             onApplyToAll={(seconds) => handleRestPresetApply('all', seconds)}
             onRememberForExercise={(seconds) =>

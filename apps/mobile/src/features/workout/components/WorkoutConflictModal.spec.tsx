@@ -6,6 +6,7 @@ const mockActiveSession: ActiveSession = {
   id: 'session-1' as any,
   name: 'Push Day',
   startedAt: new Date('2024-01-01T10:00:00Z'),
+  templateRestTime: 90,
   exercises: [
     {
       id: 'exercise-1' as any,

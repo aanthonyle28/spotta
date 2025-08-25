@@ -809,6 +809,79 @@ export const useWorkoutState = () => {
     [state.activeSession]
   );
 
+  const updateExerciseRestPreset = useCallback(
+    (exerciseId: ExerciseId, seconds: number) => {
+      setState((prev) => {
+        if (!prev.activeSession) return prev;
+
+        return {
+          ...prev,
+          activeSession: {
+            ...prev.activeSession,
+            exercises: prev.activeSession.exercises.map((exercise) =>
+              exercise.id === exerciseId
+                ? { ...exercise, restPreset: seconds }
+                : exercise
+            ),
+          },
+        };
+      });
+    },
+    []
+  );
+
+  const updateAllExerciseRestPresets = useCallback((seconds: number) => {
+    setState((prev) => {
+      if (!prev.activeSession) return prev;
+
+      return {
+        ...prev,
+        activeSession: {
+          ...prev.activeSession,
+          exercises: prev.activeSession.exercises.map((exercise) => ({
+            ...exercise,
+            restPreset: seconds,
+          })),
+        },
+      };
+    });
+  }, []);
+
+  const updateRestPresetForExerciseType = useCallback(
+    (exerciseName: string, seconds: number) => {
+      setState((prev) => {
+        if (!prev.activeSession) return prev;
+
+        return {
+          ...prev,
+          activeSession: {
+            ...prev.activeSession,
+            exercises: prev.activeSession.exercises.map((sessionExercise) =>
+              sessionExercise.exercise.name === exerciseName
+                ? { ...sessionExercise, restPreset: seconds }
+                : sessionExercise
+            ),
+          },
+        };
+      });
+    },
+    []
+  );
+
+  const updateTemplateRestTime = useCallback((seconds: number) => {
+    setState((prev) => {
+      if (!prev.activeSession) return prev;
+
+      return {
+        ...prev,
+        activeSession: {
+          ...prev.activeSession,
+          templateRestTime: seconds,
+        },
+      };
+    });
+  }, []);
+
   return {
     state,
     hasActiveSession,
@@ -835,6 +908,10 @@ export const useWorkoutState = () => {
       removeExercise,
       replaceExercise,
       reorderExercises,
+      updateExerciseRestPreset,
+      updateAllExerciseRestPresets,
+      updateRestPresetForExerciseType,
+      updateTemplateRestTime,
       // Template actions
       createTemplate,
       updateTemplate,

@@ -415,13 +415,14 @@ export const createMockSet = (
 export const createMockSessionExercise = (
   exercise: Exercise,
   orderIndex: number,
-  numSets: number = 3
+  numSets: number = 3,
+  restTime: number = 120
 ): SessionExercise => ({
   id: exercise.id,
   exercise,
   sets: Array.from({ length: numSets }, (_, i) => createMockSet(i + 1, false)),
   orderIndex,
-  restPreset: 120,
+  restPreset: restTime,
 });
 
 export const createMockActiveSession = (
@@ -436,6 +437,7 @@ export const createMockActiveSession = (
   currentExerciseIndex: 0,
   totalVolume: 0,
   duration: 0,
+  templateRestTime: 90, // Default template rest time
 });
 
 // Mock recent workouts

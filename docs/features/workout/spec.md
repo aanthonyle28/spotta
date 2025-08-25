@@ -569,6 +569,20 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - ✅ Documentation: Merged logging screen specs into main workout feature documentation
   - ✅ Technical implementation: Follow Tamagui best practices for modals within navigation boundaries
 
+- 2025-08-25 — Mobile — Rest timer settings logic complete redesign — [rest-timer-settings-fix]
+  - ✅ Template-level timer: Added separate `templateRestTime` to ActiveSession for independent template timer management
+  - ✅ Timer isolation: Exercise-specific timer changes no longer affect template timer input or UI display
+  - ✅ Template inheritance: Templates with varied rest times (30s-180s) properly transfer to session exercises
+  - ✅ UI clarity: Template timer header shows actual value ("Rest: 90s") instead of generic "Template" text
+  - ✅ RestPresetSheet fixes: Template-level settings use actual template timer value, not arbitrary default
+  - ✅ Double timer start fix: Removed duplicate timer initialization from logging screen to prevent conflicts
+  - ✅ Template changes: When user changes template timer, updates both template-level and all exercise timers
+  - ✅ Data flow: Template → Session rest time inheritance with proper fallback values (90s default)
+  - ✅ Type safety: Updated ActiveSession interface, mock data, and all test fixtures with templateRestTime
+  - ✅ State management: Added updateTemplateRestTime action to useWorkoutState with proper isolation
+  - ✅ Modal accuracy: Rest timer modal now displays correct exercise-specific timer after set completion
+  - ✅ User control: Clear separation between template-level controls and individual exercise customization
+
 - 2025-08-24 — UI Navigation Fix — Fixed ActiveSessionBanner navigation race condition causing banner to disappear immediately when tapping to go to logging screen. Enhanced banner visibility logic with loading state check and improved session validation logging. — [banner-navigation-fix]
 
 - 2025-01-XX — Mobile — QFRONT Phase 1 implementation completed — [workout-frontend]

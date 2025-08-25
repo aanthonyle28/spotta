@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import {
   Sheet,
   YStack,
@@ -20,6 +20,7 @@ interface RestPresetSheetProps {
   onApplyToThis: (seconds: number) => void;
   onApplyToAll: (seconds: number) => void;
   onRememberForExercise: (seconds: number) => void;
+  isTemplate?: boolean;
 }
 
 const PRESET_OPTIONS = [
@@ -38,9 +39,16 @@ export const RestPresetSheet = memo<RestPresetSheetProps>(
     onApplyToThis,
     onApplyToAll,
     onRememberForExercise,
+    isTemplate = false,
   }) => {
     const [customTime, setCustomTime] = useState(currentRestTime.toString());
     const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
+
+    // Update customTime when currentRestTime prop changes (for different exercises)
+    useEffect(() => {
+      setCustomTime(currentRestTime.toString());
+      setSelectedPreset(null); // Reset preset selection
+    }, [currentRestTime]);
 
     const handlePresetSelect = (seconds: number) => {
       setSelectedPreset(seconds);
@@ -72,7 +80,7 @@ export const RestPresetSheet = memo<RestPresetSheetProps>(
           modal
           open={isOpen}
           onOpenChange={onClose}
-          snapPoints={[40]}
+          snapPoints={isTemplate ? [50] : [55]}
           dismissOnSnapToBottom
           zIndex={999999}
         >
@@ -124,6 +132,8 @@ export const RestPresetSheet = memo<RestPresetSheetProps>(
                   value={customTime}
                   onChangeText={handleCustomTimeChange}
                   keyboardType="numeric"
+                  textAlignVertical="center"
+                  paddingVertical="$3"
                   accessibilityLabel="Custom rest time in seconds"
                 />
                 <Text fontSize="$3" color="$gray10" minWidth={60}>
@@ -133,40 +143,44 @@ export const RestPresetSheet = memo<RestPresetSheetProps>(
             </YStack>
 
             {/* Action Buttons */}
-            <YStack space="$3" marginTop="$2">
-              <Button
-                size="$4"
-                backgroundColor="$blue9"
-                onPress={() => {
-                  onApplyToThis(getSelectedTime());
-                  onClose();
-                }}
-              >
-                Apply to this exercise
-              </Button>
-
-              <Button
-                size="$4"
-                backgroundColor="$green9"
-                onPress={() => {
-                  onApplyToAll(getSelectedTime());
-                  onClose();
-                }}
-              >
-                Apply to all exercises (this session)
-              </Button>
-
-              {exerciseName && (
+            <YStack space="$3" marginTop="$4">
+              {!isTemplate && (
                 <Button
                   size="$4"
-                  backgroundColor="$purple9"
+                  backgroundColor="$blue9"
                   onPress={() => {
-                    onRememberForExercise(getSelectedTime());
+                    onApplyToThis(getSelectedTime());
                     onClose();
                   }}
                 >
-                  Remember for {exerciseName}
+                  Apply to this exercise
                 </Button>
+              )}
+
+              {isTemplate ? (
+                <Button
+                  size="$4"
+                  backgroundColor="$green9"
+                  onPress={() => {
+                    onApplyToAll(getSelectedTime());
+                    onClose();
+                  }}
+                >
+                  Apply to template
+                </Button>
+              ) : (
+                exerciseName && (
+                  <Button
+                    size="$4"
+                    backgroundColor="$purple9"
+                    onPress={() => {
+                      onRememberForExercise(getSelectedTime());
+                      onClose();
+                    }}
+                  >
+                    Remember for {exerciseName?.trim()}
+                  </Button>
+                )
               )}
 
               <Button size="$3" chromeless onPress={onClose}>

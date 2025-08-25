@@ -211,6 +211,18 @@ class WorkoutService {
     session.name = template.title;
     session.templateId = template.id;
 
+    // Transfer rest times from template to session exercises
+    session.exercises = session.exercises.map((sessionExercise, index) => {
+      const templateExercise = template.exercises[index];
+      return {
+        ...sessionExercise,
+        restPreset: templateExercise?.restTime || sessionExercise.restPreset,
+      };
+    });
+
+    // Set template rest time based on the first exercise or default
+    session.templateRestTime = template.exercises[0]?.restTime || 90;
+
     logger.debug(
       `[StartFromTemplate] Created session with templateId: ${session.templateId} for template: ${template.title}`
     );

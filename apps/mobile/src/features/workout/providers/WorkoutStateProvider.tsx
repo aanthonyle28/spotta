@@ -48,6 +48,13 @@ interface WorkoutStateContextType {
       newExerciseId: ExerciseId
     ) => Promise<void>;
     reorderExercises: (reorderedExercises: SessionExercise[]) => Promise<void>;
+    updateExerciseRestPreset: (exerciseId: ExerciseId, seconds: number) => void;
+    updateAllExerciseRestPresets: (seconds: number) => void;
+    updateRestPresetForExerciseType: (
+      exerciseName: string,
+      seconds: number
+    ) => void;
+    updateTemplateRestTime: (seconds: number) => void;
     // Template actions
     createTemplate: (
       templateData: Omit<Template, 'id' | 'userId'>

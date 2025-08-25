@@ -49,6 +49,7 @@ const mockActiveSession = {
   currentExerciseIndex: 0,
   totalVolume: 0,
   duration: 0,
+  templateRestTime: 90,
 };
 
 const mockRecentWorkouts = [
