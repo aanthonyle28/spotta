@@ -594,6 +594,13 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - ✅ Set creation reliability: Enhanced set ID uniqueness in both `mockData.ts` and `useWorkoutState.ts` to prevent duplicate key warnings
   - ✅ Modal consistency: RestPresetSheet now reliably shows exercise-specific values without requiring multiple attempts
   - ✅ Performance optimization: Maintained React performance with proper memoization while fixing state synchronization issues
+- 2025-08-27 — Mobile — Rest timer service synchronization and countdown modal fixes — [rest-timer-service-sync]
+  - ✅ "Apply to this exercise only" fix: Changed logic from `resetExerciseToTemplateTime` to `updateExerciseRestPreset` to properly apply user's custom time
+  - ✅ Service storage sync: Added `workoutService.storeSession()` calls to all rest preset update functions to prevent stale data in service layer
+  - ✅ Immediate countdown accuracy: Fixed RestTimerModal sync/loading delays by ensuring React state and service storage stay synchronized
+  - ✅ State-service alignment: Updated `updateExerciseRestPreset`, `updateAllExerciseRestPresets`, `updateRestPresetForExerciseType`, `updateTemplateRestTime`, and `resetExerciseToTemplateTime` functions
+  - ✅ Rest timer flow: Eliminated race conditions between user input in RestPresetSheet and countdown timer start via workoutService.completeSet()
+  - ✅ Data persistence: Ensured exercise-specific rest presets are immediately available when completing sets without sync delays
 
 - 2025-08-24 — UI Navigation Fix — Fixed ActiveSessionBanner navigation race condition causing banner to disappear immediately when tapping to go to logging screen. Enhanced banner visibility logic with loading state check and improved session validation logging. — [banner-navigation-fix]
 

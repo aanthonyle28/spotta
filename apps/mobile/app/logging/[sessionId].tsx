@@ -31,35 +31,54 @@ export default function LoggingScreen() {
   const [selectedExerciseForRest, setSelectedExerciseForRest] =
     useState<ExerciseId | null>(null);
 
-  // Memoize rest time calculation to avoid stale state issues
-  const currentRestTime = useMemo(() => {
-    if (selectedExerciseForRest) {
-      const exercise = state.activeSession?.exercises.find(
+  // Get selected exercise data - memoized to prevent unnecessary recalculations
+  const selectedExerciseData = useMemo(() => {
+    if (selectedExerciseForRest && state.activeSession) {
+      return state.activeSession.exercises.find(
         (ex) => ex.id === selectedExerciseForRest
       );
-      return exercise?.restPreset || 90;
+    }
+    return null;
+  }, [selectedExerciseForRest, state.activeSession?.exercises]);
+
+  // Memoize rest time calculation to avoid stale state issues
+  const currentRestTime = useMemo(() => {
+    if (selectedExerciseData) {
+      return selectedExerciseData.restPreset || 90;
     }
     return state.activeSession?.templateRestTime || 90;
-  }, [
-    selectedExerciseForRest,
-    state.activeSession?.exercises,
-    state.activeSession?.templateRestTime,
-  ]);
+  }, [selectedExerciseData?.restPreset, state.activeSession?.templateRestTime]);
 
   // Memoize exercise name calculation
   const selectedExerciseName = useMemo(() => {
-    if (selectedExerciseForRest) {
-      const exercise = state.activeSession?.exercises.find(
-        (ex) => ex.id === selectedExerciseForRest
-      );
-      return exercise?.exercise.name;
-    }
-    return undefined;
-  }, [selectedExerciseForRest, state.activeSession?.exercises]);
+    return selectedExerciseData?.exercise.name;
+  }, [selectedExerciseData?.exercise.name]);
+
   const [isFinishing, setIsFinishing] = useState(false);
   const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
     new Set([0])
   );
+
+  // Calculate current/active exercise rest time for UI display
+  const currentExerciseRestTime = useMemo(() => {
+    if (!state.activeSession) return 90;
+
+    // Find the first expanded exercise (the active one)
+    const expandedIndex = Array.from(expandedExercises)[0];
+    if (
+      expandedIndex !== undefined &&
+      state.activeSession.exercises[expandedIndex]
+    ) {
+      return state.activeSession.exercises[expandedIndex].restPreset;
+    }
+
+    // Fall back to template rest time
+    return state.activeSession.templateRestTime || 90;
+  }, [
+    state.activeSession?.exercises,
+    state.activeSession?.templateRestTime,
+    expandedExercises,
+  ]);
   const [openMenuExerciseId, setOpenMenuExerciseId] =
     useState<ExerciseId | null>(null);
   const [closeAllMenus, setCloseAllMenus] = useState(false);
@@ -366,7 +385,7 @@ export default function LoggingScreen() {
     (scope: 'this' | 'all' | 'remember', seconds: number) => {
       switch (scope) {
         case 'this':
-          // Apply to current exercise only
+          // Apply custom time to this specific exercise only
           if (selectedExerciseForRest) {
             actions.updateExerciseRestPreset(selectedExerciseForRest, seconds);
           }
@@ -377,7 +396,7 @@ export default function LoggingScreen() {
           actions.updateAllExerciseRestPresets(seconds);
           break;
         case 'remember':
-          // Remember for this exercise type - update all exercises with same name
+          // Remember user input for this exercise type - update all exercises with same name
           if (selectedExerciseForRest) {
             const exercise = state.activeSession?.exercises.find(
               (ex) => ex.id === selectedExerciseForRest
@@ -491,7 +510,7 @@ export default function LoggingScreen() {
                 }}
               >
                 <Text fontSize="$2" color="$gray11" fontWeight="500">
-                  Rest: {state.activeSession?.templateRestTime || 90}s
+                  Rest: {currentExerciseRestTime}s
                 </Text>
               </Button>
             </XStack>

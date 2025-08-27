@@ -10,6 +10,7 @@ import type {
   Template,
 } from '../types';
 import { workoutService } from '../services/workoutService';
+import { createMockSet } from '../services/mockData';
 import { logger } from '../../../utils/logger';
 
 const initialRestTimer: RestTimerState = {
@@ -519,15 +520,9 @@ export const useWorkoutState = () => {
           const newSessionExercises = exercisesToAdd.map((exercise, index) => ({
             id: exercise.id,
             exercise,
-            sets: [
-              {
-                id: `set-1-${exercise.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` as SetEntryId,
-                setNumber: 1,
-                completed: false,
-              },
-            ],
+            sets: [createMockSet(1, false)],
             orderIndex: currentMaxOrderIndex + 1 + index,
-            restPreset: 120,
+            restPreset: prev.activeSession?.templateRestTime || 120,
           }));
 
           return {
@@ -817,35 +812,70 @@ export const useWorkoutState = () => {
       setState((prev) => {
         if (!prev.activeSession) return prev;
 
+        const updatedSession = {
+          ...prev.activeSession,
+          exercises: prev.activeSession.exercises.map((exercise) =>
+            exercise.id === exerciseId
+              ? { ...exercise, restPreset: seconds }
+              : exercise
+          ),
+        };
+
+        // Sync with service storage to prevent stale data
+        workoutService.storeSession(updatedSession);
+
         return {
           ...prev,
-          activeSession: {
-            ...prev.activeSession,
-            exercises: prev.activeSession.exercises.map((exercise) =>
-              exercise.id === exerciseId
-                ? { ...exercise, restPreset: seconds }
-                : exercise
-            ),
-          },
+          activeSession: updatedSession,
         };
       });
     },
     []
   );
 
+  const resetExerciseToTemplateTime = useCallback((exerciseId: ExerciseId) => {
+    setState((prev) => {
+      if (!prev.activeSession) return prev;
+
+      const templateRestTime = prev.activeSession.templateRestTime || 120;
+
+      const updatedSession = {
+        ...prev.activeSession,
+        exercises: prev.activeSession.exercises.map((exercise) =>
+          exercise.id === exerciseId
+            ? { ...exercise, restPreset: templateRestTime }
+            : exercise
+        ),
+      };
+
+      // Sync with service storage to prevent stale data
+      workoutService.storeSession(updatedSession);
+
+      return {
+        ...prev,
+        activeSession: updatedSession,
+      };
+    });
+  }, []);
+
   const updateAllExerciseRestPresets = useCallback((seconds: number) => {
     setState((prev) => {
       if (!prev.activeSession) return prev;
 
+      const updatedSession = {
+        ...prev.activeSession,
+        exercises: prev.activeSession.exercises.map((exercise) => ({
+          ...exercise,
+          restPreset: seconds,
+        })),
+      };
+
+      // Sync with service storage to prevent stale data
+      workoutService.storeSession(updatedSession);
+
       return {
         ...prev,
-        activeSession: {
-          ...prev.activeSession,
-          exercises: prev.activeSession.exercises.map((exercise) => ({
-            ...exercise,
-            restPreset: seconds,
-          })),
-        },
+        activeSession: updatedSession,
       };
     });
   }, []);
@@ -855,16 +885,21 @@ export const useWorkoutState = () => {
       setState((prev) => {
         if (!prev.activeSession) return prev;
 
+        const updatedSession = {
+          ...prev.activeSession,
+          exercises: prev.activeSession.exercises.map((sessionExercise) =>
+            sessionExercise.exercise.name === exerciseName
+              ? { ...sessionExercise, restPreset: seconds }
+              : sessionExercise
+          ),
+        };
+
+        // Sync with service storage to prevent stale data
+        workoutService.storeSession(updatedSession);
+
         return {
           ...prev,
-          activeSession: {
-            ...prev.activeSession,
-            exercises: prev.activeSession.exercises.map((sessionExercise) =>
-              sessionExercise.exercise.name === exerciseName
-                ? { ...sessionExercise, restPreset: seconds }
-                : sessionExercise
-            ),
-          },
+          activeSession: updatedSession,
         };
       });
     },
@@ -875,12 +910,17 @@ export const useWorkoutState = () => {
     setState((prev) => {
       if (!prev.activeSession) return prev;
 
+      const updatedSession = {
+        ...prev.activeSession,
+        templateRestTime: seconds,
+      };
+
+      // Sync with service storage to prevent stale data
+      workoutService.storeSession(updatedSession);
+
       return {
         ...prev,
-        activeSession: {
-          ...prev.activeSession,
-          templateRestTime: seconds,
-        },
+        activeSession: updatedSession,
       };
     });
   }, []);
@@ -912,6 +952,7 @@ export const useWorkoutState = () => {
       replaceExercise,
       reorderExercises,
       updateExerciseRestPreset,
+      resetExerciseToTemplateTime,
       updateAllExerciseRestPresets,
       updateRestPresetForExerciseType,
       updateTemplateRestTime,
