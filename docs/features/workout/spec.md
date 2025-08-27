@@ -583,6 +583,18 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - ✅ Modal accuracy: Rest timer modal now displays correct exercise-specific timer after set completion
   - ✅ User control: Clear separation between template-level controls and individual exercise customization
 
+- 2025-08-27 — Mobile — Rest timer modal state synchronization fixes — [rest-timer-modal-sync]
+  - ✅ RestPresetSheet display fix: Implemented memoized `currentRestTime` calculation to eliminate race conditions between `selectedExerciseForRest` state updates and modal display
+  - ✅ Exercise-specific values: Fixed modal showing incorrect rest times when switching between exercises due to React state batching timing issues
+  - ✅ Template isolation: Ensured template-level rest timer changes don't affect individual exercise modal displays
+  - ✅ Duplicate set keys fix: Added counter and random suffix to set ID generation (`createMockSet`) to prevent React key conflicts and checkbox connection issues
+  - ✅ Rest countdown accuracy: Verified RestTimerModal uses correct exercise-specific `restPreset` values from service layer (`exercise?.restPreset || 120`)
+  - ✅ State memoization: Added `useMemo` for both `currentRestTime` and `selectedExerciseName` calculations with proper dependency arrays
+  - ✅ Checkbox isolation: Fixed second exercise checkboxes incorrectly connecting to first exercise due to duplicate set IDs
+  - ✅ Set creation reliability: Enhanced set ID uniqueness in both `mockData.ts` and `useWorkoutState.ts` to prevent duplicate key warnings
+  - ✅ Modal consistency: RestPresetSheet now reliably shows exercise-specific values without requiring multiple attempts
+  - ✅ Performance optimization: Maintained React performance with proper memoization while fixing state synchronization issues
+
 - 2025-08-24 — UI Navigation Fix — Fixed ActiveSessionBanner navigation race condition causing banner to disappear immediately when tapping to go to logging screen. Enhanced banner visibility logic with loading state check and improved session validation logging. — [banner-navigation-fix]
 
 - 2025-01-XX — Mobile — QFRONT Phase 1 implementation completed — [workout-frontend]

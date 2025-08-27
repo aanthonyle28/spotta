@@ -465,6 +465,9 @@ export const useWorkoutState = () => {
       restTimer: {
         ...prev.restTimer,
         remainingTime: Math.max(0, prev.restTimer.remainingTime + seconds),
+        startedAt: prev.restTimer.isActive
+          ? new Date()
+          : prev.restTimer.startedAt,
       },
     }));
   }, []);
@@ -518,7 +521,7 @@ export const useWorkoutState = () => {
             exercise,
             sets: [
               {
-                id: `set-1-${exercise.id}-${Date.now()}` as SetEntryId,
+                id: `set-1-${exercise.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` as SetEntryId,
                 setNumber: 1,
                 completed: false,
               },

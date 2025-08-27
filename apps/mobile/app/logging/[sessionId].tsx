@@ -30,6 +30,32 @@ export default function LoggingScreen() {
   const [showRestPresetSheet, setShowRestPresetSheet] = useState(false);
   const [selectedExerciseForRest, setSelectedExerciseForRest] =
     useState<ExerciseId | null>(null);
+
+  // Memoize rest time calculation to avoid stale state issues
+  const currentRestTime = useMemo(() => {
+    if (selectedExerciseForRest) {
+      const exercise = state.activeSession?.exercises.find(
+        (ex) => ex.id === selectedExerciseForRest
+      );
+      return exercise?.restPreset || 90;
+    }
+    return state.activeSession?.templateRestTime || 90;
+  }, [
+    selectedExerciseForRest,
+    state.activeSession?.exercises,
+    state.activeSession?.templateRestTime,
+  ]);
+
+  // Memoize exercise name calculation
+  const selectedExerciseName = useMemo(() => {
+    if (selectedExerciseForRest) {
+      const exercise = state.activeSession?.exercises.find(
+        (ex) => ex.id === selectedExerciseForRest
+      );
+      return exercise?.exercise.name;
+    }
+    return undefined;
+  }, [selectedExerciseForRest, state.activeSession?.exercises]);
   const [isFinishing, setIsFinishing] = useState(false);
   const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
     new Set([0])
@@ -554,20 +580,8 @@ export default function LoggingScreen() {
               setShowRestPresetSheet(false);
               setSelectedExerciseForRest(null);
             }}
-            currentRestTime={
-              selectedExerciseForRest
-                ? state.activeSession?.exercises.find(
-                    (ex) => ex.id === selectedExerciseForRest
-                  )?.restPreset || 90
-                : state.activeSession?.templateRestTime || 90
-            }
-            exerciseName={
-              selectedExerciseForRest
-                ? state.activeSession?.exercises.find(
-                    (ex) => ex.id === selectedExerciseForRest
-                  )?.exercise.name
-                : undefined
-            }
+            currentRestTime={currentRestTime}
+            exerciseName={selectedExerciseName}
             isTemplate={selectedExerciseForRest === null}
             onApplyToThis={(seconds) => handleRestPresetApply('this', seconds)}
             onApplyToAll={(seconds) => handleRestPresetApply('all', seconds)}

@@ -398,13 +398,14 @@ export const mockCommunityTemplates: CommunityTemplate[] = [
 ];
 
 // Helper functions to create mock data
+let setIdCounter = 0;
 export const createMockSet = (
   setNumber: number,
   completed: boolean = false,
   weight?: number,
   reps?: number
 ): SetData => ({
-  id: `set-${setNumber}-${Date.now()}` as SetEntryId,
+  id: `set-${setNumber}-${Date.now()}-${++setIdCounter}` as SetEntryId,
   setNumber,
   weight,
   reps,
