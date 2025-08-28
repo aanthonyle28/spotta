@@ -511,40 +511,35 @@ export const useWorkoutState = () => {
           throw new Error('No valid exercises found');
         }
 
-        // Optimistic update - immediately update local state
-        setState((prev) => {
-          if (!prev.activeSession) return prev;
-
-          const currentMaxOrderIndex = Math.max(
-            ...prev.activeSession.exercises.map((ex) => ex.orderIndex),
-            -1
-          );
-
-          const newSessionExercises = exercisesToAdd.map((exercise, index) => ({
-            id: exercise.id,
-            exercise,
-            sets: [createMockSet(1, false)],
-            orderIndex: currentMaxOrderIndex + 1 + index,
-            restPreset: prev.activeSession?.templateRestTime || 120,
-          }));
-
-          return {
-            ...prev,
-            activeSession: {
-              ...prev.activeSession,
-              exercises: [
-                ...prev.activeSession.exercises,
-                ...newSessionExercises,
-              ],
-            },
-          };
-        });
-
-        // Background sync with service
-        await workoutService.appendExercises(
-          state.activeSession.id,
-          exerciseIds
+        // Create new session exercises first
+        const currentMaxOrderIndex = Math.max(
+          ...state.activeSession.exercises.map((ex) => ex.orderIndex),
+          -1
         );
+
+        const newSessionExercises = exercisesToAdd.map((exercise, index) => ({
+          id: exercise.id,
+          exercise,
+          sets: [createMockSet(1, false)],
+          orderIndex: currentMaxOrderIndex + 1 + index,
+          restPreset: state.activeSession?.templateRestTime || 120,
+        }));
+
+        // Create updated session
+        const updatedSession = {
+          ...state.activeSession,
+          exercises: [...state.activeSession.exercises, ...newSessionExercises],
+        };
+
+        // Optimistic update - immediately update local state
+        setState((prev) => ({
+          ...prev,
+          activeSession: updatedSession,
+        }));
+
+        // Background sync with service - store the exact same session
+        // to prevent set ID mismatches
+        await workoutService.storeSession(updatedSession);
       } catch (error) {
         setState((prev) => ({
           ...prev,

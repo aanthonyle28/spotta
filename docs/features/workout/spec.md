@@ -497,6 +497,13 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - ✅ Hook integration: Extended useWorkoutState with new actions and proper state management
   - ✅ Add-exercises enhancement: Added replace mode support with single selection behavior and validation
   - ✅ Menu state management: Safe parent-child prop communication to handle menu closing on scroll and multi-menu coordination
+- 2025-08-28 — Mobile — Fixed header metrics and set operations for all exercises — [header-metrics-fix]
+  - ✅ Duration counter: Added real-time timer with setInterval to update every second instead of only on set completion
+  - ✅ Set operations fix: Fixed 'Set not found' error by eliminating set ID mismatches between optimistic updates and service sync
+  - ✅ Exercise ID routing: Updated handleSetUpdate to accept correct exerciseId parameter instead of hardcoded activeExercise
+  - ✅ Sync consistency: Modified appendExercises to store exact same session object for both local state and service to prevent ID conflicts
+  - ✅ All exercise support: Verified set operations (weight/reps updates, completion) work for both existing and newly added exercises
+  - ✅ Header metrics: Duration, total lbs (weight × reps), and exercise count all update correctly in real-time
 
 - 2025-08-28 — Mobile — Fix replace exercise filtering to match add exercise behavior — [replace-exercise-filtering-fix]
   - 🐛 **Issue**: Replace exercise screen showed all exercises instead of filtering out existing ones

@@ -26,8 +26,8 @@ import type { SetEntryId, ExerciseId } from '@spotta/shared';
 export default function LoggingScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const { state, actions } = useWorkoutState();
-  const activeExerciseIndex = 0;
   const [showRestPresetSheet, setShowRestPresetSheet] = useState(false);
+  const [currentTime, setCurrentTime] = useState(Date.now());
   const [selectedExerciseForRest, setSelectedExerciseForRest] =
     useState<ExerciseId | null>(null);
 
@@ -146,6 +146,17 @@ export default function LoggingScreen() {
       formattedDate: formatDate(new Date()),
       sets: completedSets,
     };
+  }, [state.activeSession, currentTime]);
+
+  // Update timer every second for real-time duration
+  useEffect(() => {
+    if (!state.activeSession) return;
+
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [state.activeSession]);
 
   useEffect(() => {
@@ -168,7 +179,7 @@ export default function LoggingScreen() {
     }
   }, [state.activeSession, state.isLoading, sessionId]);
 
-  const activeExercise = state.activeSession?.exercises[activeExerciseIndex];
+  // Removed activeExercise - now using individual exercise IDs from components
 
   const handleSetComplete = useCallback(
     async (setData: SetData) => {
@@ -183,16 +194,18 @@ export default function LoggingScreen() {
   );
 
   const handleSetUpdate = useCallback(
-    async (setId: SetEntryId, updates: Partial<SetData>) => {
-      if (!activeExercise) return;
-
+    async (
+      exerciseId: ExerciseId,
+      setId: SetEntryId,
+      updates: Partial<SetData>
+    ) => {
       try {
-        await actions.updateSet(activeExercise.id, setId, updates);
+        await actions.updateSet(exerciseId, setId, updates);
       } catch (error) {
         console.error('Failed to update set:', error);
       }
     },
-    [actions, activeExercise]
+    [actions]
   );
 
   const handleAddSet = useCallback(
@@ -524,7 +537,9 @@ export default function LoggingScreen() {
                   isExpanded={expandedExercises.has(index)}
                   onToggleExpanded={() => handleToggleExercise(index)}
                   onSetComplete={handleSetComplete}
-                  onSetUpdate={handleSetUpdate}
+                  onSetUpdate={(setId, updates) =>
+                    handleSetUpdate(item.id, setId, updates)
+                  }
                   onAddSet={() => handleAddSet(item.id)}
                   onShowRestPreset={() => {
                     setSelectedExerciseForRest(item.id);
