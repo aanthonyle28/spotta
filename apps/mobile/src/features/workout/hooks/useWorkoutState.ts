@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ExerciseId, SetEntryId, TemplateId } from '@spotta/shared';
 import type {
   WorkoutState,
@@ -41,6 +41,9 @@ export const useWorkoutState = () => {
 
   // Add transition state to prevent race conditions
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Debouncing for rest preset updates to prevent race conditions
+  const restPresetTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Load initial data
   useEffect(() => {
@@ -809,26 +812,45 @@ export const useWorkoutState = () => {
 
   const updateExerciseRestPreset = useCallback(
     (exerciseId: ExerciseId, seconds: number) => {
-      setState((prev) => {
-        if (!prev.activeSession) return prev;
+      const key = `${exerciseId}-rest`;
 
-        const updatedSession = {
-          ...prev.activeSession,
-          exercises: prev.activeSession.exercises.map((exercise) =>
-            exercise.id === exerciseId
-              ? { ...exercise, restPreset: seconds }
-              : exercise
-          ),
-        };
+      // Clear existing timeout for this exercise
+      if (restPresetTimeouts.current.has(key)) {
+        clearTimeout(restPresetTimeouts.current.get(key)!);
+      }
 
-        // Sync with service storage to prevent stale data
-        workoutService.storeSession(updatedSession);
+      // Debounce the update to prevent race conditions
+      const timeout = setTimeout(() => {
+        setState((prev) => {
+          if (!prev.activeSession) return prev;
 
-        return {
-          ...prev,
-          activeSession: updatedSession,
-        };
-      });
+          const updatedSession = {
+            ...prev.activeSession,
+            exercises: prev.activeSession.exercises.map((exercise) =>
+              exercise.id === exerciseId
+                ? { ...exercise, restPreset: seconds }
+                : exercise
+            ),
+            // Mark this exercise as having a custom rest time
+            customizedExercises: new Set([
+              ...prev.activeSession.customizedExercises,
+              exerciseId,
+            ]),
+          };
+
+          // Sync with service storage to prevent stale data
+          workoutService.storeSession(updatedSession);
+
+          return {
+            ...prev,
+            activeSession: updatedSession,
+          };
+        });
+
+        restPresetTimeouts.current.delete(key);
+      }, 300);
+
+      restPresetTimeouts.current.set(key, timeout);
     },
     []
   );
@@ -866,7 +888,10 @@ export const useWorkoutState = () => {
         ...prev.activeSession,
         exercises: prev.activeSession.exercises.map((exercise) => ({
           ...exercise,
-          restPreset: seconds,
+          // Only update rest preset if exercise is not customized
+          restPreset: prev.activeSession!.customizedExercises.has(exercise.id)
+            ? exercise.restPreset
+            : seconds,
         })),
       };
 
@@ -880,8 +905,43 @@ export const useWorkoutState = () => {
     });
   }, []);
 
+  const updateAllExerciseRestPresetsFromTemplate = useCallback(
+    (seconds: number) => {
+      setState((prev) => {
+        if (!prev.activeSession) return prev;
+
+        const updatedSession = {
+          ...prev.activeSession,
+          exercises: prev.activeSession.exercises.map((exercise) => ({
+            ...exercise,
+            // Update ALL exercises regardless of customization status
+            restPreset: seconds,
+          })),
+          // Clear customization flags since template is now overriding everything
+          customizedExercises: new Set<ExerciseId>(),
+        };
+
+        // Sync with service storage to prevent stale data
+        workoutService.storeSession(updatedSession);
+
+        return {
+          ...prev,
+          activeSession: updatedSession,
+        };
+      });
+    },
+    []
+  );
+
   const updateRestPresetForExerciseType = useCallback(
-    (exerciseName: string, seconds: number) => {
+    async (exerciseName: string, seconds: number) => {
+      // Save to global preferences first
+      try {
+        await workoutService.setExerciseRestPreference(exerciseName, seconds);
+      } catch (error) {
+        console.error('Failed to save exercise rest preference:', error);
+      }
+
       setState((prev) => {
         if (!prev.activeSession) return prev;
 
@@ -892,6 +952,13 @@ export const useWorkoutState = () => {
               ? { ...sessionExercise, restPreset: seconds }
               : sessionExercise
           ),
+          // Mark all exercises of this type as customized
+          customizedExercises: new Set([
+            ...prev.activeSession.customizedExercises,
+            ...prev.activeSession.exercises
+              .filter((ex) => ex.exercise.name === exerciseName)
+              .map((ex) => ex.id),
+          ]),
         };
 
         // Sync with service storage to prevent stale data
@@ -925,6 +992,14 @@ export const useWorkoutState = () => {
     });
   }, []);
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      restPresetTimeouts.current.forEach((timeout) => clearTimeout(timeout));
+      restPresetTimeouts.current.clear();
+    };
+  }, []);
+
   return {
     state,
     hasActiveSession,
@@ -954,6 +1029,7 @@ export const useWorkoutState = () => {
       updateExerciseRestPreset,
       resetExerciseToTemplateTime,
       updateAllExerciseRestPresets,
+      updateAllExerciseRestPresetsFromTemplate,
       updateRestPresetForExerciseType,
       updateTemplateRestTime,
       // Template actions

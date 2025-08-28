@@ -1,6 +1,7 @@
 import { render, fireEvent } from '@testing-library/react-native';
 import { WorkoutConflictModal } from './WorkoutConflictModal';
 import type { ActiveSession } from '../types';
+import type { ExerciseId } from '@spotta/shared';
 
 const mockActiveSession: ActiveSession = {
   id: 'session-1' as any,
@@ -27,6 +28,7 @@ const mockActiveSession: ActiveSession = {
   currentExerciseIndex: 0,
   totalVolume: 0,
   duration: 0,
+  customizedExercises: new Set<ExerciseId>(),
 };
 
 describe('WorkoutConflictModal', () => {

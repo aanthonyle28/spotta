@@ -43,11 +43,17 @@ export default function LoggingScreen() {
 
   // Memoize rest time calculation to avoid stale state issues
   const currentRestTime = useMemo(() => {
-    if (selectedExerciseData) {
+    if (selectedExerciseForRest && selectedExerciseData) {
+      // Exercise-specific rest time
       return selectedExerciseData.restPreset || 90;
     }
+    // Template-level rest time (when selectedExerciseForRest is null)
     return state.activeSession?.templateRestTime || 90;
-  }, [selectedExerciseData?.restPreset, state.activeSession?.templateRestTime]);
+  }, [
+    selectedExerciseForRest,
+    selectedExerciseData?.restPreset,
+    state.activeSession?.templateRestTime,
+  ]);
 
   // Memoize exercise name calculation
   const selectedExerciseName = useMemo(() => {
@@ -59,26 +65,10 @@ export default function LoggingScreen() {
     new Set([0])
   );
 
-  // Calculate current/active exercise rest time for UI display
-  const currentExerciseRestTime = useMemo(() => {
-    if (!state.activeSession) return 90;
-
-    // Find the first expanded exercise (the active one)
-    const expandedIndex = Array.from(expandedExercises)[0];
-    if (
-      expandedIndex !== undefined &&
-      state.activeSession.exercises[expandedIndex]
-    ) {
-      return state.activeSession.exercises[expandedIndex].restPreset;
-    }
-
-    // Fall back to template rest time
-    return state.activeSession.templateRestTime || 90;
-  }, [
-    state.activeSession?.exercises,
-    state.activeSession?.templateRestTime,
-    expandedExercises,
-  ]);
+  // Display template-level rest time consistently in header
+  const headerRestTime = useMemo(() => {
+    return state.activeSession?.templateRestTime || 90;
+  }, [state.activeSession?.templateRestTime]);
   const [openMenuExerciseId, setOpenMenuExerciseId] =
     useState<ExerciseId | null>(null);
   const [closeAllMenus, setCloseAllMenus] = useState(false);
@@ -391,9 +381,9 @@ export default function LoggingScreen() {
           }
           break;
         case 'all':
-          // Apply to template-level timer and all exercises in session
+          // Apply to template-level timer and ALL exercises in session (override all customizations)
           actions.updateTemplateRestTime(seconds);
-          actions.updateAllExerciseRestPresets(seconds);
+          actions.updateAllExerciseRestPresetsFromTemplate(seconds);
           break;
         case 'remember':
           // Remember user input for this exercise type - update all exercises with same name
@@ -510,7 +500,7 @@ export default function LoggingScreen() {
                 }}
               >
                 <Text fontSize="$2" color="$gray11" fontWeight="500">
-                  Rest: {currentExerciseRestTime}s
+                  Rest: {headerRestTime}s
                 </Text>
               </Button>
             </XStack>

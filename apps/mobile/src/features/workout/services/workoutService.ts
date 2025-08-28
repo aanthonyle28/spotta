@@ -25,6 +25,7 @@ import {
   getExercisesByIds,
 } from './mockData';
 import { logger } from '../../../utils/logger';
+import { storageService } from './storageService';
 
 // Simulate network delays
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -587,6 +588,60 @@ class WorkoutService {
 
     session.exercises = updatedExercises;
     this.sessionStorage.set(sessionId, session);
+  }
+
+  // Exercise rest preference methods
+  async getExerciseRestPreference(
+    exerciseName: string
+  ): Promise<number | null> {
+    await delay(50);
+
+    try {
+      const preferences = await storageService.getExerciseRestPreferences();
+      return preferences[exerciseName] || null;
+    } catch (error) {
+      logger.error(
+        '[WorkoutService] Error getting exercise rest preference:',
+        error
+      );
+      return null;
+    }
+  }
+
+  async setExerciseRestPreference(
+    exerciseName: string,
+    seconds: number
+  ): Promise<void> {
+    await delay(50);
+
+    try {
+      const preferences = await storageService.getExerciseRestPreferences();
+      preferences[exerciseName] = seconds;
+      await storageService.setExerciseRestPreferences(preferences);
+      logger.debug(
+        `[WorkoutService] Set rest preference for ${exerciseName}: ${seconds}s`
+      );
+    } catch (error) {
+      logger.error(
+        '[WorkoutService] Error setting exercise rest preference:',
+        error
+      );
+      throw error;
+    }
+  }
+
+  async getAllExerciseRestPreferences(): Promise<Record<string, number>> {
+    await delay(50);
+
+    try {
+      return await storageService.getExerciseRestPreferences();
+    } catch (error) {
+      logger.error(
+        '[WorkoutService] Error getting all exercise rest preferences:',
+        error
+      );
+      return {};
+    }
   }
 }
 

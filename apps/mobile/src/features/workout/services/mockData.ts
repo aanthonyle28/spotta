@@ -439,6 +439,7 @@ export const createMockActiveSession = (
   totalVolume: 0,
   duration: 0,
   templateRestTime: 90, // Default template rest time
+  customizedExercises: new Set(), // Track which exercises have custom rest times
 });
 
 // Mock recent workouts

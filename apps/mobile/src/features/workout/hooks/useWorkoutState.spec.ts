@@ -50,6 +50,7 @@ const mockActiveSession = {
   totalVolume: 0,
   duration: 0,
   templateRestTime: 90,
+  customizedExercises: new Set<ExerciseId>(),
 };
 
 const mockRecentWorkouts = [
@@ -333,5 +334,109 @@ describe.skip('useWorkoutState', () => {
     });
 
     expect(result.current.state.restTimer.remainingTime).toBe(135);
+  });
+
+  it('updates all exercise rest presets from template (overrides customizations)', () => {
+    const { result } = renderHook(() => useWorkoutState());
+
+    // Set initial active session with exercises, some customized
+    act(() => {
+      result.current.state.activeSession = {
+        ...mockActiveSession,
+        exercises: [
+          {
+            id: 'bench-press' as ExerciseId,
+            exercise: mockExercises[0],
+            sets: [],
+            orderIndex: 0,
+            restPreset: 120, // Customized
+          },
+          {
+            id: 'squat' as ExerciseId,
+            exercise: mockExercises[1],
+            sets: [],
+            orderIndex: 1,
+            restPreset: 90, // Template default
+          },
+        ],
+        // Mark first exercise as customized
+        customizedExercises: new Set(['bench-press' as ExerciseId]),
+      };
+    });
+
+    // Update all exercises from template
+    act(() => {
+      result.current.actions.updateAllExerciseRestPresetsFromTemplate(150);
+    });
+
+    // Verify ALL exercises updated regardless of customization
+    expect(result.current.state.activeSession?.exercises[0].restPreset).toBe(
+      150
+    );
+    expect(result.current.state.activeSession?.exercises[1].restPreset).toBe(
+      150
+    );
+
+    // Verify customization flags cleared
+    expect(result.current.state.activeSession?.customizedExercises.size).toBe(
+      0
+    );
+    expect(
+      result.current.state.activeSession?.customizedExercises.has(
+        'bench-press' as ExerciseId
+      )
+    ).toBe(false);
+  });
+
+  it('updates all exercise rest presets (respects customizations)', () => {
+    const { result } = renderHook(() => useWorkoutState());
+
+    // Set initial active session with exercises, some customized
+    act(() => {
+      result.current.state.activeSession = {
+        ...mockActiveSession,
+        exercises: [
+          {
+            id: 'bench-press' as ExerciseId,
+            exercise: mockExercises[0],
+            sets: [],
+            orderIndex: 0,
+            restPreset: 120, // Customized
+          },
+          {
+            id: 'squat' as ExerciseId,
+            exercise: mockExercises[1],
+            sets: [],
+            orderIndex: 1,
+            restPreset: 90, // Template default
+          },
+        ],
+        // Mark first exercise as customized
+        customizedExercises: new Set(['bench-press' as ExerciseId]),
+      };
+    });
+
+    // Update all exercises (respecting customizations)
+    act(() => {
+      result.current.actions.updateAllExerciseRestPresets(150);
+    });
+
+    // Verify customized exercise unchanged, non-customized exercise updated
+    expect(result.current.state.activeSession?.exercises[0].restPreset).toBe(
+      120
+    ); // Unchanged (customized)
+    expect(result.current.state.activeSession?.exercises[1].restPreset).toBe(
+      150
+    ); // Updated (not customized)
+
+    // Verify customization flags preserved
+    expect(result.current.state.activeSession?.customizedExercises.size).toBe(
+      1
+    );
+    expect(
+      result.current.state.activeSession?.customizedExercises.has(
+        'bench-press' as ExerciseId
+      )
+    ).toBe(true);
   });
 });

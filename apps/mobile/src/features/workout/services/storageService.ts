@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Storage keys
 const STORAGE_KEYS = {
   DEVELOPMENT_SESSION_COMPLETED: '@spotta/dev_session_completed',
+  EXERCISE_REST_PREFERENCES: '@spotta/exercise_rest_preferences',
 } as const;
 
 /**
@@ -47,6 +48,51 @@ class StorageService {
     } catch (error) {
       console.error(
         '[StorageService] Error clearing development session completed:',
+        error
+      );
+      throw error;
+    }
+  }
+
+  // Exercise rest preferences management
+  async getExerciseRestPreferences(): Promise<Record<string, number>> {
+    try {
+      const value = await AsyncStorage.getItem(
+        STORAGE_KEYS.EXERCISE_REST_PREFERENCES
+      );
+      return value ? JSON.parse(value) : {};
+    } catch (error) {
+      console.error(
+        '[StorageService] Error reading exercise rest preferences:',
+        error
+      );
+      return {}; // Default to empty object on error
+    }
+  }
+
+  async setExerciseRestPreferences(
+    preferences: Record<string, number>
+  ): Promise<void> {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.EXERCISE_REST_PREFERENCES,
+        JSON.stringify(preferences)
+      );
+    } catch (error) {
+      console.error(
+        '[StorageService] Error saving exercise rest preferences:',
+        error
+      );
+      throw error; // Re-throw to allow error handling in calling code
+    }
+  }
+
+  async clearExerciseRestPreferences(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.EXERCISE_REST_PREFERENCES);
+    } catch (error) {
+      console.error(
+        '[StorageService] Error clearing exercise rest preferences:',
         error
       );
       throw error;

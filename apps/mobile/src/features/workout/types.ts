@@ -18,6 +18,7 @@ export interface ActiveSession {
   duration: number;
   templateId?: TemplateId; // Track which template was used to create this session
   templateRestTime: number; // Template-level rest timer setting (separate from individual exercise timers)
+  customizedExercises: Set<ExerciseId>; // Track which exercises have custom rest times vs inherited template times
 }
 
 export interface SessionExercise {
