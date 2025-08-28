@@ -222,7 +222,7 @@ class WorkoutService {
     });
 
     // Set template rest time based on the first exercise or default
-    session.templateRestTime = template.exercises[0]?.restTime || 90;
+    session.templateRestTime = template.exercises[0]?.restTime || 120;
 
     logger.debug(
       `[StartFromTemplate] Created session with templateId: ${session.templateId} for template: ${template.title}`

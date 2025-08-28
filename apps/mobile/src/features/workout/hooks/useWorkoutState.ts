@@ -24,7 +24,7 @@ const initialRestTimer: RestTimerState = {
 
 const initialSettings: WorkoutSettings = {
   restTimerEnabled: true,
-  defaultRestTime: 90,
+  defaultRestTime: 120,
   showRestAsModal: true,
 };
 

@@ -53,7 +53,7 @@ export const RestTimerModal = memo(
     const formatTime = (seconds: number): string => {
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
     // Calculate progress for countdown (remaining time as percentage)
@@ -131,6 +131,7 @@ export const RestTimerModal = memo(
                   fontWeight="bold"
                   textAlign="center"
                   flex={1}
+                  minWidth={120}
                 >
                   {formatTime(currentTime)}
                 </Text>

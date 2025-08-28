@@ -45,10 +45,10 @@ export default function LoggingScreen() {
   const currentRestTime = useMemo(() => {
     if (selectedExerciseForRest && selectedExerciseData) {
       // Exercise-specific rest time
-      return selectedExerciseData.restPreset || 90;
+      return selectedExerciseData.restPreset || 120;
     }
     // Template-level rest time (when selectedExerciseForRest is null)
-    return state.activeSession?.templateRestTime || 90;
+    return state.activeSession?.templateRestTime || 120;
   }, [
     selectedExerciseForRest,
     selectedExerciseData?.restPreset,
@@ -67,7 +67,7 @@ export default function LoggingScreen() {
 
   // Display template-level rest time consistently in header
   const headerRestTime = useMemo(() => {
-    return state.activeSession?.templateRestTime || 90;
+    return state.activeSession?.templateRestTime || 120;
   }, [state.activeSession?.templateRestTime]);
   const [openMenuExerciseId, setOpenMenuExerciseId] =
     useState<ExerciseId | null>(null);
@@ -132,7 +132,7 @@ export default function LoggingScreen() {
     const formatTime = (seconds: number): string => {
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
     const durationInSeconds = Math.floor(
@@ -479,7 +479,12 @@ export default function LoggingScreen() {
               <XStack space="$3" alignItems="center">
                 <XStack space="$1" alignItems="center">
                   <Clock size={12} color="$gray10" />
-                  <Text fontSize="$2" color="$gray10">
+                  <Text
+                    fontSize="$2"
+                    color="$gray10"
+                    minWidth={35}
+                    textAlign="center"
+                  >
                     {sessionStats.duration}
                   </Text>
                 </XStack>

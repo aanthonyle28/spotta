@@ -27,7 +27,7 @@ export const RestBar = memo(
     const formatTime = (seconds: number): string => {
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
     const progress =
@@ -82,7 +82,13 @@ export const RestBar = memo(
                 <Text color="white" fontSize="$2" opacity={0.8}>
                   Rest Timer {exerciseName && `• ${exerciseName}`}
                 </Text>
-                <Text color="white" fontSize="$6" fontWeight="bold">
+                <Text
+                  color="white"
+                  fontSize="$6"
+                  fontWeight="bold"
+                  minWidth={65}
+                  textAlign="center"
+                >
                   {formatTime(restTimer.remainingTime)}
                 </Text>
               </YStack>
