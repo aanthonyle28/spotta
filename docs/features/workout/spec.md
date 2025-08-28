@@ -497,6 +497,14 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - ✅ Hook integration: Extended useWorkoutState with new actions and proper state management
   - ✅ Add-exercises enhancement: Added replace mode support with single selection behavior and validation
   - ✅ Menu state management: Safe parent-child prop communication to handle menu closing on scroll and multi-menu coordination
+
+- 2025-08-28 — Mobile — Fix replace exercise filtering to match add exercise behavior — [replace-exercise-filtering-fix]
+  - 🐛 **Issue**: Replace exercise screen showed all exercises instead of filtering out existing ones
+  - ✅ **Root cause**: Replace mode bypassed filtering logic that worked correctly for append mode
+  - ✅ **Fix**: Extended filtering condition from `mode === 'append'` to `mode === 'append' || mode === 'replace'`
+  - ✅ **Behavior**: Replace exercise now shows only exercises NOT already in the workout, matching add exercise button
+  - ✅ **Location**: `apps/mobile/app/add-exercises.tsx:75` - filteredExercises useMemo hook
+  - ✅ **Testing**: No regressions, both append and replace modes use identical filtering logic
   - ✅ Type safety: Full TypeScript support with proper action signatures in WorkoutStateProvider
   - ✅ Accessibility: Maintained 44×44 touch targets and proper accessibility labels for all menu actions
   - ✅ Error handling: Confirmation alerts for destructive actions and proper error states throughout

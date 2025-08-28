@@ -11,8 +11,9 @@ import { workoutService } from '../src/features/workout/services/workoutService'
 import { useWorkoutState } from '../src/features/workout/providers/WorkoutStateProvider';
 import {
   FilterRow,
+  CreateExerciseModal,
 } from '../src/features/workout/components';
-import type { Exercise, Template } from '../src/features/workout/types';
+import type { Exercise } from '../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';
 
 export default function AddExercisesScreen() {
@@ -20,7 +21,7 @@ export default function AddExercisesScreen() {
     mode?: 'append' | 'empty' | 'template' | 'replace';
     exerciseId?: string;
   }>();
-  const { actions } = useWorkoutState();
+  const { state, actions } = useWorkoutState();
   const insets = useSafeAreaInsets();
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -34,6 +35,7 @@ export default function AddExercisesScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCreateExerciseModal, setShowCreateExerciseModal] = useState(false);
 
   useEffect(() => {
     loadExercises();
@@ -68,6 +70,16 @@ export default function AddExercisesScreen() {
   // Comprehensive filtering
   const filteredExercises = useMemo(() => {
     let filtered = exercises;
+
+    // Filter out exercises already in active session (for append and replace modes)
+    if (mode === 'append' || mode === 'replace') {
+      const activeExerciseIds = new Set(
+        state.activeSession?.exercises.map((ex) => ex.exercise.id) || []
+      );
+      filtered = filtered.filter(
+        (exercise) => !activeExerciseIds.has(exercise.id)
+      );
+    }
 
     // Search filter
     if (searchQuery) {
@@ -106,6 +118,8 @@ export default function AddExercisesScreen() {
     return filtered;
   }, [
     exercises,
+    mode,
+    state.activeSession?.exercises,
     searchQuery,
     selectedCategory,
     selectedMuscleGroup,
@@ -132,6 +146,11 @@ export default function AddExercisesScreen() {
     [mode]
   );
 
+  const handleCreateExerciseSuccess = (newExercise: Exercise) => {
+    // Add the new exercise to our list and select it
+    setExercises((prev) => [newExercise, ...prev]);
+    setSelectedExercises(new Set([newExercise.id]));
+  };
 
   const handleStart = async () => {
     if (selectedExercises.size === 0) return;
@@ -155,7 +174,9 @@ export default function AddExercisesScreen() {
         router.push(`/logging/${session.id}`);
       } else if (mode === 'template') {
         // For original template mode, navigate to create-template screen
-        router.push(`/create-template?exercises=${JSON.stringify(exerciseIds)}` as any);
+        router.push(
+          `/create-template?exercises=${JSON.stringify(exerciseIds)}` as any
+        );
       } else if (mode === 'replace' && exerciseId) {
         // Replace existing exercise with selected one in active session
         await actions.replaceExercise(exerciseId as ExerciseId, exerciseIds[0]);
@@ -244,7 +265,7 @@ export default function AddExercisesScreen() {
               <Button
                 size="$3"
                 backgroundColor="$green9"
-                onPress={() => router.push('/create-exercise')}
+                onPress={() => setShowCreateExerciseModal(true)}
                 accessibilityLabel="Create exercise"
               >
                 Create +
@@ -269,6 +290,8 @@ export default function AddExercisesScreen() {
               onChangeText={setSearchQuery}
               borderWidth={0}
               backgroundColor="transparent"
+              textAlignVertical="center"
+              paddingVertical="$2"
               accessibilityLabel="Search exercises"
             />
           </XStack>
@@ -366,10 +389,10 @@ export default function AddExercisesScreen() {
                   : mode === 'template'
                     ? `Create template with ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`
                     : mode === 'replace'
-                          ? selectedExercises.size === 1
-                            ? 'Replace Exercise'
-                            : 'Select 1 exercise to replace'
-                          : `Add ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`}
+                      ? selectedExercises.size === 1
+                        ? 'Replace Exercise'
+                        : 'Select 1 exercise to replace'
+                      : `Add ${selectedExercises.size} exercise${selectedExercises.size === 1 ? '' : 's'}`}
             </Button>
           </XStack>
         )}
@@ -386,6 +409,12 @@ export default function AddExercisesScreen() {
           </Card>
         )}
 
+        {/* Create Exercise Modal */}
+        <CreateExerciseModal
+          isOpen={showCreateExerciseModal}
+          onClose={() => setShowCreateExerciseModal(false)}
+          onSuccess={handleCreateExerciseSuccess}
+        />
       </YStack>
     </SafeAreaView>
   );
