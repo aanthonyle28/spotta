@@ -8,11 +8,17 @@ import {
   Repeat,
   ArrowUpDown,
 } from '@tamagui/lucide-icons';
-import type { SessionExercise, SetData } from '../types';
+import type {
+  SessionExercise,
+  SetData,
+  PreviousSetData,
+  ProgressionSuggestion,
+} from '../types';
 import type { SetEntryId, ExerciseId } from '@spotta/shared';
 import type { GestureResponderEvent } from 'react-native';
 import { WeightRepsStepper } from './WeightRepsStepper';
 import { logger } from '../../../utils/logger';
+import { workoutService } from '../services/workoutService';
 
 interface CollapsibleExerciseCardProps {
   exercise: SessionExercise;
@@ -47,12 +53,51 @@ export const CollapsibleExerciseCard = memo(
     onReorderExercises,
   }: CollapsibleExerciseCardProps) => {
     const [isMenuVisible, setIsMenuVisible] = useState(false);
+    const [previousData, setPreviousData] = useState<
+      Record<number, PreviousSetData | null>
+    >({});
+    const [suggestions, setSuggestions] = useState<
+      Record<number, ProgressionSuggestion | null>
+    >({});
+
+    // Fetch previous exercise data for all sets
+    useEffect(() => {
+      const fetchPreviousData = async () => {
+        const previousDataMap: Record<number, PreviousSetData | null> = {};
+        const suggestionsMap: Record<number, ProgressionSuggestion | null> = {};
+
+        for (const set of exercise.sets) {
+          try {
+            const [prevData, suggestion] = await Promise.all([
+              workoutService.getPreviousSetData(exercise.id, set.setNumber),
+              workoutService.getProgressionSuggestion(
+                exercise.id,
+                set.setNumber
+              ),
+            ]);
+
+            previousDataMap[set.setNumber] = prevData;
+            suggestionsMap[set.setNumber] = suggestion;
+          } catch (error) {
+            logger.error('Error fetching previous data for set:', error);
+            previousDataMap[set.setNumber] = null;
+            suggestionsMap[set.setNumber] = null;
+          }
+        }
+
+        setPreviousData(previousDataMap);
+        setSuggestions(suggestionsMap);
+      };
+
+      if (isExpanded) {
+        fetchPreviousData();
+      }
+    }, [isExpanded, exercise.id, exercise.sets]);
 
     const exerciseStats = useMemo(
       () => ({
         totalSets: exercise.sets.length,
         completedSets: exercise.sets.filter((s) => s.completed).length,
-        lastCompletedSet: exercise.sets.filter((s) => s.completed).pop(),
         totalVolume: exercise.sets.reduce(
           (sum, set) =>
             set.completed ? sum + (set.weight || 0) * (set.reps || 0) : sum,
@@ -158,19 +203,6 @@ export const CollapsibleExerciseCard = memo(
                 </XStack>
               </Button>
 
-              {exerciseStats.lastCompletedSet &&
-                exerciseStats.lastCompletedSet.weight &&
-                exerciseStats.lastCompletedSet.reps && (
-                  <>
-                    <Text fontSize="$3" color="$gray10">
-                      •
-                    </Text>
-                    <Text fontSize="$3" color="$gray10">
-                      Last: {exerciseStats.lastCompletedSet.weight}×
-                      {exerciseStats.lastCompletedSet.reps}
-                    </Text>
-                  </>
-                )}
               {exerciseStats.totalVolume > 0 && (
                 <>
                   <Text fontSize="$3" color="$gray10">
@@ -247,77 +279,142 @@ export const CollapsibleExerciseCard = memo(
 
             {/* Set Rows */}
             {exercise.sets.map((set, setIndex) => {
-              // Alternating set row colors starting with gray1
-              const setBackgroundColor =
+              // Alternating set row colors starting with gray1, with light blue overlay for completed sets
+              const baseBackgroundColor =
                 setIndex % 2 === 0 ? '$gray1' : '$background';
+              const setBackgroundColor = set.completed
+                ? '$blue3'
+                : baseBackgroundColor;
+
+              const prevData = previousData[set.setNumber];
+              const suggestion = suggestions[set.setNumber];
 
               return (
-                <XStack
-                  key={set.id}
-                  alignItems="center"
-                  paddingHorizontal="$4"
-                  paddingVertical="$3"
-                  backgroundColor={setBackgroundColor}
-                  minHeight={50}
-                >
-                  <YStack alignItems="center" minWidth={40}>
-                    <Text fontSize="$4" fontWeight="600">
-                      {set.setNumber}
-                    </Text>
-                  </YStack>
+                <YStack key={set.id}>
+                  {/* Previous data row - above main set row */}
+                  <XStack
+                    alignItems="center"
+                    paddingHorizontal="$4"
+                    paddingTop="$2"
+                    paddingBottom="$0.25"
+                    backgroundColor={setBackgroundColor}
+                  >
+                    <YStack alignItems="center" minWidth={40}>
+                      <Text fontSize="$2" color="$gray10">
+                        prev
+                      </Text>
+                    </YStack>
 
-                  <YStack flex={1} paddingHorizontal="$2">
-                    <WeightRepsStepper
-                      weight={set.weight || 0}
-                      reps={set.reps || 0}
-                      onWeightChange={(weight) =>
-                        handleWeightChange(set.id, weight)
-                      }
-                      onRepsChange={(reps) => handleRepsChange(set.id, reps)}
-                      disabled={set.completed}
-                    />
-                  </YStack>
+                    <YStack flex={1} paddingHorizontal="$2">
+                      <XStack space="$2" alignItems="center">
+                        <YStack alignItems="center" flex={1}>
+                          <Text fontSize="$2" color="$gray10">
+                            {prevData?.weight ? prevData.weight : '—'}
+                          </Text>
+                        </YStack>
+                        <YStack alignItems="center" flex={1}>
+                          <Text fontSize="$2" color="$gray10">
+                            {prevData?.reps ? prevData.reps : '—'}
+                          </Text>
+                        </YStack>
+                      </XStack>
+                    </YStack>
 
-                  <YStack alignItems="center" minWidth={50}>
-                    <Button
-                      size="$2"
-                      backgroundColor={set.completed ? '$blue9' : 'transparent'}
-                      borderColor={set.completed ? '$blue9' : '$gray6'}
-                      borderWidth={1}
-                      onPress={() => {
-                        if (set.completed) {
-                          // Toggle off - mark as incomplete
-                          onSetUpdate(set.id, {
-                            completed: false,
-                            completedAt: undefined,
-                          });
-                        } else {
-                          // Complete the set
-                          handleSetComplete(set);
+                    <YStack alignItems="center" minWidth={50}>
+                      {/* Empty space to align with checkmark column */}
+                    </YStack>
+                  </XStack>
+
+                  {/* Main set row */}
+                  <XStack
+                    alignItems="center"
+                    paddingHorizontal="$4"
+                    paddingVertical="$3"
+                    backgroundColor={setBackgroundColor}
+                    minHeight={50}
+                  >
+                    <YStack alignItems="center" minWidth={40}>
+                      <Text fontSize="$4" fontWeight="600">
+                        {set.setNumber}
+                      </Text>
+                    </YStack>
+
+                    <YStack flex={1} paddingHorizontal="$2">
+                      <WeightRepsStepper
+                        weight={set.weight || 0}
+                        reps={set.reps || 0}
+                        onWeightChange={(weight) =>
+                          handleWeightChange(set.id, weight)
                         }
-                      }}
-                      disabled={false}
-                      minWidth={32}
-                      minHeight={32}
-                      padding={0}
-                      accessibilityLabel={
-                        set.completed
-                          ? `Uncheck set ${set.setNumber}`
-                          : `Complete set ${set.setNumber}`
-                      }
-                    >
-                      {set.completed ? (
-                        <Text color="white" fontSize="$3" fontWeight="600">
-                          ✓
-                        </Text>
-                      ) : (
-                        <Text color="$gray8" fontSize="$2">
-                          ✓
-                        </Text>
-                      )}
-                    </Button>
-                  </YStack>
-                </XStack>
+                        onRepsChange={(reps) => handleRepsChange(set.id, reps)}
+                        disabled={false}
+                        suggestedWeight={suggestion?.weight}
+                        suggestedReps={suggestion?.reps}
+                      />
+                    </YStack>
+
+                    <YStack alignItems="center" minWidth={50}>
+                      <Button
+                        size="$2"
+                        backgroundColor={
+                          set.completed ? '$blue9' : 'transparent'
+                        }
+                        borderColor={set.completed ? '$blue9' : '$gray6'}
+                        borderWidth={1}
+                        onPress={() => {
+                          if (set.completed) {
+                            // Toggle off - mark as incomplete
+                            onSetUpdate(set.id, {
+                              completed: false,
+                              completedAt: undefined,
+                            });
+                          } else {
+                            // Complete set with suggested values if empty - single atomic operation
+                            const finalWeight =
+                              set.weight || suggestion?.weight || 0;
+                            const finalReps = set.reps || suggestion?.reps || 0;
+
+                            // Update set data with completion in single operation
+                            onSetUpdate(set.id, {
+                              weight: finalWeight,
+                              reps: finalReps,
+                              completed: true,
+                              completedAt: new Date(),
+                            });
+
+                            // Also call handleSetComplete for any additional side effects
+                            handleSetComplete({
+                              ...set,
+                              weight: finalWeight,
+                              reps: finalReps,
+                              completed: true,
+                              completedAt: new Date(),
+                            });
+                          }
+                        }}
+                        disabled={false}
+                        minWidth={32}
+                        minHeight={32}
+                        padding={0}
+                        accessibilityLabel={
+                          set.completed
+                            ? `Uncheck set ${set.setNumber}`
+                            : `Complete set ${set.setNumber}`
+                        }
+                      >
+                        {set.completed ? (
+                          <Text color="white" fontSize="$3" fontWeight="600">
+                            ✓
+                          </Text>
+                        ) : (
+                          <Text color="$gray8" fontSize="$2">
+                            ✓
+                          </Text>
+                        )}
+                      </Button>
+                    </YStack>
+                  </XStack>
+                </YStack>
               );
             })}
 

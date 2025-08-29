@@ -14,6 +14,9 @@ interface WeightRepsStepperProps {
   maxWeight?: number;
   minReps?: number;
   maxReps?: number;
+  // New props for progression placeholders
+  suggestedWeight?: number;
+  suggestedReps?: number;
 }
 
 export const WeightRepsStepper = memo(
@@ -29,6 +32,8 @@ export const WeightRepsStepper = memo(
     maxWeight = 99999,
     minReps = 0,
     maxReps = 99999,
+    suggestedWeight,
+    suggestedReps,
   }: WeightRepsStepperProps) => {
     // Local state for input values to prevent glitches
     const [weightInput, setWeightInput] = useState(
@@ -120,7 +125,10 @@ export const WeightRepsStepper = memo(
     }, [repsInput, reps, onRepsChange]);
 
     const handleWeightIncrement = useCallback(() => {
-      const newWeight = Math.min(weight + weightStep, maxWeight);
+      // If current weight is 0, use suggested weight as baseline, otherwise increment current
+      const baseWeight = weight === 0 ? suggestedWeight || 0 : weight;
+      // Round up to nearest 5
+      const newWeight = Math.min(Math.ceil(baseWeight / 5) * 5, maxWeight);
       isStepperAction.current = true;
       // Clear any pending debounced updates
       if (weightTimerRef.current) {
@@ -130,10 +138,17 @@ export const WeightRepsStepper = memo(
       // Update both local state and parent immediately
       setWeightInput(newWeight === 0 ? '' : newWeight.toString());
       onWeightChange(newWeight);
-    }, [weight, weightStep, maxWeight, onWeightChange]);
+    }, [weight, maxWeight, onWeightChange, suggestedWeight]);
 
     const handleWeightDecrement = useCallback(() => {
-      const newWeight = Math.max(weight - weightStep, minWeight);
+      // If current weight is 0, use suggested weight as baseline, otherwise decrement current
+      const baseWeight = weight === 0 ? suggestedWeight || 0 : weight;
+      // Round down to nearest 5 (but ensure we go down)
+      const roundedDown = Math.floor(baseWeight / 5) * 5;
+      const newWeight = Math.max(
+        baseWeight === roundedDown ? roundedDown - 5 : roundedDown,
+        minWeight
+      );
       isStepperAction.current = true;
       // Clear any pending debounced updates
       if (weightTimerRef.current) {
@@ -143,10 +158,12 @@ export const WeightRepsStepper = memo(
       // Update both local state and parent immediately
       setWeightInput(newWeight === 0 ? '' : newWeight.toString());
       onWeightChange(newWeight);
-    }, [weight, weightStep, minWeight, onWeightChange]);
+    }, [weight, minWeight, onWeightChange, suggestedWeight]);
 
     const handleRepsIncrement = useCallback(() => {
-      const newReps = Math.min(reps + repsStep, maxReps);
+      // If current reps is 0, use suggested reps as baseline, otherwise increment current
+      const baseReps = reps === 0 ? suggestedReps || 0 : reps;
+      const newReps = Math.min(baseReps + repsStep, maxReps);
       isStepperAction.current = true;
       // Clear any pending debounced updates
       if (repsTimerRef.current) {
@@ -156,10 +173,12 @@ export const WeightRepsStepper = memo(
       // Update both local state and parent immediately
       setRepsInput(newReps === 0 ? '' : newReps.toString());
       onRepsChange(newReps);
-    }, [reps, repsStep, maxReps, onRepsChange]);
+    }, [reps, repsStep, maxReps, onRepsChange, suggestedReps]);
 
     const handleRepsDecrement = useCallback(() => {
-      const newReps = Math.max(reps - repsStep, minReps);
+      // If current reps is 0, use suggested reps as baseline, otherwise decrement current
+      const baseReps = reps === 0 ? suggestedReps || 0 : reps;
+      const newReps = Math.max(baseReps - repsStep, minReps);
       isStepperAction.current = true;
       // Clear any pending debounced updates
       if (repsTimerRef.current) {
@@ -169,7 +188,7 @@ export const WeightRepsStepper = memo(
       // Update both local state and parent immediately
       setRepsInput(newReps === 0 ? '' : newReps.toString());
       onRepsChange(newReps);
-    }, [reps, repsStep, minReps, onRepsChange]);
+    }, [reps, repsStep, minReps, onRepsChange, suggestedReps]);
 
     const handleWeightInputChange = useCallback(
       (text: string) => {
@@ -233,19 +252,20 @@ export const WeightRepsStepper = memo(
             onFocus={() => {
               // Text selection handled by selectTextOnFocus prop
             }}
-            placeholder="0"
+            placeholder={suggestedWeight ? suggestedWeight.toString() : '0'}
             disabled={disabled}
             textAlign="center"
+            textAlignVertical="center"
             fontSize="$3"
             fontWeight="600"
             width={65}
             height={32}
             borderRadius="$2"
             keyboardType="numeric"
+            paddingVertical="$1"
             selectTextOnFocus={true}
             maxLength={5}
             paddingHorizontal={2}
-            paddingVertical={0}
           />
 
           <Button
@@ -285,19 +305,20 @@ export const WeightRepsStepper = memo(
             onFocus={() => {
               // Text selection handled by selectTextOnFocus prop
             }}
-            placeholder="0"
+            placeholder={suggestedReps ? suggestedReps.toString() : '0'}
             disabled={disabled}
             textAlign="center"
+            textAlignVertical="center"
             fontSize="$3"
             fontWeight="600"
             width={65}
             height={32}
             borderRadius="$2"
             keyboardType="numeric"
+            paddingVertical="$1"
             selectTextOnFocus={true}
             maxLength={5}
             paddingHorizontal={2}
-            paddingVertical={0}
           />
 
           <Button

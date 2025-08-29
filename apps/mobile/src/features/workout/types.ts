@@ -139,3 +139,18 @@ export interface SetEntryInput {
   restTime?: number;
   notes?: string;
 }
+
+// Previous exercise data for progression tracking
+export interface PreviousSetData {
+  setNumber: number;
+  weight?: number;
+  reps?: number;
+  workoutId: WorkoutId;
+  completedAt: Date;
+}
+
+export interface ProgressionSuggestion {
+  weight?: number;
+  reps?: number;
+  reasoning: 'increase_weight' | 'add_reps' | 'decrease_weight' | 'maintain';
+}

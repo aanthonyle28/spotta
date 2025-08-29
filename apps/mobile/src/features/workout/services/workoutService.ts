@@ -12,6 +12,8 @@ import type {
   CommunityTemplate,
   WorkoutSession,
   SessionExercise,
+  PreviousSetData,
+  ProgressionSuggestion,
 } from '../types';
 import type { UserId } from '@spotta/shared';
 import {
@@ -23,6 +25,7 @@ import {
   createMockSet,
   searchExercises,
   getExercisesByIds,
+  mockPreviousExerciseData,
 } from './mockData';
 import { logger } from '../../../utils/logger';
 import { storageService } from './storageService';
@@ -641,6 +644,96 @@ class WorkoutService {
         error
       );
       return {};
+    }
+  }
+
+  // Previous exercise data methods
+  async getPreviousSetData(
+    exerciseId: ExerciseId,
+    setNumber: number
+  ): Promise<PreviousSetData | null> {
+    await delay(100);
+
+    try {
+      const exerciseData = mockPreviousExerciseData[exerciseId];
+      if (!exerciseData) return null;
+
+      const previousSet = exerciseData.find(
+        (set) => set.setNumber === setNumber
+      );
+      return previousSet || null;
+    } catch (error) {
+      logger.error('[WorkoutService] Error getting previous set data:', error);
+      return null;
+    }
+  }
+
+  async getProgressionSuggestion(
+    exerciseId: ExerciseId,
+    setNumber: number
+  ): Promise<ProgressionSuggestion | null> {
+    await delay(100);
+
+    try {
+      const exerciseData = mockPreviousExerciseData[exerciseId];
+      if (!exerciseData) return null;
+
+      // Get previous set data
+      const previousSet = exerciseData.find(
+        (set) => set.setNumber === setNumber
+      );
+      if (!previousSet || !previousSet.weight || !previousSet.reps) return null;
+
+      // Get all previous sets to analyze progression pattern
+      const allSets = exerciseData.filter((set) => set.weight && set.reps);
+      if (allSets.length === 0) return null;
+
+      // Simple double-progression logic
+      const repRange = { min: 8, max: 12 }; // Default rep range
+      const weightIncrement = 2.5; // Default weight increment
+
+      // Check if all sets in previous workout were at top of rep range
+      const allAtTopRange = allSets.every((set) => set.reps! >= repRange.max);
+      const allInRange = allSets.every(
+        (set) => set.reps! >= repRange.min && set.reps! <= repRange.max
+      );
+      const anyBelowRange = allSets.some((set) => set.reps! < repRange.min);
+
+      if (allAtTopRange) {
+        // Increase weight, reset reps to bottom of range
+        return {
+          weight: previousSet.weight + weightIncrement,
+          reps: repRange.min,
+          reasoning: 'increase_weight',
+        };
+      } else if (allInRange) {
+        // Keep weight, try to add reps
+        return {
+          weight: previousSet.weight,
+          reps: Math.min(previousSet.reps + 1, repRange.max),
+          reasoning: 'add_reps',
+        };
+      } else if (anyBelowRange) {
+        // Decrease weight or maintain and focus on reps
+        return {
+          weight: Math.max(previousSet.weight - weightIncrement, 0),
+          reps: repRange.min,
+          reasoning: 'decrease_weight',
+        };
+      } else {
+        // Default: maintain previous values
+        return {
+          weight: previousSet.weight,
+          reps: previousSet.reps,
+          reasoning: 'maintain',
+        };
+      }
+    } catch (error) {
+      logger.error(
+        '[WorkoutService] Error getting progression suggestion:',
+        error
+      );
+      return null;
     }
   }
 }

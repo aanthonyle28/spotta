@@ -12,6 +12,7 @@ import type {
   ActiveSession,
   SessionExercise,
   SetData,
+  PreviousSetData,
 } from '../types';
 
 // Mock exercises database
@@ -601,4 +602,100 @@ export const getDaysAgoText = (date: Date): string => {
   if (diffDays === 0) return 'Today';
   if (diffDays === 1) return '1 day ago';
   return `${diffDays} days ago`;
+};
+
+// Mock previous exercise data for progression tracking
+export const mockPreviousExerciseData: Record<ExerciseId, PreviousSetData[]> = {
+  ['bench-press' as ExerciseId]: [
+    {
+      setNumber: 1,
+      weight: 135,
+      reps: 8,
+      workoutId: 'workout-prev-1' as WorkoutId,
+      completedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    },
+    {
+      setNumber: 2,
+      weight: 135,
+      reps: 8,
+      workoutId: 'workout-prev-1' as WorkoutId,
+      completedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    },
+    {
+      setNumber: 3,
+      weight: 135,
+      reps: 6,
+      workoutId: 'workout-prev-1' as WorkoutId,
+      completedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    },
+  ],
+  ['squat' as ExerciseId]: [
+    {
+      setNumber: 1,
+      weight: 185,
+      reps: 12,
+      workoutId: 'workout-prev-2' as WorkoutId,
+      completedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+    },
+    {
+      setNumber: 2,
+      weight: 185,
+      reps: 12,
+      workoutId: 'workout-prev-2' as WorkoutId,
+      completedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    },
+    {
+      setNumber: 3,
+      weight: 185,
+      reps: 12,
+      workoutId: 'workout-prev-2' as WorkoutId,
+      completedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    },
+  ],
+  ['overhead-press' as ExerciseId]: [
+    {
+      setNumber: 1,
+      weight: 95,
+      reps: 10,
+      workoutId: 'workout-prev-3' as WorkoutId,
+      completedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
+    },
+    {
+      setNumber: 2,
+      weight: 95,
+      reps: 9,
+      workoutId: 'workout-prev-3' as WorkoutId,
+      completedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+    },
+    {
+      setNumber: 3,
+      weight: 95,
+      reps: 8,
+      workoutId: 'workout-prev-3' as WorkoutId,
+      completedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+    },
+  ],
+  ['deadlift' as ExerciseId]: [
+    {
+      setNumber: 1,
+      weight: 225,
+      reps: 5,
+      workoutId: 'workout-prev-4' as WorkoutId,
+      completedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+    },
+    {
+      setNumber: 2,
+      weight: 225,
+      reps: 5,
+      workoutId: 'workout-prev-4' as WorkoutId,
+      completedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    },
+    {
+      setNumber: 3,
+      weight: 225,
+      reps: 4,
+      workoutId: 'workout-prev-4' as WorkoutId,
+      completedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    },
+  ],
 };
