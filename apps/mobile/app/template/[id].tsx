@@ -308,7 +308,6 @@ export default function TemplatePreviewScreen() {
             handleStart();
           }}
         />
-
       </YStack>
     </SafeAreaView>
   );
