@@ -13,7 +13,7 @@ describe('WorkoutService - Progression Logic', () => {
 
       expect(suggestion).not.toBeNull();
       expect(suggestion?.reasoning).toBe('decrease_weight');
-      expect(suggestion?.weight).toBe(132.5); // -2.5 lbs
+      expect(suggestion?.weight).toBe(130); // -5 lbs (whole number)
       expect(suggestion?.reps).toBe(8); // Reset to bottom of range
     });
 
@@ -39,17 +39,20 @@ describe('WorkoutService - Progression Logic', () => {
 
       expect(suggestion).not.toBeNull();
       expect(suggestion?.reasoning).toBe('increase_weight');
-      expect(suggestion?.weight).toBe(187.5); // +2.5 lbs
+      expect(suggestion?.weight).toBe(190); // +5 lbs (whole number)
       expect(suggestion?.reps).toBe(8); // Reset to bottom of range
     });
 
-    it('should return null for exercise with no previous data', async () => {
+    it('should provide sensible defaults for exercise with no previous data', async () => {
       const suggestion = await workoutService.getProgressionSuggestion(
         'non-existent-exercise' as ExerciseId,
         1
       );
 
-      expect(suggestion).toBeNull();
+      expect(suggestion).not.toBeNull();
+      expect(suggestion?.weight).toBe(45); // Empty barbell weight
+      expect(suggestion?.reps).toBe(8); // Bottom of rep range
+      expect(suggestion?.reasoning).toBe('maintain');
     });
 
     it('should suggest weight decrease when sets fall below rep range', async () => {
@@ -62,7 +65,7 @@ describe('WorkoutService - Progression Logic', () => {
       // Deadlift set 3 has 4 reps (below minimum of 8)
       expect(suggestion).not.toBeNull();
       expect(suggestion?.reasoning).toBe('decrease_weight');
-      expect(suggestion?.weight).toBe(222.5); // -2.5 lbs
+      expect(suggestion?.weight).toBe(220); // -5 lbs (whole number)
       expect(suggestion?.reps).toBe(8); // Reset to bottom of range
     });
   });

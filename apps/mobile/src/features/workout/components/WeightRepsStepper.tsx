@@ -35,6 +35,11 @@ export const WeightRepsStepper = memo(
     suggestedWeight,
     suggestedReps,
   }: WeightRepsStepperProps) => {
+    // Track user interaction to maintain gray color for suggested values
+    // Initialize based on whether user has already input values (survives navigation)
+    const [userHasEditedWeight, setUserHasEditedWeight] = useState(weight > 0);
+    const [userHasEditedReps, setUserHasEditedReps] = useState(reps > 0);
+
     // Local state for input values to prevent glitches
     const [weightInput, setWeightInput] = useState(() => {
       if (weight > 0) return weight.toString();
@@ -47,6 +52,16 @@ export const WeightRepsStepper = memo(
       if (suggestedReps && suggestedReps > 0) return suggestedReps.toString();
       return '';
     });
+
+    // Track if we're showing suggested values (not user input)
+    const [isShowingSuggestedWeightValue, setIsShowingSuggestedWeightValue] =
+      useState(() => {
+        return weight === 0 && suggestedWeight && suggestedWeight > 0;
+      });
+    const [isShowingSuggestedRepsValue, setIsShowingSuggestedRepsValue] =
+      useState(() => {
+        return reps === 0 && suggestedReps && suggestedReps > 0;
+      });
 
     // Refs to track stepper actions and prevent debounce conflicts
     const isStepperAction = useRef(false);
@@ -82,16 +97,30 @@ export const WeightRepsStepper = memo(
 
     // Update local state when suggestions arrive (not from stepper actions)
     useEffect(() => {
-      if (!isStepperAction.current && weight === 0 && suggestedWeight && suggestedWeight > 0) {
+      if (
+        !isStepperAction.current &&
+        !userHasEditedWeight &&
+        weight === 0 &&
+        suggestedWeight &&
+        suggestedWeight > 0
+      ) {
         setWeightInput(suggestedWeight.toString());
+        setIsShowingSuggestedWeightValue(true);
       }
-    }, [suggestedWeight, weight]);
+    }, [suggestedWeight, weight, userHasEditedWeight]);
 
     useEffect(() => {
-      if (!isStepperAction.current && reps === 0 && suggestedReps && suggestedReps > 0) {
+      if (
+        !isStepperAction.current &&
+        !userHasEditedReps &&
+        reps === 0 &&
+        suggestedReps &&
+        suggestedReps > 0
+      ) {
         setRepsInput(suggestedReps.toString());
+        setIsShowingSuggestedRepsValue(true);
       }
-    }, [suggestedReps, reps]);
+    }, [suggestedReps, reps, userHasEditedReps]);
 
     // Debounced update to parent state with smart timing
     useEffect(() => {
@@ -170,6 +199,8 @@ export const WeightRepsStepper = memo(
       }
       // Update both local state and parent immediately
       setWeightInput(newWeight === 0 ? '' : newWeight.toString());
+      setUserHasEditedWeight(true);
+      setIsShowingSuggestedWeightValue(false);
       onWeightChange(newWeight);
     }, [weight, maxWeight, onWeightChange, suggestedWeight]);
 
@@ -189,6 +220,8 @@ export const WeightRepsStepper = memo(
       }
       // Update both local state and parent immediately
       setWeightInput(newWeight === 0 ? '' : newWeight.toString());
+      setUserHasEditedWeight(true);
+      setIsShowingSuggestedWeightValue(false);
       onWeightChange(newWeight);
     }, [weight, minWeight, onWeightChange, suggestedWeight]);
 
@@ -204,6 +237,8 @@ export const WeightRepsStepper = memo(
       }
       // Update both local state and parent immediately
       setRepsInput(newReps === 0 ? '' : newReps.toString());
+      setUserHasEditedReps(true);
+      setIsShowingSuggestedRepsValue(false);
       onRepsChange(newReps);
     }, [reps, repsStep, maxReps, onRepsChange, suggestedReps]);
 
@@ -219,11 +254,17 @@ export const WeightRepsStepper = memo(
       }
       // Update both local state and parent immediately
       setRepsInput(newReps === 0 ? '' : newReps.toString());
+      setUserHasEditedReps(true);
+      setIsShowingSuggestedRepsValue(false);
       onRepsChange(newReps);
     }, [reps, repsStep, minReps, onRepsChange, suggestedReps]);
 
     const handleWeightInputChange = useCallback(
       (text: string) => {
+        // Mark that user has started editing
+        setUserHasEditedWeight(true);
+        setIsShowingSuggestedWeightValue(false);
+
         // Allow empty string and valid numbers only
         if (text === '' || /^\d+$/.test(text)) {
           const numValue = text === '' ? 0 : parseInt(text);
@@ -237,6 +278,10 @@ export const WeightRepsStepper = memo(
 
     const handleRepsInputChange = useCallback(
       (text: string) => {
+        // Mark that user has started editing
+        setUserHasEditedReps(true);
+        setIsShowingSuggestedRepsValue(false);
+
         // Allow empty string and valid numbers only
         if (text === '' || /^\d+$/.test(text)) {
           const numValue = text === '' ? 0 : parseInt(text);
@@ -249,16 +294,8 @@ export const WeightRepsStepper = memo(
     );
 
     // Helper functions to detect if showing suggested values
-    const isShowingSuggestedWeight =
-      weight === 0 &&
-      suggestedWeight &&
-      suggestedWeight > 0 &&
-      weightInput === suggestedWeight.toString();
-    const isShowingSuggestedReps =
-      reps === 0 &&
-      suggestedReps &&
-      suggestedReps > 0 &&
-      repsInput === suggestedReps.toString();
+    const isShowingSuggestedWeight = isShowingSuggestedWeightValue;
+    const isShowingSuggestedReps = isShowingSuggestedRepsValue;
 
     // Cleanup timers on unmount
     useEffect(() => {

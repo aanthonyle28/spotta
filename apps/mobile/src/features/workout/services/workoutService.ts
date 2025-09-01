@@ -700,7 +700,10 @@ class WorkoutService {
 
       // Simple double-progression logic
       const repRange = { min: 8, max: 12 }; // Default rep range
-      const weightIncrement = 2.5; // Default weight increment
+
+      // Use whole number increments unless previous weight was decimal
+      const hasDecimalWeight = previousSet.weight % 1 !== 0;
+      const weightIncrement = hasDecimalWeight ? 2.5 : 5;
 
       // Get all previous sets to analyze overall workout performance for context
       const allSets = exerciseData.filter((set) => set.weight && set.reps);
