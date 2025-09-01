@@ -125,7 +125,7 @@ export function EditTemplateModal({
     );
   };
 
-  const handleReplaceExercise = (exerciseId: string) => {
+  const handleReplaceExercise = (_exerciseId: string) => {
     // TODO: Navigate to exercise selection for replacement
     setActiveMenuId(null);
   };

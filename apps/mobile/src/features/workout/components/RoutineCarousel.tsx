@@ -34,7 +34,7 @@ interface RoutineCardProps {
 
 const RoutineCard = memo<RoutineCardProps>(
   ({ routine, onStart, onPreview, onMenuPress, showMenu: _showMenu }) => {
-    const handleMenuPress = (e: any) => {
+    const handleMenuPress = (e: { stopPropagation: () => void }) => {
       e.stopPropagation();
       onMenuPress(routine.id);
     };

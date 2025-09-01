@@ -85,7 +85,7 @@ export function CreateTemplateModal({
         description: form.description.trim() || undefined,
         exercises: templateExercises,
         estimatedDuration: 45, // Default duration
-        difficulty: 'intermediate', // Default difficulty  
+        difficulty: 'intermediate', // Default difficulty
         isPublic: false,
       };
 

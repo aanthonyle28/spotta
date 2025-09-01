@@ -17,9 +17,9 @@ describe('Weight Rounding Logic', () => {
     };
 
     expect(testDecrement(32.5)).toBe(30); // 32.5 -> 30
-    expect(testDecrement(30)).toBe(25);   // 30 -> 25 (already rounded, so subtract 5)
+    expect(testDecrement(30)).toBe(25); // 30 -> 25 (already rounded, so subtract 5)
     expect(testDecrement(27.3)).toBe(25); // 27.3 -> 25
-    expect(testDecrement(35)).toBe(30);   // 35 -> 30
-    expect(testDecrement(5)).toBe(0);     // 5 -> 0
+    expect(testDecrement(35)).toBe(30); // 35 -> 30
+    expect(testDecrement(5)).toBe(0); // 5 -> 0
   });
 });

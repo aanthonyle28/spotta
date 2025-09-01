@@ -24,7 +24,7 @@ export const BrowseTemplatesTile = memo<BrowseTemplatesTileProps>(
                 Browse Templates
               </Text>
               <Text fontSize="$3" color="$gray10">
-                Discoverk workout templates
+                Discover workout templates
               </Text>
             </YStack>
           </XStack>

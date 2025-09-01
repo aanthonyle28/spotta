@@ -1,6 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FlatList } from 'react-native';
-import { YStack, XStack, Text, Button, Card, Input, Checkbox, Sheet } from 'tamagui';
+import {
+  YStack,
+  XStack,
+  Text,
+  Button,
+  Card,
+  Input,
+  Checkbox,
+  Sheet,
+} from 'tamagui';
 import { Search, X } from '@tamagui/lucide-icons';
 import { workoutService } from '../services/workoutService';
 import { FilterRow } from './FilterRow';
@@ -23,7 +32,9 @@ export function AddExerciseModal({
   mode = 'add',
 }: AddExerciseModalProps) {
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [selectedExercises, setSelectedExercises] = useState<Set<ExerciseId>>(new Set());
+  const [selectedExercises, setSelectedExercises] = useState<Set<ExerciseId>>(
+    new Set()
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string>('all');
@@ -61,7 +72,9 @@ export function AddExerciseModal({
   };
 
   const handleSelect = () => {
-    const selectedExerciseObjects = exercises.filter(ex => selectedExercises.has(ex.id));
+    const selectedExerciseObjects = exercises.filter((ex) =>
+      selectedExercises.has(ex.id)
+    );
     onSelect(selectedExerciseObjects);
     handleClose();
   };
@@ -85,7 +98,7 @@ export function AddExerciseModal({
 
     // Filter out current exercises if in add mode
     if (mode === 'add') {
-      filtered = filtered.filter(ex => !currentExercises.includes(ex.id));
+      filtered = filtered.filter((ex) => !currentExercises.includes(ex.id));
     }
 
     // Search filter
@@ -200,10 +213,10 @@ export function AddExerciseModal({
   };
 
   return (
-    <Sheet 
-      open={isOpen} 
-      onOpenChange={handleClose} 
-      modal 
+    <Sheet
+      open={isOpen}
+      onOpenChange={handleClose}
+      modal
       snapPointsMode="percent"
       snapPoints={[85]}
       dismissOnSnapToBottom={false}
@@ -353,9 +366,9 @@ export function AddExerciseModal({
 
           {/* Footer CTA */}
           {selectedExercises.size > 0 && (
-            <XStack 
-              padding="$4" 
-              paddingBottom="$6" 
+            <XStack
+              padding="$4"
+              paddingBottom="$6"
               backgroundColor="$background"
               borderTopWidth={1}
               borderTopColor="$gray4"
@@ -385,7 +398,9 @@ export function AddExerciseModal({
               padding="$3"
             >
               <XStack justifyContent="space-between" alignItems="center">
-                <Text color="$red11" flex={1}>{error}</Text>
+                <Text color="$red11" flex={1}>
+                  {error}
+                </Text>
                 <Button
                   size="$2"
                   chromeless

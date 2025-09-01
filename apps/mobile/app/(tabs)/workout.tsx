@@ -50,7 +50,7 @@ export default function WorkoutStartScreen() {
           );
           router.push(`/logging/${session.id}`);
         } catch (error) {
-          console.error('Failed to start workout from template:', error);
+          logger.error('Failed to start workout from template:', error);
         }
       });
       setIsConflictModalOpen(true);
@@ -66,15 +66,15 @@ export default function WorkoutStartScreen() {
   };
 
   const handleTemplatePreview = (templateId: string) => {
-    router.push(`/template/${templateId}` as any);
+    router.push(`/template/${templateId}`);
   };
 
   const handleAddTemplate = () => {
-    router.push('/create-template' as any);
+    router.push('/create-template');
   };
 
   const handleEditTemplate = (templateId: string) => {
-    router.push(`/edit-template/${templateId}` as any);
+    router.push(`/edit-template/${templateId}`);
   };
 
   const handleDeleteTemplate = (templateId: string) => {
@@ -119,7 +119,7 @@ export default function WorkoutStartScreen() {
   };
 
   const handleBrowseTemplates = () => {
-    router.push('/browse-templates' as any);
+    router.push('/browse-templates');
   };
 
   const handleReorderTemplates = () => {
@@ -132,10 +132,9 @@ export default function WorkoutStartScreen() {
     // For now, this just shows the modal works correctly
   };
 
-
   const handleResumeWorkout = () => {
     if (state.activeSession) {
-      router.push(`/logging/${state.activeSession.id}` as any);
+      router.push(`/logging/${state.activeSession.id}`);
     }
   };
 
@@ -179,7 +178,7 @@ export default function WorkoutStartScreen() {
 
           {/* Browse Exercises */}
           <BrowseExercisesTile
-            onPress={() => router.push('/add-exercises?mode=append' as any)}
+            onPress={() => router.push('/add-exercises?mode=append')}
           />
 
           {/* Browse Templates */}
@@ -226,7 +225,7 @@ export default function WorkoutStartScreen() {
               setPendingAction(null);
             }
           } catch (error) {
-            console.error('Failed to start new workout:', error);
+            logger.error('Failed to start new workout:', error);
           }
         }}
       />
@@ -238,7 +237,6 @@ export default function WorkoutStartScreen() {
         onClose={() => setIsReorderModalOpen(false)}
         onSave={handleSaveReorderedTemplates}
       />
-
     </SafeAreaView>
   );
 }
