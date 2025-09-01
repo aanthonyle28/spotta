@@ -452,10 +452,21 @@ class WorkoutService {
     );
 
     exercises.forEach((exercise, index) => {
+      // Check if exercise has previous data to determine initial set count
+      const hasPreviousData = mockPreviousExerciseData[exercise.id];
+      const initialSetCount =
+        hasPreviousData && hasPreviousData.length > 0
+          ? Math.max(hasPreviousData.length, 1)
+          : 1;
+
+      const initialSets = Array.from({ length: initialSetCount }, (_, i) =>
+        createMockSet(i + 1, false)
+      );
+
       const newSessionExercise = {
         id: exercise.id,
         exercise,
-        sets: [createMockSet(1, false)],
+        sets: initialSets,
         orderIndex: currentMaxOrderIndex + 1 + index,
         restPreset: 120,
       };

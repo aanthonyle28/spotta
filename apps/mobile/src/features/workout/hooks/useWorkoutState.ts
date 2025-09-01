@@ -517,13 +517,31 @@ export const useWorkoutState = () => {
           -1
         );
 
-        const newSessionExercises = exercisesToAdd.map((exercise, index) => ({
-          id: exercise.id,
-          exercise,
-          sets: [createMockSet(1, false)],
-          orderIndex: currentMaxOrderIndex + 1 + index,
-          restPreset: state.activeSession?.templateRestTime || 120,
-        }));
+        // Import previous data for checking
+        const { mockPreviousExerciseData } = await import(
+          '../services/mockData'
+        );
+
+        const newSessionExercises = exercisesToAdd.map((exercise, index) => {
+          // Check if exercise has previous data to determine initial set count
+          const hasPreviousData = mockPreviousExerciseData[exercise.id];
+          const initialSetCount =
+            hasPreviousData && hasPreviousData.length > 0
+              ? Math.max(hasPreviousData.length, 1)
+              : 1;
+
+          const initialSets = Array.from({ length: initialSetCount }, (_, i) =>
+            createMockSet(i + 1, false)
+          );
+
+          return {
+            id: exercise.id,
+            exercise,
+            sets: initialSets,
+            orderIndex: currentMaxOrderIndex + 1 + index,
+            restPreset: state.activeSession?.templateRestTime || 120,
+          };
+        });
 
         // Create updated session
         const updatedSession = {

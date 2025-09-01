@@ -488,6 +488,15 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
 
 ## 9. Changelog (auto-appended by Scribe)
 
+- 2025-09-01 — Mobile UI — Enhanced collapsible exercise cards with smart set count and auto-expand/collapse — [exercise-card-improvements]
+  - **Smart Set Count**: New exercises without previous data now show only 1 set instead of default 3, reducing cognitive load for users adding unfamiliar exercises
+  - **Auto-Expand/Collapse**: When completing the last set of an exercise, the card automatically collapses and expands the next exercise for seamless workout flow progression
+  - **Previous Data Integration**: Exercises with historical data (bench-press, squat, overhead-press, deadlift) maintain appropriate set counts based on previous workout patterns
+  - **Service Layer Updates**: Modified both `workoutService.appendExercises` and `useWorkoutState.appendExercises` to check `mockPreviousExerciseData` for intelligent set initialization
+  - **UI Logic Enhancement**: Enhanced `handleSetComplete` in logging screen with smart exercise transition logic that preserves manual expand/collapse control
+  - **Type Safety**: Maintained all existing TypeScript safety with proper null checks and branded ID types
+  - **Performance**: Zero performance impact - logic runs only on set completion events, not during renders
+  - **User Experience**: Maintains backward compatibility while improving workout flow efficiency
 - 2025-09-01 — Mobile UI — Fixed logging screen progression suggestions and UX improvements — [logging-screen-fixes]
   - **Progression Suggestions**: Fixed WeightRepsStepper to display calculated suggested values instead of 0
   - **Weight Increment Logic**: Fixed +/- buttons to properly snap to nearest multiple of 5

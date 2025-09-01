@@ -186,11 +186,46 @@ export default function LoggingScreen() {
       try {
         await actions.completeSet(setData);
         // Rest timer is now started automatically by useWorkoutState.completeSet
+
+        // Auto-expand/collapse logic: collapse current exercise and expand next if last set completed
+        if (!state.activeSession) return;
+
+        // Find the exercise that contains this set
+        const exerciseIndex = state.activeSession.exercises.findIndex((ex) =>
+          ex.sets.some((set) => set.id === setData.id)
+        );
+
+        if (exerciseIndex !== -1) {
+          const exercise = state.activeSession.exercises[exerciseIndex];
+
+          // Check if this was the last uncompleted set of the exercise
+          // (we need to check the updated state, so we look at all sets except the one we just completed)
+          const otherSets = exercise.sets.filter(
+            (set) => set.id !== setData.id
+          );
+          const isLastSet = otherSets.every((set) => set.completed);
+
+          if (isLastSet) {
+            setExpandedExercises((prev) => {
+              const newSet = new Set(prev);
+              // Collapse current exercise
+              newSet.delete(exerciseIndex);
+
+              // Expand next exercise if it exists
+              const nextIndex = exerciseIndex + 1;
+              if (nextIndex < state.activeSession!.exercises.length) {
+                newSet.add(nextIndex);
+              }
+
+              return newSet;
+            });
+          }
+        }
       } catch (error) {
         console.error('Failed to complete set:', error);
       }
     },
-    [actions]
+    [actions, state.activeSession, setExpandedExercises]
   );
 
   const handleSetUpdate = useCallback(
