@@ -3,11 +3,17 @@ import { FlatList, Alert } from 'react-native';
 import { YStack, XStack, Text, Button, Card, Input, Label } from 'tamagui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
-import { ChevronLeft, Target, Trash2 } from '@tamagui/lucide-icons';
-import { workoutService } from '../../src/features/workout/services/workoutService';
+import { ChevronLeft, Target, Trash2, X } from '@tamagui/lucide-icons';
 import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
-import { CustomHeader, AddExerciseModal } from '../../src/features/workout/components';
-import type { Template, TemplateExercise, Exercise } from '../../src/features/workout/types';
+import {
+  CustomHeader,
+  AddExerciseModal,
+} from '../../src/features/workout/components';
+import type {
+  Template,
+  TemplateExercise,
+  Exercise,
+} from '../../src/features/workout/types';
 import type { ExerciseId, TemplateId } from '@spotta/shared';
 
 interface TemplateForm {
@@ -41,9 +47,11 @@ export default function EditTemplateScreen() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // Find template in state first, fallback to service
-      let templateData = state.templates.find(t => t.id === id as TemplateId);
+      const templateData = state.templates.find(
+        (t) => t.id === (id as TemplateId)
+      );
       if (!templateData) {
         // If not in state, load from service (this might need to be implemented)
         throw new Error('Template not found');
@@ -82,13 +90,14 @@ export default function EditTemplateScreen() {
           text: 'Remove',
           style: 'destructive',
           onPress: () => {
-            setExercises(prev => prev.filter(ex => ex.exerciseId !== exerciseId));
+            setExercises((prev) =>
+              prev.filter((ex) => ex.exerciseId !== exerciseId)
+            );
           },
         },
       ]
     );
   };
-
 
   const addExercises = () => {
     setShowAddExerciseModal(true);
@@ -96,10 +105,10 @@ export default function EditTemplateScreen() {
 
   const handleExerciseSelection = (selectedExercises: Exercise[]) => {
     // Convert Exercise[] to TemplateExercise[] and add to existing exercises
-    const currentIds = new Set(exercises.map(ex => ex.exerciseId));
+    const currentIds = new Set(exercises.map((ex) => ex.exerciseId));
     const newTemplateExercises: TemplateExercise[] = selectedExercises
-      .filter(ex => !currentIds.has(ex.id))
-      .map(exercise => ({
+      .filter((ex) => !currentIds.has(ex.id))
+      .map((exercise) => ({
         exerciseId: exercise.id,
         sets: 3, // Default values
         reps: 10,
@@ -107,8 +116,8 @@ export default function EditTemplateScreen() {
         category: exercise.category,
         primaryMuscles: exercise.primaryMuscles,
       }));
-    
-    setExercises(prev => [...prev, ...newTemplateExercises]);
+
+    setExercises((prev) => [...prev, ...newTemplateExercises]);
   };
 
   const handleSave = async () => {
@@ -137,13 +146,21 @@ export default function EditTemplateScreen() {
       await actions.updateTemplate(template.id, updates);
       router.back();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update template');
+      setError(
+        err instanceof Error ? err.message : 'Failed to update template'
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
-  const renderExerciseItem = ({ item, index }: { item: TemplateExercise; index: number }) => (
+  const renderExerciseItem = ({
+    item,
+    index,
+  }: {
+    item: TemplateExercise;
+    index: number;
+  }) => (
     <Card
       padding="$3"
       backgroundColor="$gray2"
@@ -167,7 +184,7 @@ export default function EditTemplateScreen() {
             {item.weight && ` @ ${item.weight} lbs`}
           </Text>
         </YStack>
-        
+
         <Button
           size="$2"
           chromeless
@@ -211,152 +228,161 @@ export default function EditTemplateScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={{ flex: 1 }}>
         <YStack flex={1}>
-        {/* Header */}
-        <CustomHeader
-          title="Edit Template"
-          leftAction={
-            <Button
-              size="$3"
-              chromeless
-              onPress={() => router.back()}
-              icon={<ChevronLeft size={20} />}
-              accessibilityLabel="Go back"
-            />
-          }
-          rightAction={
-            <Button
-              size="$3"
-              backgroundColor="$green9"
-              onPress={handleSave}
-              disabled={isSaving || exercises.length === 0}
-            >
-              {isSaving ? 'Saving...' : 'Save'}
-            </Button>
-          }
-        />
-
-        {/* Content */}
-        <YStack flex={1} padding="$4" space="$4">
-          {/* Basic Info Form */}
-          <YStack space="$3">
-            <YStack space="$2">
-              <Label htmlFor="title" fontSize="$4" fontWeight="500">
-                Title *
-              </Label>
-              <Input
-                id="title"
-                placeholder="Enter template name"
-                value={form.title}
-                onChangeText={(text) => updateForm('title', text)}
-                borderColor={showTitleError ? '$red6' : '$gray6'}
-                focusStyle={{
-                  borderColor: showTitleError ? '$red8' : '$blue8',
-                }}
-                accessibilityLabel="Template title"
-              />
-              {showTitleError && (
-                <Text fontSize="$3" color="$red10">
-                  Title is required
-                </Text>
-              )}
-            </YStack>
-
-            <YStack space="$2">
-              <Label htmlFor="description" fontSize="$4" fontWeight="500">
-                Description (optional)
-              </Label>
-              <Input
-                id="description"
-                placeholder="Describe your template"
-                value={form.description}
-                onChangeText={(text) => updateForm('description', text)}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-                accessibilityLabel="Template description"
-              />
-            </YStack>
-          </YStack>
-
-          {/* Exercises Section */}
-          <YStack flex={1} space="$3">
-            <XStack justifyContent="space-between" alignItems="center">
-              <XStack alignItems="center" space="$2">
-                <Target size={16} color="$gray10" />
-                <Text fontSize="$5" fontWeight="500">
-                  Exercises ({exercises.length})
-                </Text>
-              </XStack>
+          {/* Header */}
+          <CustomHeader
+            title="Edit Template"
+            leftAction={
               <Button
                 size="$3"
-                backgroundColor="$blue9"
-                onPress={addExercises}
-                accessibilityLabel="Add exercises"
+                chromeless
+                onPress={() => router.back()}
+                icon={<ChevronLeft size={20} />}
+                accessibilityLabel="Go back"
+              />
+            }
+            rightAction={
+              <Button
+                size="$3"
+                backgroundColor="$green9"
+                onPress={handleSave}
+                disabled={isSaving || exercises.length === 0}
               >
-                Add Exercises
+                {isSaving ? 'Saving...' : 'Save'}
               </Button>
-            </XStack>
+            }
+          />
 
-            {/* Exercise List */}
-            {exercises.length === 0 ? (
-              <YStack flex={1} justifyContent="center" alignItems="center" space="$3">
-                <Text fontSize="$4" fontWeight="500" textAlign="center">
-                  No exercises in this template
-                </Text>
-                <Text fontSize="$3" color="$gray10" textAlign="center">
-                  Add exercises to update your template
-                </Text>
-                <Button backgroundColor="$blue9" onPress={addExercises}>
-                  Add Exercises
-                </Button>
+          {/* Content */}
+          <YStack flex={1} padding="$4" space="$4">
+            {/* Basic Info Form */}
+            <YStack space="$3">
+              <YStack space="$2">
+                <Label htmlFor="title" fontSize="$4" fontWeight="500">
+                  Title *
+                </Label>
+                <Input
+                  id="title"
+                  placeholder="Enter template name"
+                  value={form.title}
+                  onChangeText={(text) => updateForm('title', text)}
+                  borderColor={showTitleError ? '$red6' : '$gray6'}
+                  focusStyle={{
+                    borderColor: showTitleError ? '$red8' : '$blue8',
+                  }}
+                  accessibilityLabel="Template title"
+                />
+                {showTitleError && (
+                  <Text fontSize="$3" color="$red10">
+                    Title is required
+                  </Text>
+                )}
               </YStack>
-            ) : (
-              <YStack flex={1}>
-                <FlatList
-                  data={exercises}
-                  renderItem={renderExerciseItem}
-                  keyExtractor={(item, index) => `${item.exerciseId}-${index}`}
-                  showsVerticalScrollIndicator={false}
-                  getItemLayout={(data, index) => ({
-                    length: 95,
-                    offset: 95 * index,
-                    index,
-                  })}
+
+              <YStack space="$2">
+                <Label htmlFor="description" fontSize="$4" fontWeight="500">
+                  Description (optional)
+                </Label>
+                <Input
+                  id="description"
+                  placeholder="Describe your template"
+                  value={form.description}
+                  onChangeText={(text) => updateForm('description', text)}
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  accessibilityLabel="Template description"
                 />
               </YStack>
-            )}
+            </YStack>
+
+            {/* Exercises Section */}
+            <YStack flex={1} space="$3">
+              <XStack justifyContent="space-between" alignItems="center">
+                <XStack alignItems="center" space="$2">
+                  <Target size={16} color="$gray10" />
+                  <Text fontSize="$5" fontWeight="500">
+                    Exercises ({exercises.length})
+                  </Text>
+                </XStack>
+                <Button
+                  size="$3"
+                  backgroundColor="$blue9"
+                  onPress={addExercises}
+                  accessibilityLabel="Add exercises"
+                >
+                  Add Exercises
+                </Button>
+              </XStack>
+
+              {/* Exercise List */}
+              {exercises.length === 0 ? (
+                <YStack
+                  flex={1}
+                  justifyContent="center"
+                  alignItems="center"
+                  space="$3"
+                >
+                  <Text fontSize="$4" fontWeight="500" textAlign="center">
+                    No exercises in this template
+                  </Text>
+                  <Text fontSize="$3" color="$gray10" textAlign="center">
+                    Add exercises to update your template
+                  </Text>
+                  <Button backgroundColor="$blue9" onPress={addExercises}>
+                    Add Exercises
+                  </Button>
+                </YStack>
+              ) : (
+                <YStack flex={1}>
+                  <FlatList
+                    data={exercises}
+                    renderItem={renderExerciseItem}
+                    keyExtractor={(item, index) =>
+                      `${item.exerciseId}-${index}`
+                    }
+                    showsVerticalScrollIndicator={false}
+                    getItemLayout={(data, index) => ({
+                      length: 95,
+                      offset: 95 * index,
+                      index,
+                    })}
+                  />
+                </YStack>
+              )}
+            </YStack>
           </YStack>
-        </YStack>
 
-        {/* Error Display */}
-        {error && (
-          <Card
-            margin="$4"
-            backgroundColor="$red2"
-            borderColor="$red6"
-            borderWidth={1}
-            padding="$3"
-          >
-            <XStack justifyContent="space-between" alignItems="center">
-              <Text color="$red11" flex={1}>{error}</Text>
-              <Button
-                size="$2"
-                chromeless
-                onPress={() => setError(null)}
-                icon={<X size={16} />}
-              />
-            </XStack>
-          </Card>
-        )}
+          {/* Error Display */}
+          {error && (
+            <Card
+              margin="$4"
+              backgroundColor="$red2"
+              borderColor="$red6"
+              borderWidth={1}
+              padding="$3"
+            >
+              <XStack justifyContent="space-between" alignItems="center">
+                <Text color="$red11" flex={1}>
+                  {error}
+                </Text>
+                <Button
+                  size="$2"
+                  chromeless
+                  onPress={() => setError(null)}
+                  icon={<X size={16} />}
+                />
+              </XStack>
+            </Card>
+          )}
 
-        {/* Add Exercise Modal */}
-        <AddExerciseModal
-          isOpen={showAddExerciseModal}
-          onClose={() => setShowAddExerciseModal(false)}
-          onSelect={handleExerciseSelection}
-          currentExercises={exercises.map(ex => ex.exerciseId)}
-          mode="add"
-        />
+          {/* Add Exercise Modal */}
+          <AddExerciseModal
+            isOpen={showAddExerciseModal}
+            onClose={() => setShowAddExerciseModal(false)}
+            onSelect={handleExerciseSelection}
+            currentExercises={exercises.map((ex) => ex.exerciseId)}
+            mode="add"
+          />
         </YStack>
       </SafeAreaView>
     </>

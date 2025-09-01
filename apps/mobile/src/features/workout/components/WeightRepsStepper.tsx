@@ -26,7 +26,7 @@ export const WeightRepsStepper = memo(
     onWeightChange,
     onRepsChange,
     disabled = false,
-    weightStep = 5,
+    weightStep: _weightStep = 5,
     repsStep = 1,
     minWeight = 0,
     maxWeight = 99999,
@@ -36,12 +36,17 @@ export const WeightRepsStepper = memo(
     suggestedReps,
   }: WeightRepsStepperProps) => {
     // Local state for input values to prevent glitches
-    const [weightInput, setWeightInput] = useState(
-      weight === 0 ? '' : weight.toString()
-    );
-    const [repsInput, setRepsInput] = useState(
-      reps === 0 ? '' : reps.toString()
-    );
+    const [weightInput, setWeightInput] = useState(() => {
+      if (weight > 0) return weight.toString();
+      if (suggestedWeight && suggestedWeight > 0)
+        return suggestedWeight.toString();
+      return '';
+    });
+    const [repsInput, setRepsInput] = useState(() => {
+      if (reps > 0) return reps.toString();
+      if (suggestedReps && suggestedReps > 0) return suggestedReps.toString();
+      return '';
+    });
 
     // Refs to track stepper actions and prevent debounce conflicts
     const isStepperAction = useRef(false);
@@ -51,17 +56,42 @@ export const WeightRepsStepper = memo(
     // Update local state when props change (e.g., from stepper buttons)
     useEffect(() => {
       if (isStepperAction.current) {
-        setWeightInput(weight === 0 ? '' : weight.toString());
+        if (weight > 0) {
+          setWeightInput(weight.toString());
+        } else if (suggestedWeight && suggestedWeight > 0) {
+          setWeightInput(suggestedWeight.toString());
+        } else {
+          setWeightInput('');
+        }
         isStepperAction.current = false;
       }
-    }, [weight]);
+    }, [weight, suggestedWeight]);
 
     useEffect(() => {
       if (isStepperAction.current) {
-        setRepsInput(reps === 0 ? '' : reps.toString());
+        if (reps > 0) {
+          setRepsInput(reps.toString());
+        } else if (suggestedReps && suggestedReps > 0) {
+          setRepsInput(suggestedReps.toString());
+        } else {
+          setRepsInput('');
+        }
         isStepperAction.current = false;
       }
-    }, [reps]);
+    }, [reps, suggestedReps]);
+
+    // Update local state when suggestions arrive (not from stepper actions)
+    useEffect(() => {
+      if (!isStepperAction.current && weight === 0 && suggestedWeight && suggestedWeight > 0) {
+        setWeightInput(suggestedWeight.toString());
+      }
+    }, [suggestedWeight, weight]);
+
+    useEffect(() => {
+      if (!isStepperAction.current && reps === 0 && suggestedReps && suggestedReps > 0) {
+        setRepsInput(suggestedReps.toString());
+      }
+    }, [suggestedReps, reps]);
 
     // Debounced update to parent state with smart timing
     useEffect(() => {
@@ -127,8 +157,11 @@ export const WeightRepsStepper = memo(
     const handleWeightIncrement = useCallback(() => {
       // If current weight is 0, use suggested weight as baseline, otherwise increment current
       const baseWeight = weight === 0 ? suggestedWeight || 0 : weight;
-      // Round up to nearest 5
-      const newWeight = Math.min(Math.ceil(baseWeight / 5) * 5, maxWeight);
+      // Always increment to the NEXT multiple of 5
+      const newWeight = Math.min(
+        baseWeight % 5 === 0 ? baseWeight + 5 : Math.ceil(baseWeight / 5) * 5,
+        maxWeight
+      );
       isStepperAction.current = true;
       // Clear any pending debounced updates
       if (weightTimerRef.current) {
@@ -143,10 +176,9 @@ export const WeightRepsStepper = memo(
     const handleWeightDecrement = useCallback(() => {
       // If current weight is 0, use suggested weight as baseline, otherwise decrement current
       const baseWeight = weight === 0 ? suggestedWeight || 0 : weight;
-      // Round down to nearest 5 (but ensure we go down)
-      const roundedDown = Math.floor(baseWeight / 5) * 5;
+      // Always decrement to the PREVIOUS multiple of 5
       const newWeight = Math.max(
-        baseWeight === roundedDown ? roundedDown - 5 : roundedDown,
+        baseWeight % 5 === 0 ? baseWeight - 5 : Math.floor(baseWeight / 5) * 5,
         minWeight
       );
       isStepperAction.current = true;
@@ -216,6 +248,18 @@ export const WeightRepsStepper = memo(
       [minReps, maxReps]
     );
 
+    // Helper functions to detect if showing suggested values
+    const isShowingSuggestedWeight =
+      weight === 0 &&
+      suggestedWeight &&
+      suggestedWeight > 0 &&
+      weightInput === suggestedWeight.toString();
+    const isShowingSuggestedReps =
+      reps === 0 &&
+      suggestedReps &&
+      suggestedReps > 0 &&
+      repsInput === suggestedReps.toString();
+
     // Cleanup timers on unmount
     useEffect(() => {
       return () => {
@@ -252,7 +296,9 @@ export const WeightRepsStepper = memo(
             onFocus={() => {
               // Text selection handled by selectTextOnFocus prop
             }}
-            placeholder={suggestedWeight ? suggestedWeight.toString() : '0'}
+            placeholder="0"
+            placeholderTextColor="$gray9"
+            color={isShowingSuggestedWeight ? '$gray9' : '$color'}
             disabled={disabled}
             textAlign="center"
             textAlignVertical="center"
@@ -305,7 +351,9 @@ export const WeightRepsStepper = memo(
             onFocus={() => {
               // Text selection handled by selectTextOnFocus prop
             }}
-            placeholder={suggestedReps ? suggestedReps.toString() : '0'}
+            placeholder="0"
+            placeholderTextColor="$gray9"
+            color={isShowingSuggestedReps ? '$gray9' : '$color'}
             disabled={disabled}
             textAlign="center"
             textAlignVertical="center"

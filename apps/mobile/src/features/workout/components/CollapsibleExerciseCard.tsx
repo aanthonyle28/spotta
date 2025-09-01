@@ -202,17 +202,6 @@ export const CollapsibleExerciseCard = memo(
                   </Text>
                 </XStack>
               </Button>
-
-              {exerciseStats.totalVolume > 0 && (
-                <>
-                  <Text fontSize="$3" color="$gray10">
-                    •
-                  </Text>
-                  <Text fontSize="$3" color="$gray10">
-                    {exerciseStats.totalVolume} lbs
-                  </Text>
-                </>
-              )}
             </XStack>
           </YStack>
 
@@ -374,22 +363,17 @@ export const CollapsibleExerciseCard = memo(
                               set.weight || suggestion?.weight || 0;
                             const finalReps = set.reps || suggestion?.reps || 0;
 
-                            // Update set data with completion in single operation
-                            onSetUpdate(set.id, {
-                              weight: finalWeight,
-                              reps: finalReps,
-                              completed: true,
-                              completedAt: new Date(),
-                            });
-
-                            // Also call handleSetComplete for any additional side effects
-                            handleSetComplete({
+                            // Create completed set data
+                            const completedSetData = {
                               ...set,
                               weight: finalWeight,
                               reps: finalReps,
                               completed: true,
                               completedAt: new Date(),
-                            });
+                            };
+
+                            // Single state update through handleSetComplete which handles rest timer
+                            handleSetComplete(completedSetData);
                           }
                         }}
                         disabled={false}

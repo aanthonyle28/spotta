@@ -11,7 +11,7 @@ import { workoutService } from '../src/features/workout/services/workoutService'
 import { useWorkoutState } from '../src/features/workout/providers/WorkoutStateProvider';
 import {
   FilterRow,
-  CreateExerciseModal,
+  AddExerciseModal,
 } from '../src/features/workout/components';
 import type { Exercise } from '../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';
@@ -410,10 +410,14 @@ export default function AddExercisesScreen() {
         )}
 
         {/* Create Exercise Modal */}
-        <CreateExerciseModal
+        <AddExerciseModal
           isOpen={showCreateExerciseModal}
           onClose={() => setShowCreateExerciseModal(false)}
-          onSuccess={handleCreateExerciseSuccess}
+          onSelect={(exercises) => {
+            if (exercises.length > 0) {
+              handleCreateExerciseSuccess(exercises[0]);
+            }
+          }}
         />
       </YStack>
     </SafeAreaView>

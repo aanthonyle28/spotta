@@ -321,7 +321,7 @@ class WorkoutService {
     setId: SetEntryId,
     setData: Partial<SetData>
   ): Promise<{ set: SetData; restTime?: number }> {
-    await delay(150);
+    await delay(50);
 
     const completedSet = await this.updateSet(sessionId, exerciseId, setId, {
       ...setData,
@@ -676,49 +676,66 @@ class WorkoutService {
 
     try {
       const exerciseData = mockPreviousExerciseData[exerciseId];
-      if (!exerciseData) return null;
+      if (!exerciseData) {
+        // No previous data - provide sensible defaults for new exercises
+        return {
+          weight: 45, // Empty barbell weight for most strength exercises
+          reps: 8, // Start at bottom of rep range
+          reasoning: 'maintain',
+        };
+      }
 
       // Get previous set data
       const previousSet = exerciseData.find(
         (set) => set.setNumber === setNumber
       );
-      if (!previousSet || !previousSet.weight || !previousSet.reps) return null;
-
-      // Get all previous sets to analyze progression pattern
-      const allSets = exerciseData.filter((set) => set.weight && set.reps);
-      if (allSets.length === 0) return null;
+      if (!previousSet || !previousSet.weight || !previousSet.reps) {
+        // No data for this specific set number - provide sensible defaults
+        return {
+          weight: 45,
+          reps: 8,
+          reasoning: 'maintain',
+        };
+      }
 
       // Simple double-progression logic
       const repRange = { min: 8, max: 12 }; // Default rep range
       const weightIncrement = 2.5; // Default weight increment
 
-      // Check if all sets in previous workout were at top of rep range
-      const allAtTopRange = allSets.every((set) => set.reps! >= repRange.max);
-      const allInRange = allSets.every(
-        (set) => set.reps! >= repRange.min && set.reps! <= repRange.max
-      );
-      const anyBelowRange = allSets.some((set) => set.reps! < repRange.min);
+      // Get all previous sets to analyze overall workout performance for context
+      const allSets = exerciseData.filter((set) => set.weight && set.reps);
+      if (allSets.length === 0) return null;
 
-      if (allAtTopRange) {
-        // Increase weight, reset reps to bottom of range
+      // Analyze the specific set's performance
+      const currentSetReps = previousSet.reps!;
+
+      // Check overall workout performance for weight progression decisions
+      const allAtMaxReps = allSets.every((set) => set.reps! >= repRange.max);
+      const anyBelowMinReps = allSets.some((set) => set.reps! < repRange.min);
+
+      if (allAtMaxReps) {
+        // All sets hit max reps - increase weight, reset to min reps
         return {
           weight: previousSet.weight + weightIncrement,
           reps: repRange.min,
           reasoning: 'increase_weight',
         };
-      } else if (allInRange) {
-        // Keep weight, try to add reps
-        return {
-          weight: previousSet.weight,
-          reps: Math.min(previousSet.reps + 1, repRange.max),
-          reasoning: 'add_reps',
-        };
-      } else if (anyBelowRange) {
-        // Decrease weight or maintain and focus on reps
+      } else if (anyBelowMinReps) {
+        // Some sets fell below minimum - decrease weight
         return {
           weight: Math.max(previousSet.weight - weightIncrement, 0),
           reps: repRange.min,
           reasoning: 'decrease_weight',
+        };
+      } else if (
+        currentSetReps >= repRange.min &&
+        currentSetReps < repRange.max
+      ) {
+        // This specific set is in range but not at max - try to add reps
+        return {
+          weight: previousSet.weight,
+          reps: Math.min(currentSetReps + 1, repRange.max),
+          reasoning: 'add_reps',
         };
       } else {
         // Default: maintain previous values

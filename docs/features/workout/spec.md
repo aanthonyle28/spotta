@@ -488,6 +488,13 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
 
 ## 9. Changelog (auto-appended by Scribe)
 
+- 2025-09-01 — Mobile UI — Fixed logging screen progression suggestions and UX improvements — [logging-screen-fixes]
+  - **Progression Suggestions**: Fixed WeightRepsStepper to display calculated suggested values instead of 0
+  - **Weight Increment Logic**: Fixed +/- buttons to properly snap to nearest multiple of 5  
+  - **Performance**: Reduced rest timer delay from 150ms to 50ms for smoother UX
+  - **State Management**: Eliminated double state updates causing header metrics flashing
+  - **UI Cleanup**: Removed redundant "lbs" text from exercise card headers
+  - **Visual Polish**: Added proper gray styling for suggested values vs user input
 - 2025-08-24 — Mobile — Exercise menu system with remove, replace, and reorder functionality — [exercise-menu-system]
   - ✅ 3-dots menu: Added MoreVertical icon and dropdown menu to CollapsibleExerciseCard with safe parent-child communication
   - ✅ Remove exercise: Confirmation alert and service method to remove exercise and recalculate session stats
