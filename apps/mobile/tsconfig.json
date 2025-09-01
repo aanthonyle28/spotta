@@ -16,7 +16,7 @@
   "compilerOptions": {
     "composite": true,
     "jsx": "react-jsx",
-    "types": ["jest", "@testing-library/jest-native"]
+    "types": ["node", "jest", "@testing-library/jest-native"]
   },
   "references": []
 }
