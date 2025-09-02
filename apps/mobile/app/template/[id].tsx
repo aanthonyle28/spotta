@@ -68,7 +68,12 @@ export default function TemplatePreviewScreen() {
       const session = await actions.startFromTemplate(
         template.id as TemplateId
       );
-      router.push(`/logging/${session.id}`);
+      // Navigate back to workout screen first, then open modal
+      router.back();
+      // Small delay to ensure back navigation completes
+      setTimeout(() => {
+        router.push(`/logging/${session.id}`);
+      }, 100);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start workout');
       setIsStarting(false);

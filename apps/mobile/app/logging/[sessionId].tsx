@@ -289,10 +289,23 @@ export default function LoggingScreen() {
 
         // Update template if requested
         if (finishData.updateTemplate && state.activeSession.templateId) {
-          await workoutService.updateTemplateFromSession(
-            state.activeSession.templateId,
-            state.activeSession
+          // Convert session exercises to template format and update
+          const templateExercises = state.activeSession.exercises.map(
+            (sessionEx) => ({
+              exerciseId: sessionEx.id,
+              sets: sessionEx.sets.length,
+              reps: sessionEx.sets.find((set) => set.reps)?.reps,
+              weight: sessionEx.sets.find((set) => set.weight)?.weight,
+              restTime: sessionEx.restPreset,
+              name: sessionEx.exercise.name,
+              category: sessionEx.exercise.category,
+              primaryMuscles: sessionEx.exercise.primaryMuscles,
+            })
           );
+
+          await workoutService.updateTemplate(state.activeSession.templateId, {
+            exercises: templateExercises,
+          });
         }
 
         // Create template if requested for empty workouts
@@ -328,7 +341,7 @@ export default function LoggingScreen() {
         // Close modal and navigate
         setShowFinishModal(false);
         await new Promise((resolve) => setTimeout(resolve, 100));
-        router.replace('/(tabs)/workout');
+        router.back();
       } catch (error) {
         console.error('Failed to complete workout:', error);
         Alert.alert('Error', 'Failed to complete workout. Please try again.');

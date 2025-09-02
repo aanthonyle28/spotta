@@ -171,7 +171,12 @@ export default function AddExercisesScreen() {
           exerciseIds,
           'Quick Workout'
         );
-        router.push(`/logging/${session.id}`);
+        // Navigate back to workout screen first, then open modal
+        router.back();
+        // Small delay to ensure back navigation completes
+        setTimeout(() => {
+          router.push(`/logging/${session.id}`);
+        }, 100);
       } else if (mode === 'template') {
         // For original template mode, navigate to create-template screen
         router.push(

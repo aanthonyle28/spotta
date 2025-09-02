@@ -78,6 +78,7 @@ function RootLayoutNav() {
                 options={{
                   headerShown: false,
                   presentation: 'modal',
+                  gestureEnabled: true,
                 }}
               />
             </Stack>
