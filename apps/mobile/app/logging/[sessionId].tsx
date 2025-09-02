@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Plus, Clock, Trophy, Dumbbell } from '@tamagui/lucide-icons';
 import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
+import { formatTime } from '../../src/utils/formatTime';
 import { useRestTimer } from '../../src/features/workout/hooks';
 import {
   CollapsibleExerciseCard,
@@ -133,13 +134,6 @@ export default function LoggingScreen() {
         year: 'numeric',
       };
       return date.toLocaleDateString('en-US', options);
-    };
-
-    // Format timer
-    const formatTime = (seconds: number): string => {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
     const durationInSeconds = Math.floor(

@@ -534,6 +534,16 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - ✅ Accessibility: Maintained 44×44 touch targets and proper accessibility labels for all menu actions
   - ✅ Error handling: Confirmation alerts for destructive actions and proper error states throughout
 
+- 2025-09-02 — Mobile — Added live duration counter to ActiveSessionBanner — [live-duration-counter]
+  - ✅ Real-time updates: Banner now shows live MM:SS duration counter that updates every second
+  - ✅ Shared utility: Created formatTime utility in apps/mobile/src/utils for consistent time formatting
+  - ✅ Code reuse: Refactored existing components (useRestTimer, logging screen) to use shared formatTime
+  - ✅ Performance optimization: Uses setInterval pattern proven in logging screen with proper cleanup
+  - ✅ Display format: Changed from static "Xm" to live "MM:SS • X exercises" format
+  - ✅ Test coverage: Added comprehensive unit tests for formatTime utility and banner component
+  - ✅ Memory management: Proper interval cleanup on component unmount to prevent leaks
+  - ✅ User experience: Users can now see live workout duration in tab bar banner without opening logging screen
+
 - 2025-08-24 — Mobile — Fixed active state banner persistence with AsyncStorage integration — [active-banner-persistence-fix]
   - ✅ Persistent storage: Added AsyncStorage dependency and StorageService for data persistence across app restarts
   - ✅ Development state fixes: Replaced in-memory developmentState with persistent storage to prevent mock session recreation

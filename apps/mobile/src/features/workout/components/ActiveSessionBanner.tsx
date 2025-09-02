@@ -1,9 +1,10 @@
-import { memo, useMemo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { XStack, YStack, Text, Card } from 'tamagui';
 import { ChevronRight, Clock } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import type { ActiveSession } from '../types';
 import { logger } from '../../../utils/logger';
+import { formatTime } from '../../../utils/formatTime';
 
 interface ActiveSessionBannerProps {
   activeSession: ActiveSession;
@@ -11,12 +12,20 @@ interface ActiveSessionBannerProps {
 
 export const ActiveSessionBanner = memo<ActiveSessionBannerProps>(
   ({ activeSession }) => {
-    const duration = useMemo(() => {
-      const elapsed = Math.floor(
-        (Date.now() - activeSession.startedAt.getTime()) / 1000 / 60
-      );
-      return elapsed;
-    }, [activeSession.startedAt]);
+    const [currentTime, setCurrentTime] = useState(Date.now());
+
+    // Update timer every second for real-time duration
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentTime(Date.now());
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }, []);
+
+    const durationInSeconds = Math.floor(
+      (currentTime - activeSession.startedAt.getTime()) / 1000
+    );
 
     const handlePress = () => {
       logger.debug(`[Banner] Navigating to session: ${activeSession.id}`);
@@ -53,7 +62,8 @@ export const ActiveSessionBanner = memo<ActiveSessionBannerProps>(
                 {activeSession.name}
               </Text>
               <Text fontSize="$2" color="$blue11">
-                {duration}m • {activeSession.exercises.length} exercises
+                {formatTime(durationInSeconds)} •{' '}
+                {activeSession.exercises.length} exercises
               </Text>
             </YStack>
           </XStack>

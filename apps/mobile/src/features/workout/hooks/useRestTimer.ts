@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { RestTimerState } from '../types';
+import { formatTime } from '../../../utils/formatTime';
 
 interface UseRestTimerProps {
   restTimer: RestTimerState;
@@ -87,12 +88,6 @@ export const useRestTimer = ({
       }
     };
   }, []);
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const getProgress = (): number => {
     if (restTimer.totalTime <= 0) return 0;
