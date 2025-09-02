@@ -645,3 +645,10 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - ✅ Performance: Memoized components, optimized re-renders, real-time stats calculation
   - ✅ Testing: Component and hook tests with React Testing Library, accessibility compliance
   - ✅ Types: Comprehensive TypeScript interfaces and Zod schemas for all workout data
+
+- 2025-09-02 — Mobile Navigation — Fix empty workout completion navigation and add save as template feature — [empty-workout-navigation-fix]
+  - ✅ Navigation Fix: Changed finish modal completion from `router.dismiss()` to `router.replace('/(tabs)/workout')` to properly return to workout tab
+  - ✅ Save as Template: Added "Save as Template" functionality for empty workouts in FinishWorkoutModal
+  - ✅ UI Enhancement: Template creation section appears for sessions without templateId, includes name input and toggle
+  - ✅ State Integration: New templates automatically appear in workout tab carousel via state refresh
+  - ✅ Types: Extended FinishWorkoutData with saveAsTemplate and templateName properties

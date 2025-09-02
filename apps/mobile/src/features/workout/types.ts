@@ -154,3 +154,29 @@ export interface ProgressionSuggestion {
   reps?: number;
   reasoning: 'increase_weight' | 'add_reps' | 'decrease_weight' | 'maintain';
 }
+
+// Finish modal types
+export interface FinishWorkoutModalProps {
+  isOpen: boolean;
+  session: ActiveSession;
+  onClose: () => void;
+  onComplete: (data: FinishWorkoutData) => Promise<void>;
+}
+
+export interface FinishWorkoutData {
+  image?: string;
+  description?: string;
+  clubId?: string;
+  updateTemplate: boolean;
+  saveAsTemplate?: boolean;
+  templateName?: string;
+}
+
+export interface WorkoutSummary {
+  duration: string;
+  volume: number;
+  exerciseCount: number;
+  formattedDate: string;
+  completedSets: number;
+  exercises: string[];
+}

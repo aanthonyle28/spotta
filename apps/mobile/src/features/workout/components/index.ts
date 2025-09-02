@@ -17,3 +17,4 @@ export { FilterDropdown } from './FilterDropdown';
 export { FilterRow } from './FilterRow';
 export { CustomHeader } from './CustomHeader';
 export { AddExerciseModal } from './AddExerciseModal';
+export { FinishWorkoutModal } from './FinishWorkoutModal';

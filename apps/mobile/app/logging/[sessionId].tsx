@@ -19,9 +19,15 @@ import {
   RestBar,
   RestPresetSheet,
   ExerciseReorderModal,
+  FinishWorkoutModal,
 } from '../../src/features/workout/components';
-import type { SetData } from '../../src/features/workout/types';
+import type {
+  SetData,
+  FinishWorkoutData,
+} from '../../src/features/workout/types';
 import type { SetEntryId, ExerciseId } from '@spotta/shared';
+import { finishWorkoutService } from '../../src/features/workout/services/finishWorkoutService';
+import { workoutService } from '../../src/features/workout/services/workoutService';
 
 export default function LoggingScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
@@ -74,6 +80,7 @@ export default function LoggingScreen() {
   const [closeAllMenus, setCloseAllMenus] = useState(false);
   const [showExerciseReorderModal, setShowExerciseReorderModal] =
     useState(false);
+  const [showFinishModal, setShowFinishModal] = useState(false);
   const addSetTimeouts = useRef<Map<ExerciseId, NodeJS.Timeout>>(new Map());
 
   useRestTimer({
@@ -270,33 +277,73 @@ export default function LoggingScreen() {
 
   const handleFinishWorkout = useCallback(async () => {
     if (!state.activeSession) return;
+    setShowFinishModal(true);
+  }, [state.activeSession]);
 
-    const completedSets = sessionStats.sets;
+  const handleFinishModalComplete = useCallback(
+    async (finishData: FinishWorkoutData) => {
+      if (!state.activeSession) return;
 
-    Alert.alert(
-      'Finish Workout',
-      `Complete your workout with ${completedSets} logged sets?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Finish',
-          style: 'default',
-          onPress: async () => {
-            try {
-              setIsFinishing(true);
-              await actions.finishSession();
-              // Allow state to propagate before navigation
-              await new Promise((resolve) => setTimeout(resolve, 100));
-              router.dismiss();
-            } catch (error) {
-              console.error('Failed to finish workout:', error);
-              setIsFinishing(false);
-            }
-          },
-        },
-      ]
-    );
-  }, [state.activeSession, sessionStats.sets, actions]);
+      try {
+        setIsFinishing(true);
+
+        // Process finish workflow (image upload, sharing, etc.)
+        await finishWorkoutService.processFinishWorkout(
+          state.activeSession.id,
+          finishData
+        );
+
+        // Update template if requested
+        if (finishData.updateTemplate && state.activeSession.templateId) {
+          await workoutService.updateTemplateFromSession(
+            state.activeSession.templateId,
+            state.activeSession
+          );
+        }
+
+        // Create template if requested for empty workouts
+        if (finishData.saveAsTemplate && finishData.templateName) {
+          const templateExercises = state.activeSession.exercises.map(
+            (sessionEx) => ({
+              exerciseId: sessionEx.id,
+              sets: sessionEx.sets.length,
+              reps: sessionEx.sets.find((set) => set.reps)?.reps,
+              weight: sessionEx.sets.find((set) => set.weight)?.weight,
+              restTime: sessionEx.restPreset,
+              name: sessionEx.exercise.name,
+              category: sessionEx.exercise.category,
+              primaryMuscles: sessionEx.exercise.primaryMuscles,
+            })
+          );
+
+          const templateData = {
+            title: finishData.templateName,
+            description: finishData.description,
+            exercises: templateExercises,
+            estimatedDuration: Math.ceil(templateExercises.length * 15), // Rough estimate
+            difficulty: 'intermediate' as const,
+            isPublic: false,
+          };
+
+          await actions.createTemplate(templateData);
+        }
+
+        // Finish the session
+        await actions.finishSession();
+
+        // Close modal and navigate
+        setShowFinishModal(false);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        router.replace('/(tabs)/workout');
+      } catch (error) {
+        console.error('Failed to complete workout:', error);
+        Alert.alert('Error', 'Failed to complete workout. Please try again.');
+      } finally {
+        setIsFinishing(false);
+      }
+    },
+    [state.activeSession, actions]
+  );
 
   const handleDiscardWorkout = useCallback(() => {
     if (!state.activeSession) return;
@@ -661,6 +708,16 @@ export default function LoggingScreen() {
             onClose={() => setShowExerciseReorderModal(false)}
             onSave={handleExerciseReorderSave}
           />
+
+          {/* Finish Workout Modal */}
+          {state.activeSession && (
+            <FinishWorkoutModal
+              isOpen={showFinishModal}
+              session={state.activeSession}
+              onClose={() => setShowFinishModal(false)}
+              onComplete={handleFinishModalComplete}
+            />
+          )}
         </YStack>
       </PortalProvider>
     </SafeAreaView>
