@@ -656,6 +656,13 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - ✅ Testing: Component and hook tests with React Testing Library, accessibility compliance
   - ✅ Types: Comprehensive TypeScript interfaces and Zod schemas for all workout data
 
+- 2025-09-03 — Mobile UI — Fix duplicate workout conflict modal in template preview screen — [template-conflict-modal-fix]
+  - ✅ Race Condition Fix: Resolved duplicate WorkoutConflictModal appearance when starting new workout from template preview
+  - ✅ State Management: Fixed async timing issue between `discardSession()` and `hasActiveSession` check causing double modal
+  - ✅ Pattern Consistency: Applied same pattern as workout tab screen - direct `startFromTemplate()` call after discard
+  - ✅ Error Handling: Enhanced error handling with proper loading state management and edge case coverage
+  - ✅ UX Improvement: Users now see single conflict modal and smooth transition to new workout session
+
 - 2025-09-02 — Mobile Navigation — Fix empty workout completion navigation and add save as template feature — [empty-workout-navigation-fix]
   - ✅ Navigation Fix: Changed finish modal completion from `router.dismiss()` to `router.replace('/(tabs)/workout')` to properly return to workout tab
   - ✅ Save as Template: Added "Save as Template" functionality for empty workouts in FinishWorkoutModal

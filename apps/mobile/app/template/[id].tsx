@@ -306,11 +306,35 @@ export default function TemplatePreviewScreen() {
           onClose={() => setIsConflictModalOpen(false)}
           onResume={handleResumeWorkout}
           onStartNew={async () => {
-            if (state.activeSession) {
-              await actions.discardSession();
+            try {
+              if (state.activeSession) {
+                await actions.discardSession();
+              }
+              setIsConflictModalOpen(false);
+
+              // Start workout directly without checking hasActiveSession again
+              // This follows the same pattern as /(tabs)/workout.tsx
+              if (!template) {
+                setIsStarting(false);
+                return;
+              }
+
+              setIsStarting(true);
+              const session = await actions.startFromTemplate(
+                template.id as TemplateId
+              );
+              // Navigate back to workout screen first, then open modal
+              router.back();
+              // Small delay to ensure back navigation completes
+              setTimeout(() => {
+                router.push(`/logging/${session.id}`);
+              }, 100);
+            } catch (err) {
+              setError(
+                err instanceof Error ? err.message : 'Failed to start workout'
+              );
+              setIsStarting(false);
             }
-            setIsConflictModalOpen(false);
-            handleStart();
           }}
         />
       </YStack>
