@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import {
   YStack,
   XStack,
-  H2,
   Text,
   Button,
   Card,
@@ -167,7 +166,7 @@ export default function TemplatePreviewScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <YStack flex={1}>
         <CustomHeader
-          title="Template Preview"
+          title={template.title}
           leftAction={
             <Button
               size="$3"
@@ -187,104 +186,145 @@ export default function TemplatePreviewScreen() {
             />
           }
         />
-        <ScrollView>
-          <YStack flex={1} padding="$4" space="$4">
-            {/* Template Info */}
-            <YStack space="$3">
-              <H2>{template.title}</H2>
-
+        <ScrollView flex={1}>
+          <YStack padding="$4" space="$4">
+            {/* Template Header Info */}
+            <YStack space="$4">
+              {/* Description */}
               {template.description && (
-                <Text fontSize="$4" color="$gray11" lineHeight="$1">
+                <Text fontSize="$4" color="$gray11" lineHeight="$2">
                   {template.description}
                 </Text>
               )}
 
-              {/* Stats */}
-              <XStack space="$4" alignItems="center">
+              {/* Template Stats - Clean inline design */}
+              <XStack space="$4" alignItems="center" flexWrap="wrap">
                 <XStack space="$2" alignItems="center">
-                  <Clock size={16} color="$gray10" />
-                  <Text fontSize="$3" color="$gray10">
-                    {template.estimatedDuration}m
+                  <Clock size={16} color="$blue9" />
+                  <Text fontSize="$4" fontWeight="600">
+                    {template.estimatedDuration} min
                   </Text>
                 </XStack>
 
                 <XStack space="$2" alignItems="center">
-                  <Target size={16} color="$gray10" />
-                  <Text fontSize="$3" color="$gray10">
+                  <Target size={16} color="$green9" />
+                  <Text fontSize="$4" fontWeight="600">
                     {template.exercises.length} exercises
                   </Text>
                 </XStack>
-
-                <Text fontSize="$3" color="$gray10" textTransform="capitalize">
-                  {template.difficulty}
-                </Text>
               </XStack>
 
               {template.lastCompleted && (
                 <Text fontSize="$3" color="$gray10">
-                  Last completed: {formatDate(template.lastCompleted)}
+                  Last completed {formatDate(template.lastCompleted)}
                 </Text>
               )}
             </YStack>
 
             {/* Exercise List */}
             <YStack space="$3">
-              <Text fontSize="$5" fontWeight="600">
-                Exercises
-              </Text>
-
-              <YStack space="$3">
-                {template.exercises.map((templateExercise, index) => (
-                  <Card
-                    key={`${templateExercise.exerciseId}-${index}`}
-                    padding="$3"
-                    backgroundColor="$gray2"
-                  >
-                    <YStack space="$2">
-                      <Text fontSize="$4" fontWeight="500">
-                        {index + 1}. Exercise {templateExercise.exerciseId}
-                      </Text>
-
-                      <XStack space="$4">
-                        <Text fontSize="$3" color="$gray10">
-                          {templateExercise.sets} sets
-                        </Text>
-
-                        {templateExercise.reps && (
-                          <Text fontSize="$3" color="$gray10">
-                            {templateExercise.reps} reps
-                          </Text>
-                        )}
-
-                        {templateExercise.weight && (
-                          <Text fontSize="$3" color="$gray10">
-                            {templateExercise.weight} lbs
-                          </Text>
-                        )}
-
-                        {templateExercise.restTime && (
-                          <Text fontSize="$3" color="$gray10">
-                            {templateExercise.restTime}s rest
-                          </Text>
-                        )}
-                      </XStack>
-                    </YStack>
-                  </Card>
-                ))}
-              </YStack>
+              <XStack
+                justifyContent="space-between"
+                alignItems="center"
+                backgroundColor="$gray2"
+                paddingHorizontal="$4"
+                paddingVertical="$3"
+                marginHorizontal="$-4"
+              >
+                <Text fontSize="$5" fontWeight="600">
+                  Exercises
+                </Text>
+                <Text fontSize="$3" color="$gray10">
+                  {template.exercises.length} exercise
+                  {template.exercises.length === 1 ? '' : 's'}
+                </Text>
+              </XStack>
             </YStack>
 
-            {/* Start CTA */}
-            <Button
-              size="$4"
-              backgroundColor="$green9"
-              onPress={handleStart}
-              disabled={isStarting}
-              icon={<Play size={20} color="white" />}
-              marginTop="$4"
-            >
-              {isStarting ? 'Starting...' : 'Start Workout'}
-            </Button>
+            {/* Full-width exercise list */}
+            <YStack marginHorizontal="$-4">
+              {template.exercises.map((templateExercise, index) => (
+                <XStack
+                  key={`${templateExercise.exerciseId}-${index}`}
+                  alignItems="center"
+                  paddingHorizontal="$4"
+                  paddingVertical="$4"
+                  borderBottomWidth={
+                    index === template.exercises.length - 1 ? 0 : 1
+                  }
+                  borderBottomColor="$gray3"
+                >
+                  {/* Exercise Info */}
+                  <YStack flex={1} space="$2">
+                    <Text fontSize="$5" fontWeight="600" color="$gray12">
+                      {templateExercise.name}
+                    </Text>
+
+                    {/* Workout Details */}
+                    <XStack space="$3" alignItems="center" flexWrap="wrap">
+                      <Text fontSize="$3" fontWeight="600" color="$blue10">
+                        {templateExercise.sets} set
+                        {templateExercise.sets === 1 ? '' : 's'}
+                      </Text>
+
+                      {templateExercise.reps && (
+                        <Text fontSize="$3" color="$gray11">
+                          × {templateExercise.reps}
+                        </Text>
+                      )}
+
+                      {templateExercise.weight && (
+                        <Text fontSize="$3" color="$gray11">
+                          @ {templateExercise.weight} lbs
+                        </Text>
+                      )}
+
+                      {templateExercise.restTime && (
+                        <XStack space="$1" alignItems="center">
+                          <Clock size={12} color="$gray10" />
+                          <Text fontSize="$3" color="$gray11">
+                            {templateExercise.restTime}s
+                          </Text>
+                        </XStack>
+                      )}
+                    </XStack>
+
+                    {/* Muscle Groups - Clean pill design */}
+                    <XStack space="$2" flexWrap="wrap">
+                      {templateExercise.primaryMuscles
+                        .slice(0, 3)
+                        .map((muscle, muscleIndex) => (
+                          <Text
+                            key={muscleIndex}
+                            fontSize="$2"
+                            color="$gray11"
+                            backgroundColor="$gray3"
+                            paddingHorizontal="$2.5"
+                            paddingVertical="$1.5"
+                            borderRadius="$4"
+                            fontWeight="500"
+                          >
+                            {muscle}
+                          </Text>
+                        ))}
+                      {templateExercise.primaryMuscles.length > 3 && (
+                        <Text
+                          fontSize="$2"
+                          color="$gray10"
+                          backgroundColor="$gray2"
+                          paddingHorizontal="$2.5"
+                          paddingVertical="$1.5"
+                          borderRadius="$4"
+                          fontWeight="500"
+                        >
+                          +{templateExercise.primaryMuscles.length - 3}
+                        </Text>
+                      )}
+                    </XStack>
+                  </YStack>
+                </XStack>
+              ))}
+            </YStack>
 
             {error && (
               <Card
@@ -298,6 +338,26 @@ export default function TemplatePreviewScreen() {
             )}
           </YStack>
         </ScrollView>
+
+        {/* Sticky Start Button */}
+        <YStack
+          paddingHorizontal="$4"
+          paddingVertical="$3"
+          paddingBottom="$6"
+          backgroundColor="black"
+          borderTopWidth={1}
+          borderTopColor="$gray4"
+        >
+          <Button
+            size="$4"
+            backgroundColor="$green9"
+            onPress={handleStart}
+            disabled={isStarting}
+            icon={<Play size={20} color="white" />}
+          >
+            {isStarting ? 'Starting...' : 'Start Workout'}
+          </Button>
+        </YStack>
 
         {/* Conflict Modal */}
         <WorkoutConflictModal

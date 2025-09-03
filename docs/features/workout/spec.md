@@ -422,6 +422,84 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
 - **Performance**: Session stats recalculated via `useMemo` on state changes
 - **State Management**: Local component state with useWorkoutState hook integration
 
+### Template Preview Screen (`/template/[id]`)
+
+**Route**: `/template/[id]` - Preview workout template before starting
+
+**Navigation & Header**:
+- Dynamic header title showing template name
+- Left: Back button to previous screen
+- Right: Edit button for template modification
+
+**Information Architecture**:
+```tsx
+// Route params
+id: string // TemplateId
+
+// Local state
+template: Template | null
+isLoading: boolean
+isStarting: boolean
+error: string | null
+isConflictModalOpen: boolean
+```
+
+**Visual Design**:
+- Clean metrics row: Duration + exercise count with colored icons
+- Full-width exercise list with minimal styling
+- Sticky bottom start button with black background
+- Gray section headers for visual separation
+- No exercise numbering or alternating backgrounds
+
+**User Flow**:
+1. User taps template from browse screen
+2. Preview shows template details and exercise list
+3. User taps sticky "Start Workout" button
+4. Handles active session conflicts with WorkoutConflictModal
+5. Navigates to logging screen with new session
+
+### Finish Workout Modal
+
+**Trigger**: From logging screen when user taps "Finish" button
+
+**Presentation**:
+- Fullscreen modal with dismiss protection
+- Close button returns to logging screen without completing
+- Keyboard-friendly with proper input handling
+
+**Information Architecture**:
+```tsx
+// Props
+interface FinishWorkoutModalProps {
+  isOpen: boolean;
+  session: ActiveSession;
+  onClose: () => void;
+  onComplete: (data: FinishWorkoutData) => Promise<void>;
+}
+
+// State
+selectedImage?: string        // Camera/library URI
+description: string          // Optional workout notes
+selectedClubId?: string      // Group sharing
+updateTemplate: boolean      // Update source template
+saveAsTemplate: boolean      // Save empty workout as template
+templateName: string         // New template name
+isCompleting: boolean        // Loading state
+```
+
+**Features**:
+- **Workout summary**: Duration, volume, exercise count display
+- **Photo capture**: Take photo or choose from library with preview
+- **Group sharing**: Select club for workout sharing
+- **Template management**: Update existing or create new templates
+- **Progress documentation**: Optional description and notes
+
+**UI States**:
+1. **Image selection**: Empty state vs. preview with change/remove options
+2. **Template section**: Conditional based on workout type (template-based vs. empty)
+3. **Loading state**: "Completing..." during workflow processing
+4. **Error handling**: Alert dialogs for failures
+
 ### Other Screens
 
 - **Main Screen**: Start quick workout, browse templates, recent workouts with active session banner
@@ -497,6 +575,20 @@ actions.reorderExercises(reorderedExercises: SessionExercise[])
   - **Type Safety**: Maintained all existing TypeScript safety with proper null checks and branded ID types
   - **Performance**: Zero performance impact - logic runs only on set completion events, not during renders
   - **User Experience**: Maintains backward compatibility while improving workout flow efficiency
+- 2025-01-09 — Mobile UI — Template preview redesigned with clean design system — [template-preview-redesign]
+  - ✅ **Header**: Dynamic title showing template name instead of generic "Template Preview"
+  - ✅ **Metrics**: Simplified inline design with duration + exercise count, removed difficulty tag
+  - ✅ **Exercise list**: Full-width cards with clean typography, muscle group pills, no numbering
+  - ✅ **Sticky button**: Bottom start button with black background filling safe area
+  - ✅ **EditTemplate fix**: Added proper exercise state management and saving to EditTemplateModal
+  - ✅ **Design system**: Created comprehensive mobile design patterns for future screen redesigns
+- 2025-09-02 — Mobile UI — Finish workout modal with image upload and template management — [finish-workout-modal]
+  - ✅ **Fullscreen modal**: Complete workout review with dismissal protection and keyboard handling
+  - ✅ **Image capture**: Take photo or choose from library with preview and change/remove options
+  - ✅ **Group sharing**: Select club for workout sharing with mock service integration
+  - ✅ **Template updates**: Update source templates or create new ones from session changes
+  - ✅ **Progress documentation**: Optional description input and workout summary display
+  - ✅ **Service layer**: Comprehensive finishWorkoutService with workflow processing and error handling
 - 2025-09-01 — Mobile UI — Fixed logging screen progression suggestions and UX improvements — [logging-screen-fixes]
   - **Progression Suggestions**: Fixed WeightRepsStepper to display calculated suggested values instead of 0
   - **Weight Increment Logic**: Fixed +/- buttons to properly snap to nearest multiple of 5

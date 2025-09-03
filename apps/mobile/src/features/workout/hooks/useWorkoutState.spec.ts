@@ -150,7 +150,12 @@ describe.skip('useWorkoutState', () => {
   });
 
   it('updates set successfully', async () => {
-    const updatedSet = { id: testIds.set1, weight: 140, reps: 8, completed: false };
+    const updatedSet = {
+      id: testIds.set1,
+      weight: 140,
+      reps: 8,
+      completed: false,
+    };
     mockWorkoutService.updateSet.mockResolvedValue(updatedSet);
 
     const { result } = renderHook(() => useWorkoutState());
@@ -180,11 +185,9 @@ describe.skip('useWorkoutState', () => {
     });
 
     await act(async () => {
-      await result.current.actions.updateSet(
-        testIds.benchPress,
-        testIds.set1,
-        { weight: 140 }
-      );
+      await result.current.actions.updateSet(testIds.benchPress, testIds.set1, {
+        weight: 140,
+      });
     });
 
     expect(mockWorkoutService.updateSet).toHaveBeenCalledWith(
@@ -195,7 +198,12 @@ describe.skip('useWorkoutState', () => {
   });
 
   it('completes set and starts rest timer', async () => {
-    const completedSet = { id: testIds.set1, weight: 135, reps: 8, completed: true };
+    const completedSet = {
+      id: testIds.set1,
+      weight: 135,
+      reps: 8,
+      completed: true,
+    };
     const completeResult = { set: completedSet, restTime: 120 };
     mockWorkoutService.completeSet.mockResolvedValue(completeResult);
 

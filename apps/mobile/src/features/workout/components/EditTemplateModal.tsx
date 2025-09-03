@@ -20,7 +20,9 @@ import {
   Replace,
   Plus,
 } from '@tamagui/lucide-icons';
-import type { Template } from '../types';
+import type { Template, TemplateExercise, Exercise } from '../types';
+import type { ExerciseId } from '@spotta/shared';
+import { AddExerciseModal } from './AddExerciseModal';
 
 interface EditTemplateModalProps {
   isOpen: boolean;
@@ -44,10 +46,12 @@ export function EditTemplateModal({
     title: '',
     description: '',
   });
+  const [exercises, setExercises] = useState<TemplateExercise[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [showTitleError, setShowTitleError] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [editingExercise, setEditingExercise] = useState<string | null>(null);
+  const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
 
   // Initialize form with template data
   useEffect(() => {
@@ -56,6 +60,7 @@ export function EditTemplateModal({
         title: template.title,
         description: template.description || '',
       });
+      setExercises([...template.exercises]);
     }
   }, [template]);
 
@@ -92,6 +97,7 @@ export function EditTemplateModal({
       const updates: Partial<Template> = {
         title: form.title.trim(),
         description: form.description.trim() || undefined,
+        exercises: [...exercises],
       };
 
       await onSave(template.id, updates);
@@ -117,7 +123,9 @@ export function EditTemplateModal({
           text: 'Remove',
           style: 'destructive',
           onPress: () => {
-            // TODO: Implement exercise removal from template
+            setExercises((prev) =>
+              prev.filter((ex) => ex.exerciseId !== (exerciseId as ExerciseId))
+            );
             setActiveMenuId(null);
           },
         },
@@ -136,7 +144,23 @@ export function EditTemplateModal({
   };
 
   const handleAddExercise = () => {
-    // TODO: Navigate to exercise selection for adding to template
+    setShowAddExerciseModal(true);
+  };
+
+  const handleExerciseSelection = (selectedExercises: Exercise[]) => {
+    const currentIds = new Set(exercises.map((ex) => ex.exerciseId));
+    const newTemplateExercises: TemplateExercise[] = selectedExercises
+      .filter((ex) => !currentIds.has(ex.id))
+      .map((exercise) => ({
+        exerciseId: exercise.id,
+        sets: 3,
+        reps: 10,
+        name: exercise.name,
+        category: exercise.category,
+        primaryMuscles: exercise.primaryMuscles,
+      }));
+
+    setExercises((prev) => [...prev, ...newTemplateExercises]);
   };
 
   if (!template) return null;
@@ -216,7 +240,7 @@ export function EditTemplateModal({
                   <XStack alignItems="center" space="$2">
                     <Target size={16} color="$gray10" />
                     <Text fontSize="$5" fontWeight="500">
-                      Exercises ({template.exercises.length})
+                      Exercises ({exercises.length})
                     </Text>
                   </XStack>
                   <Button
@@ -231,7 +255,7 @@ export function EditTemplateModal({
                 </XStack>
 
                 <YStack space="$2">
-                  {template.exercises.map((templateExercise, index) => (
+                  {exercises.map((templateExercise, index) => (
                     <Card
                       key={`${templateExercise.exerciseId}-${index}`}
                       padding="$3"
@@ -267,8 +291,16 @@ export function EditTemplateModal({
                                 </Text>
                                 <Input
                                   value={templateExercise.sets.toString()}
-                                  onChangeText={(_text) => {
-                                    // TODO: Update exercise sets
+                                  onChangeText={(text) => {
+                                    const sets = parseInt(text) || 1;
+                                    setExercises((prev) =>
+                                      prev.map((ex) =>
+                                        ex.exerciseId ===
+                                        templateExercise.exerciseId
+                                          ? { ...ex, sets }
+                                          : ex
+                                      )
+                                    );
                                   }}
                                   width={80}
                                   keyboardType="numeric"
@@ -284,9 +316,19 @@ export function EditTemplateModal({
                                     Reps:
                                   </Text>
                                   <Input
-                                    value={templateExercise.reps.toString()}
-                                    onChangeText={(_text) => {
-                                      // TODO: Update exercise reps
+                                    value={
+                                      templateExercise.reps?.toString() || ''
+                                    }
+                                    onChangeText={(text) => {
+                                      const reps = parseInt(text) || undefined;
+                                      setExercises((prev) =>
+                                        prev.map((ex) =>
+                                          ex.exerciseId ===
+                                          templateExercise.exerciseId
+                                            ? { ...ex, reps }
+                                            : ex
+                                        )
+                                      );
                                     }}
                                     width={80}
                                     keyboardType="numeric"
@@ -303,9 +345,20 @@ export function EditTemplateModal({
                                     Weight:
                                   </Text>
                                   <Input
-                                    value={templateExercise.weight.toString()}
-                                    onChangeText={(_text) => {
-                                      // TODO: Update exercise weight
+                                    value={
+                                      templateExercise.weight?.toString() || ''
+                                    }
+                                    onChangeText={(text) => {
+                                      const weight =
+                                        parseInt(text) || undefined;
+                                      setExercises((prev) =>
+                                        prev.map((ex) =>
+                                          ex.exerciseId ===
+                                          templateExercise.exerciseId
+                                            ? { ...ex, weight }
+                                            : ex
+                                        )
+                                      );
                                     }}
                                     width={80}
                                     keyboardType="numeric"
@@ -445,7 +498,7 @@ export function EditTemplateModal({
               <Button
                 chromeless
                 onPress={() => {
-                  const exercise = template?.exercises.find(
+                  const exercise = exercises.find(
                     (ex) => ex.exerciseId === activeMenuId
                   );
                   if (exercise) {
@@ -466,6 +519,15 @@ export function EditTemplateModal({
           </Card>
         </>
       )}
+
+      {/* Add Exercise Modal */}
+      <AddExerciseModal
+        isOpen={showAddExerciseModal}
+        onClose={() => setShowAddExerciseModal(false)}
+        onSelect={handleExerciseSelection}
+        currentExercises={exercises.map((ex) => ex.exerciseId)}
+        mode="add"
+      />
     </Sheet>
   );
 }

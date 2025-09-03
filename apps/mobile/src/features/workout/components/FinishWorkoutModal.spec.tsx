@@ -29,16 +29,24 @@ jest.mock('expo-image', () => ({
 // Mock all Tamagui components
 jest.mock('tamagui', () => {
   const React = require('react');
-  
+
   // Create a basic mock component factory that returns a proper React element
-  const createMockComponent = (name: string) => ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => 
-    React.createElement('div', { 'data-testid': name, ...props }, children);
+  const createMockComponent =
+    (name: string) =>
+    ({
+      children,
+      ...props
+    }: {
+      children?: React.ReactNode;
+      [key: string]: unknown;
+    }) =>
+      React.createElement('div', { 'data-testid': name, ...props }, children);
 
   // Mock Sheet with sub-components
   const MockSheet = createMockComponent('Sheet');
   MockSheet.Overlay = createMockComponent('Sheet.Overlay');
   MockSheet.Frame = createMockComponent('Sheet.Frame');
-  
+
   // Mock Select with sub-components
   const MockSelect = createMockComponent('Select');
   MockSelect.Trigger = createMockComponent('Select.Trigger');
@@ -132,7 +140,7 @@ describe('FinishWorkoutModal', () => {
     expect(screen.getByLabelText('Complete workout')).toBeTruthy();
     // Look for these individual text elements which appear in the test output
     expect(screen.getByText('Push Day')).toBeTruthy();
-    expect(screen.getByText('2430')).toBeTruthy(); 
+    expect(screen.getByText('2430')).toBeTruthy();
     expect(screen.getByText('lbs')).toBeTruthy();
     expect(screen.getByText('1')).toBeTruthy();
     expect(screen.getByText('exercises')).toBeTruthy();
@@ -196,7 +204,9 @@ describe('FinishWorkoutModal', () => {
       />
     );
 
-    const updateTemplateButton = screen.getByLabelText('Update template with changes');
+    const updateTemplateButton = screen.getByLabelText(
+      'Update template with changes'
+    );
 
     // Initially Keep Original should be selected
     fireEvent.press(updateTemplateButton);

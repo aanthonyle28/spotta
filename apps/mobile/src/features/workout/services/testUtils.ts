@@ -32,7 +32,9 @@ export const createTestIds = {
 /**
  * Creates a test exercise with proper types
  */
-export const createTestExercise = (overrides: Partial<Exercise> = {}): Exercise => ({
+export const createTestExercise = (
+  overrides: Partial<Exercise> = {}
+): Exercise => ({
   id: createTestIds.exerciseId('test-exercise'),
   name: 'Test Exercise',
   category: 'strength',
@@ -63,7 +65,9 @@ export const createTestSessionExercise = (
   overrides: Partial<SessionExercise> = {}
 ): SessionExercise => ({
   id: createTestIds.exerciseId('test-exercise'),
-  exercise: createTestExercise({ id: createTestIds.exerciseId('test-exercise') }),
+  exercise: createTestExercise({
+    id: createTestIds.exerciseId('test-exercise'),
+  }),
   sets: [createTestSet()],
   orderIndex: 0,
   restPreset: 120,
@@ -89,7 +93,9 @@ export const createTestActiveSession = (
 /**
  * Creates a test template with proper types
  */
-export const createTestTemplate = (overrides: Partial<Template> = {}): Template => ({
+export const createTestTemplate = (
+  overrides: Partial<Template> = {}
+): Template => ({
   id: createTestIds.templateId('test-template'),
   title: 'Test Template',
   exercises: [

@@ -33,10 +33,20 @@ jest.mock('expo-image-picker', () => ({
 }));
 
 jest.mock('expo-image', () => ({
-  Image: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
+  Image: ({
+    children,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => {
     const React = require('react');
     const { View } = require('react-native');
-    return React.createElement(View, { ...props, testID: 'expo-image' }, children);
+    return React.createElement(
+      View,
+      { ...props, testID: 'expo-image' },
+      children
+    );
   },
 }));
 
