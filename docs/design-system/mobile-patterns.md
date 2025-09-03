@@ -335,8 +335,94 @@ Standard layout structure for consistent screen organization:
 - Touch target size verification on real devices
 - Performance testing with realistic data volumes
 
+## Form Design Patterns
+
+### Enhanced Input Fields
+Modern form inputs with improved visual hierarchy and user experience.
+
+```tsx
+{/* Form section with proper spacing */}
+<YStack space="$4">
+  {/* Input with inline status indicator */}
+  <YStack space="$2.5">
+    <XStack justifyContent="space-between" alignItems="center">
+      <Text fontSize="$4" fontWeight="600" color="$gray12">
+        Field Label
+      </Text>
+      <Text fontSize="$2" fontWeight="500" color={hasError ? '$red10' : 'white'}>
+        Required
+      </Text>
+    </XStack>
+    <Input
+      fontSize="$4"
+      paddingHorizontal="$3.5"
+      paddingVertical="$2.5"
+      borderRadius="$2"
+      borderWidth={1}
+      borderColor={hasError ? '$red6' : '$gray4'}
+      backgroundColor={hasError ? '$red1' : '$gray1'}
+      focusStyle={{
+        borderColor: hasError ? '$red8' : '$gray6',
+        backgroundColor: hasError ? '$red2' : '$gray1',
+      }}
+      placeholderTextColor="$gray9"
+    />
+    {/* Inline error with icon */}
+    {hasError && (
+      <XStack space="$2" alignItems="center">
+        <Text fontSize="$2" fontWeight="500" color="$red10">⚠</Text>
+        <Text fontSize="$3" color="$red10">Error message</Text>
+      </XStack>
+    )}
+  </YStack>
+</YStack>
+```
+
+**Features**:
+- Status indicators (Required/Optional) 
+- Inline error states with icons
+- Consistent focus states (gray, not blue)
+- Proper padding for text alignment
+- Character counts for text areas
+
+### Mixed Layout Sections
+Combining padded content with edge-to-edge sections for visual hierarchy.
+
+```tsx
+<ScrollView>
+  {/* Padded form section */}
+  <YStack padding="$4" space="$4">
+    {/* Form inputs and content */}
+    
+    {/* Section header breaks out */}
+    <YStack space="$3">
+      <XStack
+        backgroundColor="$gray2"
+        paddingHorizontal="$4"
+        paddingVertical="$3"
+        marginHorizontal="$-4"  // Break out of padding
+      >
+        <Text fontSize="$5" fontWeight="600">Section Title</Text>
+        <Button>Action</Button>
+      </XStack>
+    </YStack>
+  </YStack>
+  
+  {/* Edge-to-edge content section */}
+  <YStack marginHorizontal="$-4">
+    {/* List items with internal padding */}
+    <XStack paddingHorizontal="$4" paddingVertical="$4">
+      {/* Content aligns with form above */}
+    </XStack>
+  </YStack>
+</ScrollView>
+```
+
+**Use cases**: Edit forms, settings screens, any mixed content layouts
+
 ## Examples in Codebase
 
+- **Edit Template Screen** (`apps/mobile/app/edit-template/[id].tsx`) - Enhanced form design, mixed layout sections
 - **Template Preview Screen** (`apps/mobile/app/template/[id].tsx`) - Full implementation of design system
 - **CollapsibleExerciseCard** (`src/features/workout/components/`) - Clean list item pattern
 - **CustomHeader** - Dynamic header pattern

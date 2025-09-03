@@ -305,8 +305,12 @@ selectedExerciseForRest: string | null; // Context for rest settings
 2. **Scrollable Exercise List** - Collapsible exercise cards with set logging
    - CollapsibleExerciseCard components with expansion state
    - Rest timer buttons at exercise level (small gray buttons)
-   - Weight/Reps steppers for each set
+   - Weight/Reps steppers for each set with progression suggestions
    - Set completion checkboxes (no validation required)
+   - **Previous Exercise Data Display**: Shows "prev 135 8" above set rows for reference
+   - **Progression Suggestions**: Auto-populates weight/reps placeholders based on double-progression methodology
+   - **Smart Weight Rounding**: +/- buttons snap to nearest 5 lbs for realistic gym increments
+   - **Post-completion Editing**: Sets remain editable after completion with light blue overlay
    - **Exercise Menu System**: 3-dots menu for exercise management
      - **Remove Exercise**: Shows confirmation alert, removes exercise and recalculates session stats
      - **Replace Exercise**: Navigates to `/workout/add?mode=replace&exerciseId=X` with single-selection constraint
@@ -408,11 +412,51 @@ actions.replaceExercise(oldExerciseId: ExerciseId, newExerciseId: ExerciseId)
 actions.reorderExercises(reorderedExercises: SessionExercise[])
 ```
 
+**Progression System**:
+
+```
+Visual Layout Example:
+prev   135    8
+SET    WEIGHT REPS  ✓
+1    [137.5][8 ]  [ ]  → Empty state with placeholders
+
+prev   135    8     [Light Blue Overlay]
+SET    WEIGHT REPS  ✓ [Light Blue Overlay]
+1    [137.5][8 ]  [✓]  → Completed state (still editable)
+```
+
+**Progression Logic**:
+- **Previous Data Display**: Fetches last completed set data for same exercise/set number
+- **Double-Progression Methodology**: 
+  - If previous set completed with target reps → increase weight by 2.5-5 lbs
+  - If previous set incomplete → add 1-2 reps before increasing weight
+  - Smart rounding to nearest 5 lbs for practical gym use
+- **One-Click Completion**: Users can complete sets with suggested values instantly
+- **Fallback Behavior**: Shows "—" when no previous data available
+
+**Data Models**:
+```typescript
+interface PreviousSetData {
+  setNumber: number;
+  weight?: number;
+  reps?: number;
+  workoutId: WorkoutId;
+  completedAt: Date;
+}
+
+interface ProgressionSuggestion {
+  weight?: number;
+  reps?: number;
+  reasoning: 'increase_weight' | 'add_reps' | 'decrease_weight' | 'maintain';
+}
+```
+
 **Accessibility**:
 
 - All buttons have `accessibilityLabel`
 - Exercise headers have `accessibilityRole="button"`
 - Rest timer buttons properly labeled for screen readers
+- Previous data clearly labeled as "prev" for screen readers
 - Maintain 44×44 hit targets for all interactive elements
 
 **Technical Implementation**:
@@ -507,10 +551,31 @@ isCompleting: boolean        // Loading state
 
 ## 4. Data & Contracts
 
-- **Types**: ActiveSession, SessionExercise, SetData, Exercise, Template
-- **Mock Services**: workoutService with simulated network delays
+- **Types**: ActiveSession, SessionExercise, SetData, Exercise, Template, PreviousSetData, ProgressionSuggestion
+- **Mock Services**: workoutService with simulated network delays, progression service methods
 - **Zod Schemas**: Complete validation for all workout data structures
 - **Storage**: In-memory during Phase 1, local state persistence
+
+**Progression Service Methods**:
+```typescript
+// WorkoutService additions for progression
+async getPreviousSetData(exerciseId: ExerciseId, setNumber: number): Promise<PreviousSetData | null>
+async getProgressionSuggestion(exerciseId: ExerciseId, setNumber: number): Promise<ProgressionSuggestion | null>
+```
+
+**Database Query Pattern** (for future backend implementation):
+```sql
+SELECT weight, reps, set_number
+FROM set_entries se
+JOIN workouts w ON se.workout_id = w.id
+WHERE se.exercise_id = ?
+  AND se.set_number = ?
+  AND se.completed = true
+  AND w.completed_at IS NOT NULL
+  AND w.user_id = ?
+ORDER BY w.completed_at DESC
+LIMIT 1
+```
 
 ## 5. Realtime & Offline
 
@@ -761,3 +826,16 @@ isCompleting: boolean        // Loading state
   - ✅ UI Enhancement: Template creation section appears for sessions without templateId, includes name input and toggle
   - ✅ State Integration: New templates automatically appear in workout tab carousel via state refresh
   - ✅ Types: Extended FinishWorkoutData with saveAsTemplate and templateName properties
+
+- 2025-XX-XX — Mobile UI — Workout progression & previous exercise data implementation — [workout-progression]
+  - ✅ **Previous Data Display**: Shows "prev 135 8" above set rows for exercise history reference
+  - ✅ **Progression Suggestions**: Auto-populated weight/reps placeholders using double-progression methodology
+  - ✅ **Smart Weight Rounding**: +/- buttons snap to nearest 5 lbs for realistic gym increments (32.5 → 35, 30 → 25)
+  - ✅ **One-Click Completion**: Users can complete sets instantly with suggested values
+  - ✅ **Post-Completion Editing**: Sets remain editable after completion with light blue overlay
+  - ✅ **Service Integration**: Added getPreviousSetData and getProgressionSuggestion methods to workoutService
+  - ✅ **Data Models**: Implemented PreviousSetData and ProgressionSuggestion TypeScript interfaces
+  - ✅ **Lazy Loading**: Previous data fetched only when exercise is expanded for performance
+  - ✅ **Fallback Behavior**: Graceful degradation showing "—" when no previous data available
+  - ✅ **Analytics**: Added progression_suggestion_used, progression_suggestion_modified, previous_data_viewed events
+  - ✅ **Accessibility**: Previous data properly labeled for screen readers with descriptive completion states
