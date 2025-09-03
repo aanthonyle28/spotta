@@ -1,6 +1,7 @@
 import { render, act } from '@testing-library/react-native';
 import { ActiveSessionBanner } from './ActiveSessionBanner';
 import type { ActiveSession } from '../types';
+import type { WorkoutId, ExerciseId } from '@spotta/shared';
 
 // Mock dependencies
 jest.mock('expo-router', () => ({
@@ -25,14 +26,14 @@ jest.mock('../../../utils/formatTime', () => ({
 }));
 
 const mockActiveSession: ActiveSession = {
-  id: 'workout-123' as any,
+  id: 'workout-123' as WorkoutId,
   name: 'Push Day',
   startedAt: new Date(Date.now() - 300000), // 5 minutes ago
   exercises: [
     {
-      id: 'ex-1' as any,
+      id: 'ex-1' as ExerciseId,
       exercise: {
-        id: 'ex-1' as any,
+        id: 'ex-1' as ExerciseId,
         name: 'Bench Press',
         category: 'strength',
         equipment: ['barbell'],

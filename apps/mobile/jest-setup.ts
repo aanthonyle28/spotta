@@ -13,12 +13,45 @@ jest.mock('expo-splash-screen', () => ({
   hideAsync: jest.fn(),
 }));
 
+jest.mock('expo-image-picker', () => ({
+  launchImageLibraryAsync: jest.fn(() =>
+    Promise.resolve({
+      canceled: false,
+      assets: [{ uri: 'file://test-image.jpg' }],
+    })
+  ),
+  launchCameraAsync: jest.fn(() =>
+    Promise.resolve({
+      canceled: false,
+      assets: [{ uri: 'file://test-camera.jpg' }],
+    })
+  ),
+  MediaTypeOptions: {
+    Images: 'Images',
+  },
+  ImagePickerOptions: {},
+}));
+
+jest.mock('expo-image', () => ({
+  Image: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
+    const React = require('react');
+    const { View } = require('react-native');
+    return React.createElement(View, { ...props, testID: 'expo-image' }, children);
+  },
+}));
+
 jest.mock('expo-router', () => ({
   Stack: ({ children }: { children: React.ReactNode }) => children,
   Tabs: ({ children }: { children: React.ReactNode }) => children,
   useLocalSearchParams: () => ({}),
   Redirect: () => null,
   Link: ({ children }: { children: React.ReactNode }) => children,
+  router: {
+    push: jest.fn(),
+    back: jest.fn(),
+    replace: jest.fn(),
+    dismiss: jest.fn(),
+  },
 }));
 
 // Mock React Native modules
@@ -79,6 +112,29 @@ const MockedSheet = Object.assign(
     Frame: MockedComponent,
   }
 );
+const MockedSelect = Object.assign(
+  ({
+    children,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => {
+    const React = require('react');
+    const { View } = require('react-native');
+    return React.createElement(View, props, children);
+  },
+  {
+    Trigger: MockedComponent,
+    Value: MockedComponent,
+    Content: MockedComponent,
+    Item: MockedComponent,
+    ItemText: MockedComponent,
+    Viewport: MockedComponent,
+    Group: MockedComponent,
+    Label: MockedComponent,
+  }
+);
 
 jest.mock('tamagui', () => ({
   YStack: MockedComponent,
@@ -90,6 +146,7 @@ jest.mock('tamagui', () => ({
   Input: MockedComponent,
   Card: MockedComponent,
   Sheet: MockedSheet,
+  Select: MockedSelect,
   TamaguiProvider: MockedComponent,
   createTamagui: () => ({}),
 }));
@@ -115,7 +172,16 @@ jest.mock('@tamagui/lucide-icons', () => ({
   Users: MockedIcon,
   User: MockedIcon,
   ChevronLeft: MockedIcon,
+  ChevronRight: MockedIcon,
   ArrowUpDown: MockedIcon,
+  Target: MockedIcon,
+  Edit3: MockedIcon,
+  Trash2: MockedIcon,
+  Check: MockedIcon,
+  Camera: MockedIcon,
+  Image: MockedIcon,
+  Upload: MockedIcon,
+  Share: MockedIcon,
 }));
 
 // Mock navigation

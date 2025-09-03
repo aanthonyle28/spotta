@@ -180,7 +180,7 @@ export default function AddExercisesScreen() {
       } else if (mode === 'template') {
         // For original template mode, navigate to create-template screen
         router.push(
-          `/create-template?exercises=${JSON.stringify(exerciseIds)}` as any
+          `/create-template?exercises=${JSON.stringify(exerciseIds)}`
         );
       } else if (mode === 'replace' && exerciseId) {
         // Replace existing exercise with selected one in active session

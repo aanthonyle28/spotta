@@ -25,6 +25,7 @@ import {
 import type {
   SetData,
   FinishWorkoutData,
+  SessionExercise,
 } from '../../src/features/workout/types';
 import type { SetEntryId, ExerciseId } from '@spotta/shared';
 import { finishWorkoutService } from '../../src/features/workout/services/finishWorkoutService';
@@ -256,7 +257,7 @@ export default function LoggingScreen() {
       // Add debouncing to prevent rapid clicks
       const timeout = setTimeout(async () => {
         try {
-          await actions.addSet(exerciseId as any);
+          await actions.addSet(exerciseId);
           addSetTimeouts.current.delete(timeoutKey);
         } catch (error) {
           console.error('Failed to add set:', error);
@@ -454,7 +455,7 @@ export default function LoggingScreen() {
 
   const handleReplaceExercise = useCallback((exerciseId: ExerciseId) => {
     // Navigate to exercise selection with replace mode
-    router.push(`/add-exercises?mode=replace&exerciseId=${exerciseId}` as any);
+    router.push(`/add-exercises?mode=replace&exerciseId=${exerciseId}`);
   }, []);
 
   const handleReorderExercises = useCallback(() => {
@@ -462,7 +463,7 @@ export default function LoggingScreen() {
   }, []);
 
   const handleExerciseReorderSave = useCallback(
-    async (reorderedExercises: any[]) => {
+    async (reorderedExercises: SessionExercise[]) => {
       try {
         await actions.reorderExercises(reorderedExercises);
         setShowExerciseReorderModal(false);
@@ -651,7 +652,7 @@ export default function LoggingScreen() {
               <Button
                 size="$3"
                 margin="$4"
-                onPress={() => router.push('/add-exercises?mode=append' as any)}
+                onPress={() => router.push('/add-exercises?mode=append')}
                 icon={<Plus size={16} />}
                 variant="outlined"
                 borderColor="$gray6"

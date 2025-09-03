@@ -1,18 +1,18 @@
 import { render, fireEvent } from '@testing-library/react-native';
 import { WorkoutConflictModal } from './WorkoutConflictModal';
 import type { ActiveSession } from '../types';
-import type { ExerciseId } from '@spotta/shared';
+import type { WorkoutId, ExerciseId } from '@spotta/shared';
 
 const mockActiveSession: ActiveSession = {
-  id: 'session-1' as any,
+  id: 'session-1' as WorkoutId,
   name: 'Push Day',
   startedAt: new Date('2024-01-01T10:00:00Z'),
   templateRestTime: 90,
   exercises: [
     {
-      id: 'exercise-1' as any,
+      id: 'exercise-1' as ExerciseId,
       exercise: {
-        id: 'exercise-1' as any,
+        id: 'exercise-1' as ExerciseId,
         name: 'Bench Press',
         category: 'strength',
         equipment: ['barbell'],

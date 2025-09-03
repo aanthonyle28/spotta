@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import { TamaguiProvider } from '@tamagui/core';
 import { CollapsibleExerciseCard } from './CollapsibleExerciseCard';
 import type { SessionExercise } from '../types';
-import type { SetEntryId } from '@spotta/shared';
+import type { SetEntryId, ExerciseId, UserId } from '@spotta/shared';
 import { createTamagui } from '@tamagui/core';
 import { config } from '@tamagui/config';
 
@@ -10,9 +10,9 @@ const tamagui = createTamagui(config);
 
 // Mock exercise data
 const mockExercise: SessionExercise = {
-  id: 'exercise-1' as any,
+  id: 'exercise-1' as ExerciseId,
   exercise: {
-    id: 'bench-press' as any,
+    id: 'bench-press' as ExerciseId,
     name: 'Bench Press',
     category: 'strength',
     difficulty: 'intermediate' as const,
@@ -20,7 +20,7 @@ const mockExercise: SessionExercise = {
     secondaryMuscles: ['triceps'],
     equipment: ['barbell'],
     isCustom: false,
-    userId: 'user-1' as any,
+    userId: 'user-1' as UserId,
   },
   sets: [
     {

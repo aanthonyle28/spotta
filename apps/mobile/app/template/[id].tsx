@@ -88,7 +88,7 @@ export default function TemplatePreviewScreen() {
 
   const handleEditTemplate = () => {
     if (template && id) {
-      router.push(`/edit-template/${id}` as any);
+      router.push(`/edit-template/${id}`);
     }
   };
 
