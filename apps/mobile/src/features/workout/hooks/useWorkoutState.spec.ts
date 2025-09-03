@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react-native';
 import { useWorkoutState } from './useWorkoutState';
 import { workoutService } from '../services/workoutService';
 import type { ExerciseId } from '@spotta/shared';
+import { testIds, createMockWorkoutId } from '../services/testUtils';
 
 // Mock the workout service
 jest.mock('../services/workoutService', () => ({
@@ -22,7 +23,7 @@ const mockWorkoutService = workoutService as jest.Mocked<typeof workoutService>;
 
 const mockExercises = [
   {
-    id: 'bench-press' as ExerciseId,
+    id: testIds.benchPress,
     name: 'Bench Press',
     category: 'strength' as const,
     equipment: ['barbell'],
@@ -31,7 +32,7 @@ const mockExercises = [
     isCustom: false,
   },
   {
-    id: 'squat' as ExerciseId,
+    id: testIds.squat,
     name: 'Back Squat',
     category: 'strength' as const,
     equipment: ['barbell'],
@@ -42,7 +43,7 @@ const mockExercises = [
 ];
 
 const mockActiveSession = {
-  id: 'session-123' as any,
+  id: createMockWorkoutId('session-123'),
   name: 'Test Workout',
   startedAt: new Date(),
   exercises: [],
@@ -55,7 +56,7 @@ const mockActiveSession = {
 
 const mockRecentWorkouts = [
   {
-    id: 'workout-1' as any,
+    id: testIds.testWorkout,
     name: 'Yesterday Workout',
     startedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
     currentExercise: undefined,
@@ -149,8 +150,8 @@ describe.skip('useWorkoutState', () => {
   });
 
   it('updates set successfully', async () => {
-    const updatedSet = { id: 'set-1', weight: 140, reps: 8, completed: false };
-    mockWorkoutService.updateSet.mockResolvedValue(updatedSet as any);
+    const updatedSet = { id: testIds.set1, weight: 140, reps: 8, completed: false };
+    mockWorkoutService.updateSet.mockResolvedValue(updatedSet);
 
     const { result } = renderHook(() => useWorkoutState());
 
@@ -160,16 +161,16 @@ describe.skip('useWorkoutState', () => {
         ...mockActiveSession,
         exercises: [
           {
-            id: 'bench-press' as ExerciseId,
+            id: testIds.benchPress,
             exercise: mockExercises[0],
             sets: [
               {
-                id: 'set-1',
+                id: testIds.set1,
                 setNumber: 1,
                 weight: 135,
                 reps: 8,
                 completed: false,
-              } as any,
+              },
             ],
             orderIndex: 0,
             restPreset: 120,
@@ -180,8 +181,8 @@ describe.skip('useWorkoutState', () => {
 
     await act(async () => {
       await result.current.actions.updateSet(
-        'bench-press' as ExerciseId,
-        'set-1' as any,
+        testIds.benchPress,
+        testIds.set1,
         { weight: 140 }
       );
     });
@@ -194,9 +195,9 @@ describe.skip('useWorkoutState', () => {
   });
 
   it('completes set and starts rest timer', async () => {
-    const completedSet = { id: 'set-1', weight: 135, reps: 8, completed: true };
+    const completedSet = { id: testIds.set1, weight: 135, reps: 8, completed: true };
     const completeResult = { set: completedSet, restTime: 120 };
-    mockWorkoutService.completeSet.mockResolvedValue(completeResult as any);
+    mockWorkoutService.completeSet.mockResolvedValue(completeResult);
 
     const { result } = renderHook(() => useWorkoutState());
 
@@ -206,16 +207,16 @@ describe.skip('useWorkoutState', () => {
         ...mockActiveSession,
         exercises: [
           {
-            id: 'bench-press' as ExerciseId,
+            id: testIds.benchPress,
             exercise: mockExercises[0],
             sets: [
               {
-                id: 'set-1',
+                id: testIds.set1,
                 setNumber: 1,
                 weight: 135,
                 reps: 8,
                 completed: false,
-              } as any,
+              },
             ],
             orderIndex: 0,
             restPreset: 120,
@@ -225,7 +226,7 @@ describe.skip('useWorkoutState', () => {
     });
 
     await act(async () => {
-      await result.current.actions.completeSet(completedSet as any);
+      await result.current.actions.completeSet(completedSet);
     });
 
     expect(result.current.state.restTimer.isActive).toBe(true);
@@ -298,12 +299,12 @@ describe.skip('useWorkoutState', () => {
     const { result } = renderHook(() => useWorkoutState());
 
     act(() => {
-      result.current.actions.startRestTimer(120, 'bench-press' as ExerciseId);
+      result.current.actions.startRestTimer(120, testIds.benchPress);
     });
 
     expect(result.current.state.restTimer.isActive).toBe(true);
     expect(result.current.state.restTimer.totalTime).toBe(120);
-    expect(result.current.state.restTimer.exerciseId).toBe('bench-press');
+    expect(result.current.state.restTimer.exerciseId).toBe(testIds.benchPress);
   });
 
   it('skips rest timer', () => {
@@ -345,14 +346,14 @@ describe.skip('useWorkoutState', () => {
         ...mockActiveSession,
         exercises: [
           {
-            id: 'bench-press' as ExerciseId,
+            id: testIds.benchPress,
             exercise: mockExercises[0],
             sets: [],
             orderIndex: 0,
             restPreset: 120, // Customized
           },
           {
-            id: 'squat' as ExerciseId,
+            id: testIds.squat,
             exercise: mockExercises[1],
             sets: [],
             orderIndex: 1,
@@ -360,7 +361,7 @@ describe.skip('useWorkoutState', () => {
           },
         ],
         // Mark first exercise as customized
-        customizedExercises: new Set(['bench-press' as ExerciseId]),
+        customizedExercises: new Set([testIds.benchPress]),
       };
     });
 
@@ -383,7 +384,7 @@ describe.skip('useWorkoutState', () => {
     );
     expect(
       result.current.state.activeSession?.customizedExercises.has(
-        'bench-press' as ExerciseId
+        testIds.benchPress
       )
     ).toBe(false);
   });
@@ -397,14 +398,14 @@ describe.skip('useWorkoutState', () => {
         ...mockActiveSession,
         exercises: [
           {
-            id: 'bench-press' as ExerciseId,
+            id: testIds.benchPress,
             exercise: mockExercises[0],
             sets: [],
             orderIndex: 0,
             restPreset: 120, // Customized
           },
           {
-            id: 'squat' as ExerciseId,
+            id: testIds.squat,
             exercise: mockExercises[1],
             sets: [],
             orderIndex: 1,
@@ -412,7 +413,7 @@ describe.skip('useWorkoutState', () => {
           },
         ],
         // Mark first exercise as customized
-        customizedExercises: new Set(['bench-press' as ExerciseId]),
+        customizedExercises: new Set([testIds.benchPress]),
       };
     });
 
@@ -435,7 +436,7 @@ describe.skip('useWorkoutState', () => {
     );
     expect(
       result.current.state.activeSession?.customizedExercises.has(
-        'bench-press' as ExerciseId
+        testIds.benchPress
       )
     ).toBe(true);
   });

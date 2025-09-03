@@ -7,6 +7,7 @@ import {
 import BrowseTemplatesScreen from '../../../../app/browse-templates';
 import { workoutService } from '../services/workoutService';
 import type { CommunityTemplate } from '../types';
+import { testIds, createMockTemplateId } from '../services/testUtils';
 
 // Mock router
 jest.mock('expo-router', () => ({
@@ -19,7 +20,7 @@ jest.mock('expo-router', () => ({
 
 // Mock safe area
 jest.mock('react-native-safe-area-context', () => ({
-  SafeAreaView: ({ children }: any) => children,
+  SafeAreaView: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // Mock workout state
@@ -41,17 +42,17 @@ jest.mock('../services/workoutService', () => ({
 // Mock Tamagui provider for tests
 jest.mock('tamagui', () => ({
   ...jest.requireActual('tamagui'),
-  TamaguiProvider: ({ children }: any) => children,
+  TamaguiProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 const mockTemplates: CommunityTemplate[] = [
   {
-    id: 'test-template-1' as any,
+    id: createMockTemplateId('test-template-1'),
     title: 'Push Pull Legs',
     description: 'Complete muscle building program',
     exercises: [
       {
-        exerciseId: 'bench-press' as any,
+        exerciseId: testIds.benchPress,
         sets: 4,
         reps: 8,
         weight: 135,
@@ -64,9 +65,9 @@ const mockTemplates: CommunityTemplate[] = [
     estimatedDuration: 60,
     difficulty: 'intermediate',
     isPublic: true,
-    userId: 'user-1' as any,
+    userId: testIds.user1,
     author: 'TestUser',
-    authorId: 'user-1' as any,
+    authorId: testIds.user1,
     saves: 250,
     likes: 100,
     uses: 500,
