@@ -420,12 +420,236 @@ Combining padded content with edge-to-edge sections for visual hierarchy.
 
 **Use cases**: Edit forms, settings screens, any mixed content layouts
 
+## Advanced Patterns & Future Enhancements
+
+### Enhanced Template Editing Patterns
+Advanced UX patterns for complex editing interfaces that maintain design system consistency.
+
+#### Template Identity Card Pattern
+Consolidated form sections with improved visual hierarchy and user guidance.
+
+```tsx
+{/* Enhanced card pattern for form grouping */}
+<Card 
+  padding="$4" 
+  backgroundColor="$gray1" 
+  marginHorizontal="$4"
+  borderRadius="$4"
+  borderWidth={1}
+  borderColor="$gray3"
+>
+  <YStack space="$4">
+    {/* Section explanation */}
+    <YStack space="$2">
+      <Text fontSize="$5" fontWeight="600" color="$gray12">
+        Section Title
+      </Text>
+      <Text fontSize="$3" color="$gray10" lineHeight="$1">
+        Clear explanation of what this section does
+      </Text>
+    </YStack>
+    
+    {/* Form fields with enhanced states */}
+    <YStack space="$4">
+      {/* Enhanced input pattern */}
+    </YStack>
+  </YStack>
+</Card>
+```
+
+#### Exercise Management Hub Pattern
+Intelligent content sections that adapt based on data state and user context.
+
+```tsx
+{/* Smart header with contextual statistics */}
+<XStack
+  backgroundColor="$blue2"
+  paddingHorizontal="$4"
+  paddingVertical="$4"
+  justifyContent="space-between"
+  borderBottomWidth={1}
+  borderBottomColor="$blue3"
+>
+  <YStack space="$1">
+    <Text fontSize="$5" fontWeight="600" color="$blue12">
+      Content Type
+    </Text>
+    {/* Dynamic stats based on content */}
+    <XStack space="$4" alignItems="center">
+      <XStack space="$1" alignItems="center">
+        <Target size={14} color="$blue11" />
+        <Text fontSize="$3" color="$blue11">
+          {count} items
+        </Text>
+      </XStack>
+      <XStack space="$1" alignItems="center">
+        <Clock size={14} color="$blue11" />
+        <Text fontSize="$3" color="$blue11">
+          ~{estimatedTime} min
+        </Text>
+      </XStack>
+    </XStack>
+  </YStack>
+  
+  <Button
+    size="$3"
+    backgroundColor="$blue9"
+    icon={<Plus size={16} color="white" />}
+    borderRadius="$3"
+  >
+    Add
+  </Button>
+</XStack>
+```
+
+#### Enhanced List Items with Inline Editing
+Progressive disclosure pattern for complex list items with editing capabilities.
+
+```tsx
+{/* Expandable list item with edit states */}
+<Card
+  padding="$0"
+  marginHorizontal="$4"
+  marginVertical="$2"
+  borderRadius="$4"
+  backgroundColor={isEditing ? "$blue2" : "$background"}
+  borderWidth={1}
+  borderColor={isEditing ? "$blue6" : "$gray3"}
+>
+  <XStack padding="$4">
+    {/* Optional drag handle */}
+    <YStack paddingRight="$3" justifyContent="center">
+      <Button size="$2" chromeless padding="$1">
+        <GripVertical size={16} color="$gray8" />
+      </Button>
+    </YStack>
+    
+    <YStack flex={1} space="$3">
+      {/* Header with actions */}
+      <XStack justifyContent="space-between" alignItems="flex-start">
+        <YStack flex={1} space="$1">
+          <Text fontSize="$4" fontWeight="600" color="$gray12">
+            Primary Content
+          </Text>
+          <Text fontSize="$2" color="$gray10">
+            Category/Type
+          </Text>
+        </YStack>
+        
+        {/* Context-sensitive action buttons */}
+        <XStack space="$1">
+          {isEditing ? (
+            <>
+              <Button size="$2" backgroundColor="$green9">
+                <Check size={14} color="white" />
+              </Button>
+              <Button size="$2" variant="outlined">
+                <X size={14} />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button size="$2" chromeless>
+                <Edit3 size={14} color="$gray10" />
+              </Button>
+              <Button size="$2" chromeless>
+                <Trash2 size={14} color="$red10" />
+              </Button>
+            </>
+          )}
+        </XStack>
+      </XStack>
+      
+      {/* Conditional content based on edit state */}
+      {isEditing ? (
+        <InlineEditForm />
+      ) : (
+        <ContentDisplay />
+      )}
+    </YStack>
+  </XStack>
+</Card>
+```
+
+#### Floating Action Button Pattern
+Context-aware floating actions that enhance discoverability without cluttering the interface.
+
+```tsx
+{/* Smart FAB that appears/hides based on context */}
+<YStack
+  position="absolute"
+  bottom={24}
+  right={24}
+  zIndex={1000}
+  alignItems="center"
+  space="$2"
+>
+  <Button
+    circular
+    size="$4"
+    backgroundColor="$blue9"
+    shadowColor="$shadowColor"
+    shadowOffset={{ width: 0, height: 4 }}
+    shadowOpacity={0.3}
+    shadowRadius={8}
+    elevation={6}
+  >
+    <Plus size={24} color="white" />
+  </Button>
+  
+  {/* Optional label */}
+  <Text
+    fontSize="$2"
+    color="$gray11"
+    backgroundColor="$background"
+    paddingHorizontal="$2"
+    paddingVertical="$1"
+    borderRadius="$2"
+    shadowOpacity={0.1}
+  >
+    Action Label
+  </Text>
+</YStack>
+```
+
+### UX Enhancement Principles
+
+#### Progressive Disclosure
+- **Basic view**: Essential information visible
+- **Expanded view**: Detailed controls available on demand
+- **Edit mode**: Focused editing interface with clear save/cancel actions
+
+#### Contextual Actions
+- **Smart visibility**: Actions appear when and where needed
+- **State-aware**: Different actions based on content state
+- **Thumb-friendly**: Important actions within reach zones
+
+#### Feedback Systems
+- **Immediate validation**: Real-time form feedback
+- **Visual confirmations**: Clear state changes and progress indicators
+- **Error recovery**: Clear error states with actionable solutions
+
 ## Examples in Codebase
 
-- **Edit Template Screen** (`apps/mobile/app/edit-template/[id].tsx`) - Enhanced form design, mixed layout sections
+- **Edit Template Screen** (`apps/mobile/app/edit-template/[id].tsx`) - Enhanced form design, mixed layout sections, progressive disclosure patterns
 - **Template Preview Screen** (`apps/mobile/app/template/[id].tsx`) - Full implementation of design system
-- **CollapsibleExerciseCard** (`src/features/workout/components/`) - Clean list item pattern
-- **CustomHeader** - Dynamic header pattern
+- **CollapsibleExerciseCard** (`src/features/workout/components/`) - Clean list item pattern with state management
+- **CustomHeader** - Dynamic header pattern with contextual actions
+
+## Future Enhancement Roadmap
+
+### Planned Improvements
+- **Drag & Drop**: Native gesture-based reordering for lists
+- **Inline Editing**: Progressive disclosure for complex form items
+- **Smart Actions**: Context-aware floating action buttons
+- **Micro-interactions**: Subtle animations for state changes
+- **Gesture Support**: Swipe actions for common list operations
+
+### Implementation Notes
+- Maintain backward compatibility with existing patterns
+- Test new patterns on real devices for accessibility
+- Document component APIs for team adoption
+- Consider performance impact of enhanced interactions
 
 ---
 
