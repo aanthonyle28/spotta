@@ -1,12 +1,21 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FlatList } from 'react-native';
-import { YStack, XStack, Text, Button, Card, Input, Checkbox } from '@my/ui';
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+  YStack,
+  XStack,
+  Text,
+  Button,
+  Card,
+  Input,
+  Checkbox,
+  H2,
+  H4,
+  H5,
+} from '@my/ui';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Search, ChevronLeft } from '@tamagui/lucide-icons';
+import { SPOTTA_COLORS } from '../src/constants/colors';
 import { workoutService } from '../src/features/workout/services/workoutService';
 import { useWorkoutState } from '../src/features/workout/providers/WorkoutStateProvider';
 import {
@@ -16,13 +25,22 @@ import {
 import type { Exercise } from '../src/features/workout/types';
 import type { ExerciseId } from '@spotta/shared';
 
+// Optimized styles for performance
+const safeAreaStyle = {
+  flex: 1,
+  backgroundColor: SPOTTA_COLORS.background,
+} as const;
+
+const backgroundStyle = {
+  backgroundColor: SPOTTA_COLORS.background,
+} as const;
+
 export default function AddExercisesScreen() {
   const { mode, exerciseId } = useLocalSearchParams<{
     mode?: 'append' | 'empty' | 'template' | 'replace';
     exerciseId?: string;
   }>();
   const { state, actions } = useWorkoutState();
-  const insets = useSafeAreaInsets();
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [selectedExercises, setSelectedExercises] = useState<Set<ExerciseId>>(
@@ -202,30 +220,58 @@ export default function AddExercisesScreen() {
 
     return (
       <Card
-        padding="$3"
+        padding="$4"
         backgroundColor={isSelected ? '$blue2' : '$gray1'}
-        borderColor={isSelected ? '$blue6' : '$gray4'}
-        borderWidth={1}
+        borderWidth={0}
+        borderRadius="$4"
         marginBottom="$2"
         pressStyle={{ scale: 0.98 }}
         onPress={() => toggleExerciseSelection(item.id)}
         accessibilityLabel={`${item.name}, ${isSelected ? 'selected' : 'not selected'}`}
       >
         <XStack justifyContent="space-between" alignItems="center">
-          <YStack flex={1} space="$1">
-            <Text fontSize="$4" fontWeight="500">
-              {item.name}
-            </Text>
+          <YStack flex={1} space="$2">
+            <H4 color="white">{item.name}</H4>
             <XStack space="$2" flexWrap="wrap">
-              <Text fontSize="$2" color="$gray10" textTransform="capitalize">
-                {item.difficulty}
-              </Text>
-              <Text fontSize="$2" color="$gray10">
-                •
-              </Text>
-              <Text fontSize="$2" color="$gray10">
-                {item.primaryMuscles.join(', ')}
-              </Text>
+              {/* Category tag */}
+              <XStack
+                backgroundColor="$blue3"
+                paddingHorizontal="$3"
+                paddingVertical="$1.5"
+                borderRadius="$6"
+              >
+                <H5 color="$blue11" textTransform="capitalize">
+                  {item.category}
+                </H5>
+              </XStack>
+
+              {/* Primary muscle tag - only first one */}
+              {item.primaryMuscles.length > 0 && (
+                <XStack
+                  backgroundColor="$red3"
+                  paddingHorizontal="$3"
+                  paddingVertical="$1.5"
+                  borderRadius="$6"
+                >
+                  <H5 color="$red11" textTransform="capitalize">
+                    {item.primaryMuscles[0]}
+                  </H5>
+                </XStack>
+              )}
+
+              {/* Equipment tag - only first one */}
+              {item.equipment.length > 0 && (
+                <XStack
+                  backgroundColor="$purple3"
+                  paddingHorizontal="$3"
+                  paddingVertical="$1.5"
+                  borderRadius="$6"
+                >
+                  <H5 color="$purple11" textTransform="capitalize">
+                    {item.equipment[0]}
+                  </H5>
+                </XStack>
+              )}
             </XStack>
           </YStack>
 
@@ -244,40 +290,35 @@ export default function AddExercisesScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <YStack flex={1}>
+    <SafeAreaView style={safeAreaStyle}>
+      <YStack flex={1} style={backgroundStyle}>
         {/* Custom Header */}
-        <YStack
-          paddingTop={insets.top - 40}
+        <XStack
+          alignItems="center"
+          justifyContent="space-between"
           paddingHorizontal="$4"
-          paddingBottom="$2"
-          backgroundColor="$background"
-          borderBottomWidth={1}
-          borderBottomColor="$gray4"
+          paddingTop="$3"
+          paddingBottom="$3"
         >
-          <XStack alignItems="center" minHeight={44}>
+          <XStack alignItems="center" space="$2">
             <Button
               size="$3"
               chromeless
               onPress={() => router.back()}
-              icon={<ChevronLeft size={20} />}
+              icon={<ChevronLeft size={24} />}
               accessibilityLabel="Go back"
             />
-            <Text fontSize="$6" fontWeight="600" marginLeft="$3">
-              Add Exercises
-            </Text>
-            <XStack flex={1} justifyContent="flex-end">
-              <Button
-                size="$3"
-                backgroundColor="$green9"
-                onPress={() => setShowCreateExerciseModal(true)}
-                accessibilityLabel="Create exercise"
-              >
-                Create +
-              </Button>
-            </XStack>
+            <H2 color="white">Add Exercises</H2>
           </XStack>
-        </YStack>
+          <Button
+            size="$3"
+            backgroundColor={SPOTTA_COLORS.purple}
+            onPress={() => setShowCreateExerciseModal(true)}
+            accessibilityLabel="Create exercise"
+          >
+            Create +
+          </Button>
+        </XStack>
         {/* Search */}
         <XStack padding="$4" paddingTop="$3" paddingBottom="$2">
           <XStack
@@ -314,6 +355,9 @@ export default function AddExercisesScreen() {
             equipmentOptions={filterOptions.equipment}
             selectedEquipment={selectedEquipment}
             onEquipmentChange={setSelectedEquipment}
+            categoryPlaceholder="Category"
+            musclePlaceholder="Muscle"
+            equipmentPlaceholder="Equipment"
           />
         </YStack>
 

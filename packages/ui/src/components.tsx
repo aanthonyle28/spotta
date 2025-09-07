@@ -1,4 +1,14 @@
-import { styled, Text as TamaguiText, H1 as TamaguiH1, H2 as TamaguiH2, H3 as TamaguiH3, H4 as TamaguiH4, Button as TamaguiButton, Input as TamaguiInput } from 'tamagui';
+import {
+  styled,
+  Text as TamaguiText,
+  H1 as TamaguiH1,
+  H2 as TamaguiH2,
+  H3 as TamaguiH3,
+  H4 as TamaguiH4,
+  H5 as TamaguiH5,
+  Button as TamaguiButton,
+  Input as TamaguiInput,
+} from 'tamagui';
 
 // Custom components with Poppins as default font
 export const Text = styled(TamaguiText, {
@@ -26,6 +36,12 @@ export const H3 = styled(TamaguiH3, {
 export const H4 = styled(TamaguiH4, {
   fontFamily: 'Poppins',
   fontSize: 14,
+  fontWeight: '500',
+});
+
+export const H5 = styled(TamaguiH5, {
+  fontFamily: 'Poppins',
+  fontSize: 12,
   fontWeight: '400',
 });
 
@@ -41,4 +57,4 @@ export const Input = styled(TamaguiInput, {
 
 // Re-export all other components from tamagui unchanged
 export * from 'tamagui';
-export { Text, H1, H2, H3, H4, Button, Input };
+export { Text, H1, H2, H3, H4, H5, Button, Input };

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Pressable, TouchableWithoutFeedback } from 'react-native';
-import { YStack, Text, Button } from '@my/ui';
+import { YStack, Text, Button, H5 } from '@my/ui';
 import { ChevronDown } from '@tamagui/lucide-icons';
 
 export interface FilterDropdownProps {
@@ -65,8 +65,7 @@ export function FilterDropdown({
           backgroundColor="$gray2"
           color="$gray11"
           borderRadius="$3"
-          borderWidth={1}
-          borderColor="$gray6"
+          borderWidth={0}
           justifyContent="space-between"
           onPress={handleToggle}
           accessibilityLabel={accessibilityLabel || `Filter by ${placeholder}`}
@@ -77,12 +76,10 @@ export function FilterDropdown({
             />
           }
           paddingHorizontal="$3"
-          paddingVertical="$2"
+          paddingVertical="$1"
           minHeight={44}
         >
-          <Text fontSize="$3" color="$gray11">
-            {displayValue}
-          </Text>
+          <H5 color="$gray11">{displayValue}</H5>
         </Button>
 
         {/* Dropdown content - positioned below button */}
@@ -93,8 +90,7 @@ export function FilterDropdown({
             left={0}
             right={0}
             backgroundColor="$background"
-            borderColor="$gray6"
-            borderWidth={1}
+            borderWidth={0}
             borderRadius="$4"
             padding="$2"
             zIndex={100}
@@ -112,13 +108,12 @@ export function FilterDropdown({
                 backgroundColor: value === 'all' ? '#3b82f6' : 'transparent',
               }}
             >
-              <Text
-                fontSize="$3"
+              <H5
                 color={value === 'all' ? 'white' : '$gray11'}
                 fontWeight={value === 'all' ? '500' : '400'}
               >
                 All
-              </Text>
+              </H5>
             </Pressable>
 
             {options.map((option) => (
@@ -131,14 +126,13 @@ export function FilterDropdown({
                   backgroundColor: value === option ? '#3b82f6' : 'transparent',
                 }}
               >
-                <Text
-                  fontSize="$3"
+                <H5
                   color={value === option ? 'white' : '$gray11'}
                   fontWeight={value === option ? '500' : '400'}
                 >
                   {option.charAt(0).toUpperCase() +
                     option.slice(1).replace('-', ' ')}
-                </Text>
+                </H5>
               </Pressable>
             ))}
           </YStack>
