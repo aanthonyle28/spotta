@@ -1,6 +1,6 @@
 import { memo, useState, useEffect } from 'react';
 import { XStack, YStack, Text, Card } from 'tamagui';
-import { ChevronRight, Clock } from '@tamagui/lucide-icons';
+import { ChevronRight } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import type { ActiveSession } from '../types';
 import { logger } from '../../../utils/logger';
@@ -34,10 +34,11 @@ export const ActiveSessionBanner = memo<ActiveSessionBannerProps>(
 
     return (
       <Card
-        backgroundColor="$blue2"
-        borderColor="$blue6"
+        backgroundColor="black"
+        borderColor="white"
         borderWidth={1}
-        padding="$3"
+        paddingVertical="$3"
+        paddingHorizontal="$5"
         marginHorizontal="$4"
         marginBottom="$2"
         position="absolute"
@@ -45,30 +46,28 @@ export const ActiveSessionBanner = memo<ActiveSessionBannerProps>(
         left={0}
         right={0}
         zIndex={10}
+        borderRadius="$10"
         pressStyle={{ scale: 0.98 }}
         onPress={handlePress}
         accessibilityLabel={`Resume active workout: ${activeSession.name}`}
       >
         <XStack justifyContent="space-between" alignItems="center">
-          <XStack flex={1} space="$2" alignItems="center">
-            <Clock size={16} color="$blue11" />
-            <YStack flex={1}>
-              <Text
-                fontSize="$3"
-                fontWeight="600"
-                color="$blue12"
-                numberOfLines={1}
-              >
-                {activeSession.name}
-              </Text>
-              <Text fontSize="$2" color="$blue11">
-                {formatTime(durationInSeconds)} •{' '}
-                {activeSession.exercises.length} exercises
-              </Text>
-            </YStack>
-          </XStack>
+          <YStack flex={1}>
+            <Text
+              fontSize="$3"
+              fontWeight="600"
+              color="white"
+              numberOfLines={1}
+            >
+              {activeSession.name}
+            </Text>
+            <Text fontSize="$2" color="white" opacity={0.8}>
+              {formatTime(durationInSeconds)} • {activeSession.exercises.length}{' '}
+              exercise{activeSession.exercises.length !== 1 ? 's' : ''}
+            </Text>
+          </YStack>
 
-          <ChevronRight size={16} color="$blue11" />
+          <ChevronRight size={16} color="white" />
         </XStack>
       </Card>
     );

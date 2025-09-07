@@ -1,6 +1,7 @@
 import { memo } from 'react';
-import { Card, XStack, YStack, Text } from 'tamagui';
-import { Search, ChevronRight } from '@tamagui/lucide-icons';
+import { Card, YStack, Text } from 'tamagui';
+import { Search, ArrowUpRight } from '@tamagui/lucide-icons';
+import { SPOTTA_COLORS } from '../../../constants/colors';
 
 interface BrowseExercisesTileProps {
   onPress: () => void;
@@ -11,25 +12,31 @@ export const BrowseExercisesTile = memo<BrowseExercisesTileProps>(
     return (
       <Card
         padding="$4"
-        backgroundColor="$gray2"
+        backgroundColor={SPOTTA_COLORS.browseExercises}
         pressStyle={{ scale: 0.98 }}
         onPress={onPress}
         accessibilityLabel="Browse exercises"
+        height="$12"
+        justifyContent="space-between"
+        space="$3"
       >
-        <XStack justifyContent="space-between" alignItems="center">
-          <XStack space="$3" alignItems="center" flex={1}>
-            <Search size={20} color="$gray11" />
-            <YStack flex={1}>
-              <Text fontSize="$4" fontWeight="600">
-                Browse Exercises
-              </Text>
-              <Text fontSize="$3" color="$gray10">
-                Explore our exercise library
-              </Text>
-            </YStack>
-          </XStack>
-          <ChevronRight size={20} color="$gray10" />
-        </XStack>
+        <Search size={20} color="white" />
+        <YStack space="$2" justifyContent="space-between" flex={1}>
+          <YStack space="$1">
+            <Text fontSize="$4" fontWeight="600" color="white">
+              Browse Exercises
+            </Text>
+            <Text fontSize="$3" color="white" opacity={0.8}>
+              Explore our exercise library
+            </Text>
+          </YStack>
+          <ArrowUpRight 
+            size={20} 
+            color="white" 
+            alignSelf="flex-end"
+            opacity={0.7}
+          />
+        </YStack>
       </Card>
     );
   }

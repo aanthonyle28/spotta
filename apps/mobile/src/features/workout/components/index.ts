@@ -18,3 +18,5 @@ export { FilterRow } from './FilterRow';
 export { CustomHeader } from './CustomHeader';
 export { AddExerciseModal } from './AddExerciseModal';
 export { FinishWorkoutModal } from './FinishWorkoutModal';
+export { FriendsTrainingBanner } from './FriendsTrainingBanner';
+export { FloatingPillNavigation } from './FloatingPillNavigation';

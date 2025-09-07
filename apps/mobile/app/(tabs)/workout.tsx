@@ -22,15 +22,27 @@ import {
   BrowseTemplatesTile,
   ReorderTemplatesModal,
   WorkoutConflictModal,
+  FriendsTrainingBanner,
 } from '../../src/features/workout/components';
 import type { Template } from '../../src/features/workout/types';
 import type { TemplateId } from '@spotta/shared';
+import type { Friend } from '../../src/services/friendsService';
+import { SPOTTA_COLORS } from '../../src/constants/colors';
 
 export default function WorkoutStartScreen() {
   const { state, actions, hasActiveSession } = useWorkoutState();
   const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
+  // Mock friends data for Phase 1 with circle avatars
+  const mockFriends: Friend[] = [
+    { id: '1', name: 'Alex', avatarUrl: 'https://i.pravatar.cc/150?img=1' },
+    { id: '2', name: 'Sarah', avatarUrl: 'https://i.pravatar.cc/150?img=2' },
+    { id: '3', name: 'Mike', avatarUrl: 'https://i.pravatar.cc/150?img=3' },
+    { id: '4', name: 'Emma', avatarUrl: 'https://i.pravatar.cc/150?img=4' },
+    { id: '5', name: 'John', avatarUrl: 'https://i.pravatar.cc/150?img=5' },
+  ];
 
   const handleStartEmpty = () => {
     if (hasActiveSession) {
@@ -139,10 +151,13 @@ export default function WorkoutStartScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: SPOTTA_COLORS.background }}>
       <ScrollView>
-        <YStack flex={1} padding="$4" space="$4">
-          <H1>Workout</H1>
+        <YStack flex={1} padding="$4" space="$4" backgroundColor={SPOTTA_COLORS.background}>
+          <H1 color="white">Workout</H1>
+
+          {/* Friends Training Banner */}
+          <FriendsTrainingBanner friends={mockFriends} />
 
           {/* Start Empty CTA */}
           <StartEmptyButton
@@ -176,13 +191,22 @@ export default function WorkoutStartScreen() {
             />
           </YStack>
 
-          {/* Browse Exercises */}
-          <BrowseExercisesTile
-            onPress={() => router.push('/add-exercises?mode=append')}
-          />
-
-          {/* Browse Templates */}
-          <BrowseTemplatesTile onPress={handleBrowseTemplates} />
+          {/* Discover Section - Two Column Layout */}
+          <YStack space="$3">
+            <Text fontSize="$5" fontWeight="600" color="white">
+              Discover
+            </Text>
+            <XStack space="$3">
+              <YStack flex={1}>
+                <BrowseExercisesTile
+                  onPress={() => router.push('/add-exercises?mode=append')}
+                />
+              </YStack>
+              <YStack flex={1}>
+                <BrowseTemplatesTile onPress={handleBrowseTemplates} />
+              </YStack>
+            </XStack>
+          </YStack>
 
           {/* Error Display */}
           {state.error && (

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Button } from 'tamagui';
 import { Play } from '@tamagui/lucide-icons';
+import { SPOTTA_COLORS } from '../../../constants/colors';
 
 interface StartEmptyButtonProps {
   onPress: () => void;
@@ -12,7 +13,7 @@ export const StartEmptyButton = memo<StartEmptyButtonProps>(
     return (
       <Button
         size="$4"
-        backgroundColor="$green9"
+        backgroundColor={SPOTTA_COLORS.purple}
         onPress={onPress}
         disabled={disabled}
         icon={<Play size={20} color="white" />}

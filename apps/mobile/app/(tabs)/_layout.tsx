@@ -1,9 +1,12 @@
-import { Tabs, usePathname } from 'expo-router';
+import { Tabs, usePathname, router } from 'expo-router';
 import { YStack } from 'tamagui';
 import { useMemo } from 'react';
-import { Dumbbell, Users, User } from '@tamagui/lucide-icons';
 import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
-import { ActiveSessionBanner } from '../../src/features/workout/components';
+import {
+  ActiveSessionBanner,
+  FloatingPillNavigation,
+} from '../../src/features/workout/components';
+import { SPOTTA_COLORS } from '../../src/constants/colors';
 
 export default function TabLayout() {
   const { state, hasActiveSession } = useWorkoutState();
@@ -24,11 +27,23 @@ export default function TabLayout() {
     return result;
   }, [hasActiveSession, state.isLoading, pathname]);
 
+  // Get current tab from pathname
+  const currentTab = useMemo(() => {
+    if (pathname.includes('/workout')) return 'workout';
+    if (pathname.includes('/clubs')) return 'clubs';
+    if (pathname.includes('/progress')) return 'progress';
+    return 'workout';
+  }, [pathname]);
+
+  const handleTabPress = (tab: 'workout' | 'clubs' | 'progress') => {
+    router.push(`/(tabs)/${tab}`);
+  };
+
   return (
-    <YStack flex={1}>
+    <YStack flex={1} backgroundColor={SPOTTA_COLORS.background}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: '#007AFF',
+          tabBarStyle: { display: 'none' }, // Hide native tab bar
           headerShown: false,
         }}
       >
@@ -36,26 +51,29 @@ export default function TabLayout() {
           name="workout"
           options={{
             title: 'Workout',
-            tabBarIcon: ({ color }) => <Dumbbell color={color} size={24} />,
           }}
         />
         <Tabs.Screen
           name="clubs"
           options={{
             title: 'Clubs',
-            tabBarIcon: ({ color }) => <Users color={color} size={24} />,
           }}
         />
         <Tabs.Screen
           name="progress"
           options={{
             title: 'Progress',
-            tabBarIcon: ({ color }) => <User color={color} size={24} />,
           }}
         />
       </Tabs>
 
-      {/* Active Session Banner - Above Tab Bar */}
+      {/* Floating Pill Navigation */}
+      <FloatingPillNavigation
+        activeTab={currentTab}
+        onTabPress={handleTabPress}
+      />
+
+      {/* Active Session Banner - Above Navigation */}
       {showBanner && hasActiveSession && state.activeSession && (
         <ActiveSessionBanner activeSession={state.activeSession} />
       )}
