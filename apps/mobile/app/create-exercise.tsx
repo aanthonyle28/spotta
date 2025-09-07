@@ -8,7 +8,7 @@ import {
   Input,
   ScrollView,
   Label,
-} from 'tamagui';
+} from '@my/ui';
 import {
   SafeAreaView,
   useSafeAreaInsets,

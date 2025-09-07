@@ -7,12 +7,10 @@ import {
 } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
-import { TamaguiProvider, createTamagui } from '@tamagui/core';
+import { TamaguiProvider } from '@tamagui/core';
 import { PortalProvider } from '@tamagui/portal';
-import { config } from '@tamagui/config';
 import { WorkoutStateProvider } from '../src/features/workout/providers/WorkoutStateProvider';
-
-const tamaguiConfig = createTamagui(config);
+import tamaguiConfig from '../tamagui.config';
 
 export const unstable_settings = {
   initialRouteName: '(tabs)',
@@ -22,19 +20,21 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const [interLoaded, interError] = useFonts({
-    Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
-    InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
+  const [fontsLoaded, fontError] = useFonts({
+    'Poppins': require('../assets/fonts/Poppins-Regular.ttf'),
+    'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
+    'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
+    'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
   });
 
   useEffect(() => {
-    if (interLoaded || interError) {
+    if (fontsLoaded || fontError) {
       // Hide the splash screen after the fonts have loaded (or an error was returned) and the UI is ready.
       SplashScreen.hideAsync();
     }
-  }, [interLoaded, interError]);
+  }, [fontsLoaded, fontError]);
 
-  if (!interLoaded && !interError) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 

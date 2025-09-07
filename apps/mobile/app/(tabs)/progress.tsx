@@ -1,4 +1,4 @@
-import { YStack, H1, Text, Button } from 'tamagui';
+import { YStack, H1, Text, Button } from '@my/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProgressScreen() {

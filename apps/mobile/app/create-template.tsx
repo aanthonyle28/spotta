@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FlatList } from 'react-native';
-import { YStack, XStack, Text, Button, Card, Input, Label } from 'tamagui';
+import { YStack, XStack, Text, Button, Card, Input, Label } from '@my/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
 import { ChevronLeft, Target, Trash2, X } from '@tamagui/lucide-icons';

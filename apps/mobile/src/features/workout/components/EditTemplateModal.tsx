@@ -10,7 +10,7 @@ import {
   Label,
   Card,
   ScrollView,
-} from 'tamagui';
+} from '@my/ui';
 import {
   X,
   Target,

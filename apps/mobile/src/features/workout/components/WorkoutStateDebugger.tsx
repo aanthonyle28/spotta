@@ -1,4 +1,4 @@
-import { Card, Text, YStack } from 'tamagui';
+import { Card, Text, YStack } from '@my/ui';
 import { useWorkoutState } from '../hooks';
 
 export const WorkoutStateDebugger = () => {

@@ -1,4 +1,4 @@
-import { YStack, H1, Text, Button, Input, XStack } from 'tamagui';
+import { YStack, H1, Text, Button, Input, XStack } from '@my/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 

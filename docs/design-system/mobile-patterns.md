@@ -3,654 +3,359 @@
 **Status:** Active  
 **Owner:** Design Team  
 **Scope:** Mobile (Expo) | UI Components | Design Patterns  
-**Version:** 1.0
+**Version:** 2.0 - Poppins Typography
 
 ## Overview
 
-Clean, content-first design system optimized for mobile fitness apps. Emphasizes readability, accessibility, and efficient information hierarchy.
+Modern, fitness-focused design system built on Poppins typography with consistent spacing, dark theme optimization, and clear component hierarchy. Emphasizes readability, accessibility, and mobile-first interactions.
 
 ## Core Principles
 
-1. **Content First** - Remove visual noise, focus on information
-2. **Edge-to-Edge** - Use full screen width for content sections
-3. **Clear Hierarchy** - Typography and color create obvious information levels
-4. **Minimal Backgrounds** - Clean white/subtle gray, avoid zebra striping
-5. **Consistent Spacing** - Use design tokens for predictable rhythm
-6. **Accessible Color** - Sufficient contrast, meaningful color usage
-7. **Mobile Optimized** - Touch-friendly, thumb-reachable actions
+1. **Typography First** - Poppins font family creates consistent, readable hierarchy
+2. **Dark Theme Native** - Optimized for dark backgrounds with high contrast
+3. **Component Consistency** - Custom UI package ensures uniform styling
+4. **Clear Hierarchy** - Typography scales and weights create obvious information levels
+5. **Mobile Optimized** - Touch-friendly, thumb-reachable actions
+6. **Brand Consistency** - Spotta color palette throughout all interactions
+7. **Accessible by Default** - Proper contrast ratios and touch targets
 
-## Layout Patterns
+## Typography System
 
-### Full-Width Content Sections
-Break out of container padding for edge-to-edge content that spans the full screen width.
+### Font Family
+All text uses **Poppins** font family with specific weights for different hierarchy levels.
 
+### Heading Scale
 ```tsx
-{/* Break out of container padding */}
-<YStack marginHorizontal="$-4">
-  {/* Content spans full screen width */}
-  <XStack paddingHorizontal="$4" paddingVertical="$4">
-    {/* Content with proper internal padding */}
-  </XStack>
-</YStack>
+// H1 - Page titles, major sections
+<H1>Workout</H1>
+// → 48px, Bold (700), Poppins
+
+// H2 - Section titles 
+<H2>Templates</H2>
+// → 24px, SemiBold (600), Poppins
+
+// H3 - Card titles, subsections
+<H3>Push Day</H3>
+// → 16px, Medium (500), Poppins
 ```
 
-**Use cases**: Exercise lists, settings sections, any content that benefits from full-width presentation
-
-### Section Headers with Background
-Gray background headers that visually separate content sections.
-
+### Text Components
 ```tsx
-<XStack
-  justifyContent="space-between"
-  alignItems="center"
-  backgroundColor="$gray2"
-  paddingHorizontal="$4"
-  paddingVertical="$3"
-  marginHorizontal="$-4"
->
-  <Text fontSize="$5" fontWeight="600">Section Title</Text>
-  <Text fontSize="$3" color="$gray10">Count/Status</Text>
-</XStack>
+// Body text, descriptions
+<Text>Regular content text</Text>
+// → Poppins Regular (400)
+
+// Buttons automatically use Poppins
+<Button>Start Workout</Button>
+// → Poppins Medium (500)
+
+// Inputs use Poppins
+<Input placeholder="Template name" />
+// → Poppins Regular (400)
 ```
 
-**Use cases**: List headers, content category separators, section titles
-
-### Sticky Bottom Actions
-Primary actions that remain accessible during scroll, with proper safe area handling.
-
-```tsx
-<YStack
-  paddingHorizontal="$4"
-  paddingVertical="$3"
-  paddingBottom="$6"
-  backgroundColor="black"
-  borderTopWidth={1}
-  borderTopColor="$gray4"
->
-  <Button size="$4" backgroundColor="$green9">
-    Primary Action
-  </Button>
-</YStack>
-```
-
-**Use cases**: Start workout, save changes, confirm actions, any primary CTA
-
-## Content Patterns
-
-### Inline Metrics with Icons
-Compact, scannable metrics display with color-coded icons for quick recognition.
-
-```tsx
-<XStack space="$4" alignItems="center" flexWrap="wrap">
-  <XStack space="$2" alignItems="center">
-    <Clock size={16} color="$blue9" />
-    <Text fontSize="$4" fontWeight="600">
-      {duration} min
-    </Text>
-  </XStack>
-  
-  <XStack space="$2" alignItems="center">
-    <Target size={16} color="$green9" />
-    <Text fontSize="$4" fontWeight="600">
-      {count} exercises
-    </Text>
-  </XStack>
-</XStack>
-```
-
-**Icon colors**:
-- `$blue9` - Time, duration
-- `$green9` - Count, quantity
-- `$orange9` - Status, level indicators
-
-### Clean List Items
-Minimal list items with clear hierarchy and optional category tags.
-
-```tsx
-<XStack
-  alignItems="center"
-  paddingHorizontal="$4"
-  paddingVertical="$4"
-  borderBottomWidth={isLast ? 0 : 1}
-  borderBottomColor="$gray3"
->
-  <YStack flex={1} space="$2">
-    {/* Primary content */}
-    <Text fontSize="$5" fontWeight="600" color="$gray12">
-      Primary Text
-    </Text>
-    
-    {/* Secondary details */}
-    <XStack space="$3" alignItems="center" flexWrap="wrap">
-      <Text fontSize="$3" fontWeight="600" color="$blue10">
-        Highlighted Info
-      </Text>
-      <Text fontSize="$3" color="$gray11">
-        × Secondary Info
-      </Text>
-      <Text fontSize="$3" color="$gray11">
-        @ Additional Info
-      </Text>
-    </XStack>
-    
-    {/* Category pills */}
-    <XStack space="$2" flexWrap="wrap">
-      {items.slice(0, 3).map(item => (
-        <Text
-          key={item}
-          fontSize="$2"
-          color="$gray11"
-          backgroundColor="$gray3"
-          paddingHorizontal="$2.5"
-          paddingVertical="$1.5"
-          borderRadius="$4"
-          fontWeight="500"
-        >
-          {item}
-        </Text>
-      ))}
-      {items.length > 3 && (
-        <Text
-          fontSize="$2"
-          color="$gray10"
-          backgroundColor="$gray2"
-          paddingHorizontal="$2.5"
-          paddingVertical="$1.5"
-          borderRadius="$4"
-          fontWeight="500"
-        >
-          +{items.length - 3}
-        </Text>
-      )}
-    </XStack>
-  </YStack>
-</XStack>
-```
-
-**Visual hierarchy**:
-- Primary text: Large, bold, dark gray
-- Highlighted details: Blue accent color
-- Supporting details: Medium gray
-- Category pills: Light gray backgrounds, max 3 visible + overflow indicator
-
-## Typography Scale
-
-| Token | Size | Usage |
-|-------|------|-------|
-| `$5` | Large | Primary headings, main content titles |
-| `$4` | Medium | Secondary text, metrics, important details |
-| `$3` | Standard | Supporting text, descriptions, metadata |
-| `$2` | Small | Pills, tags, micro-copy, overflow indicators |
+### Usage Guidelines
+- **H1**: Page titles, main screen headers
+- **H2**: Section dividers like "Templates", "Discover"  
+- **H3**: Card titles like template names, exercise names
+- **Text**: All body content, descriptions, metadata
+- **Button**: All interactive elements automatically styled
 
 ## Color System
 
-### Text Colors
-- `$gray12` - Primary text, highest contrast
-- `$gray11` - Secondary text, readable
-- `$gray10` - Supporting text, icons, metadata
+### Brand Colors
+```tsx
+// Spotta brand colors (from constants/colors.ts)
+const SPOTTA_COLORS = {
+  purple: '#9956D4',  // Primary actions (Start Empty)
+  blue: '#219BD8',    // Secondary actions (Start buttons)
+  background: '#0D0D0D',     // Main background
+  cardBackground: '#202122',  // Card backgrounds
+  browseExercises: '#152D39', // Browse tiles
+  findTemplates: '#2D1F38',   // Template tiles
+}
+```
+
+### Text Colors (Dark Theme)
+```tsx
+// High contrast white text on dark backgrounds
+<Text color="white">Primary content</Text>
+
+// Tamagui grays for hierarchy
+<Text color="$gray10">Secondary text</Text>
+<Text color="$gray11">Supporting text</Text>
+```
 
 ### Interactive Colors
-- `$blue9` / `$blue10` - Brand accent, interactive elements
-- `$green9` - Primary actions, success states, CTAs
-- `$orange9` / `$orange10` - Warning, status indicators
+- **Primary Actions**: `SPOTTA_COLORS.purple` (`#9956D4`)
+- **Secondary Actions**: `SPOTTA_COLORS.blue` (`#219BD8`) 
+- **Success**: `$green9` for confirmations
+- **Destructive**: `$red10` for delete actions
 
-### Background Colors
-- `$background` - Default screen background (white/system)
-- `$gray1` - Subtle content backgrounds
-- `$gray2` - Section headers, subtle emphasis
-- `$gray3` - Pills, tags, subtle containers
-- `black` - High contrast backgrounds, safe areas
+## Layout Patterns
 
-### Borders & Separators
-- `$gray3` - Subtle separators, list dividers
-- `$gray4` - Stronger borders, section separations
+### Screen Structure
+```tsx
+<SafeAreaView style={{ flex: 1, backgroundColor: SPOTTA_COLORS.background }}>
+  <ScrollView>
+    <YStack flex={1} padding="$4" space="$4" backgroundColor={SPOTTA_COLORS.background}>
+      <H1 color="white">Screen Title</H1>
+      
+      {/* Section with H2 title */}
+      <YStack space="$3">
+        <H2 color="white">Section Title</H2>
+        {/* Section content */}
+      </YStack>
+    </YStack>
+  </ScrollView>
+</SafeAreaView>
+```
 
-## Spacing System
+### Card Components
+```tsx
+// Template card with H3 title
+<Card
+  padding="$4"
+  backgroundColor="$gray2"
+  width={280}
+>
+  <YStack space="$3">
+    <H3>{template.title}</H3>
+    <Text color="$gray10">{template.exercises.length} exercises</Text>
+    <Button backgroundColor={SPOTTA_COLORS.blue}>
+      Start
+    </Button>
+  </YStack>
+</Card>
+```
 
-| Token | Usage |
-|-------|-------|
-| `$1.5` | Tight pill padding |
-| `$2` - `$2.5` | Component internal spacing, pill padding |
-| `$3` | Standard spacing, section gaps |
-| `$4` | Screen padding, comfortable spacing |
-| `$6` | Safe area padding, extended spacing |
+### Tile Components
+```tsx
+// Browse tiles with H3-sized titles
+<Card
+  padding="$4"
+  backgroundColor={SPOTTA_COLORS.browseExercises}
+  height="$12"
+>
+  <YStack space="$2">
+    <Text fontSize={16} fontWeight="600" color="white">
+      Browse Exercises
+    </Text>
+    <Text fontSize="$3" color="white" opacity={0.8}>
+      Explore our exercise library
+    </Text>
+  </YStack>
+</Card>
+```
 
-## Screen Structure Template
+## Component Architecture
 
-Standard layout structure for consistent screen organization:
+### Custom UI Package
+All components are imported from `@my/ui` instead of `tamagui` directly:
 
 ```tsx
-<SafeAreaView style={{ flex: 1 }}>
-  <YStack flex={1}>
-    {/* Dynamic header with context-specific title */}
-    <CustomHeader
-      title={dynamicTitle}
-      leftAction={<BackButton />}
-      rightAction={<ActionButton />}
-    />
-    
-    {/* Scrollable content */}
-    <ScrollView flex={1}>
-      <YStack padding="$4" space="$4">
-        {/* Screen-specific content with container padding */}
-        {/* Inline metrics, descriptions, forms */}
-      </YStack>
-      
-      {/* Full-width sections break out of padding */}
-      <YStack marginHorizontal="$-4">
-        {/* Section headers with gray backgrounds */}
-        {/* List items, data tables */}
-      </YStack>
-    </ScrollView>
-    
-    {/* Sticky actions outside scroll area */}
-    <YStack
-      backgroundColor="black"
-      paddingHorizontal="$4"
-      paddingVertical="$3"
-      paddingBottom="$6"
-      borderTopWidth={1}
-      borderTopColor="$gray4"
-    >
-      <Button size="$4" backgroundColor="$green9">
-        Primary Action
-      </Button>
-    </YStack>
-  </YStack>
-</SafeAreaView>
+// ✅ Use custom UI components
+import { YStack, H1, H2, H3, Text, Button, Card } from '@my/ui';
+
+// ❌ Don't import from tamagui directly
+import { YStack, H1, Text } from 'tamagui';
+```
+
+### Component Styling
+Custom components automatically apply Poppins and proper sizing:
+
+```tsx
+// H1 component (packages/ui/src/components.tsx)
+export const H1 = styled(TamaguiH1, {
+  fontFamily: 'Poppins',
+  fontSize: 48,
+  fontWeight: 'bold',
+});
+
+// H2 component
+export const H2 = styled(TamaguiH2, {
+  fontFamily: 'Poppins',
+  fontSize: 24,
+  fontWeight: '600', // SemiBold
+});
+
+// H3 component
+export const H3 = styled(TamaguiH3, {
+  fontFamily: 'Poppins',
+  fontSize: 16,
+  fontWeight: '500', // Medium
+});
+```
+
+## Dark Theme Design
+
+### Background Strategy
+- **Main Background**: `SPOTTA_COLORS.background` (`#0D0D0D`)
+- **Card Backgrounds**: `$gray2` for subtle elevation
+- **Safe Areas**: Explicit background color on all screens
+
+### Text Contrast
+- **Primary Text**: `color="white"` for maximum contrast
+- **Secondary Text**: `color="$gray10"` for readable hierarchy
+- **Interactive Text**: Brand colors on dark backgrounds
+
+### Visual Hierarchy
+```tsx
+// Example hierarchy in dark theme
+<YStack space="$4" backgroundColor={SPOTTA_COLORS.background}>
+  <H1 color="white">Main Title</H1>           {/* 48px, Bold, White */}
+  <H2 color="white">Section Title</H2>        {/* 24px, SemiBold, White */}
+  <H3>Card Title</H3>                         {/* 16px, Medium, Default */}
+  <Text color="$gray10">Supporting text</Text> {/* Default size, Gray */}
+</YStack>
 ```
 
 ## Interactive Elements
 
 ### Button Standards
-- **Primary buttons**: `$green9` background, `$4` size, white text
-- **Secondary buttons**: Chromeless, appropriate color for context
-- **Touch targets**: Minimum 44px height and width
-- **Icons**: 16px-20px sizes with proper color coordination
+```tsx
+// Primary action buttons
+<Button backgroundColor={SPOTTA_COLORS.purple}>
+  Start Empty Workout
+</Button>
 
-### List Interactions
-- **Borders**: Subtle `$gray3` separators, no background alternation
-- **Spacing**: `$4` horizontal and vertical padding for comfortable touch
-- **States**: Subtle press states, no complex hover effects
+// Secondary action buttons  
+<Button backgroundColor={SPOTTA_COLORS.blue}>
+  Start Template
+</Button>
 
-## Component Usage Guidelines
+// Utility buttons
+<Button chromeless>
+  <MoreHorizontal size={16} color="$gray10" />
+</Button>
+```
 
-### When to Use Full-Width
-✅ **Use full-width for**:
-- Exercise lists and data tables
-- Settings sections
-- Content that benefits from maximum horizontal space
+### Touch Targets
+- **Minimum Size**: 44×44px for all interactive elements
+- **Button Padding**: Use Tamagui size tokens (`$2`, `$3`, `$4`)
+- **Icon Sizes**: 16px-24px depending on context
 
-❌ **Don't use full-width for**:
-- Form inputs (keep in padded container)
-- Single metrics or status indicators
-- Content that needs breathing room
+## Spacing System
 
-### Section Header Guidelines
-✅ **Use gray section headers for**:
-- List categories (Exercises, Settings, etc.)
-- Content type separation
-- Visual content organization
+### Standard Spacing
+```tsx
+// Screen padding
+<YStack padding="$4" space="$4">
 
-❌ **Avoid gray headers for**:
-- Single items or short lists
-- Already visually separated content
-- Form section titles
+// Component spacing
+<YStack space="$3">  // Related items
+<YStack space="$2">  // Tight groupings
+<XStack space="$1">  // Icon + text pairs
+```
 
-### Sticky Button Best Practices
-✅ **Use sticky buttons for**:
-- Primary screen actions (Start, Save, Continue)
-- Actions that should always be accessible
-- Long content that requires scrolling
+### Responsive Spacing
+- **Screen edges**: `padding="$4"` (16px)
+- **Section gaps**: `space="$4"` (16px) 
+- **Component groups**: `space="$3"` (12px)
+- **Related items**: `space="$2"` (8px)
 
-❌ **Don't use sticky buttons for**:
-- Secondary actions
-- Destructive actions without confirmation
-- Screens with minimal content
+## Implementation Guidelines
+
+### Font Loading
+Fonts are loaded in `app/_layout.tsx`:
+```tsx
+const [fontsLoaded] = useFonts({
+  'Poppins': require('../assets/fonts/Poppins-Regular.ttf'),
+  'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
+  'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
+  'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
+});
+```
+
+### Component Creation
+When creating new components, always:
+1. Import from `@my/ui`
+2. Use semantic heading levels (H1 > H2 > H3)
+3. Apply proper color contrast for dark theme
+4. Use Spotta brand colors for interactive elements
+
+### Migration Checklist
+- ✅ Replace all `tamagui` imports with `@my/ui`
+- ✅ Update H3 section titles to H2
+- ✅ Use brand colors instead of default Tamagui colors
+- ✅ Ensure dark theme compatibility
+- ✅ Test font rendering on physical devices
 
 ## Accessibility Requirements
 
-- **Touch targets**: Minimum 44×44px for all interactive elements
-- **Color contrast**: Meet WCAG AA standards for all text
+### Typography Accessibility
+- **Dynamic Type**: Fonts scale with iOS/Android system settings
+- **Contrast**: White text on dark backgrounds meets WCAG AA
+- **Hierarchy**: Clear visual hierarchy through size and weight
+
+### Interactive Accessibility
+- **Touch Targets**: Minimum 44×44px
 - **Labels**: Descriptive `accessibilityLabel` for all buttons
-- **Navigation**: Logical focus order and screen reader support
-- **Dynamic type**: Support iOS Dynamic Type where applicable
+- **Focus**: Logical tab order and screen reader support
+- **States**: Clear visual feedback for all interactive states
 
-## Implementation Notes
+## Performance Considerations
 
-### Tamagui Integration
-- Use design tokens consistently (`$4`, `$gray10`, etc.)
-- Leverage Tamagui's responsive design features
-- Maintain component composability and reusability
+### Font Performance
+- **Font Loading**: Fonts load during splash screen
+- **Fallbacks**: System fonts as fallback if Poppins fails
+- **Caching**: Fonts cached after first load
 
-### Performance Considerations
-- Use `FlatList` for long lists with proper `keyExtractor`
-- Implement `React.memo` for expensive list items
-- Avoid inline object creation in render loops
-- Use `useMemo` for complex calculations
-
-### Testing Strategy
-- Visual regression testing for design consistency
-- Accessibility testing with screen readers
-- Touch target size verification on real devices
-- Performance testing with realistic data volumes
-
-## Form Design Patterns
-
-### Enhanced Input Fields
-Modern form inputs with improved visual hierarchy and user experience.
-
-```tsx
-{/* Form section with proper spacing */}
-<YStack space="$4">
-  {/* Input with inline status indicator */}
-  <YStack space="$2.5">
-    <XStack justifyContent="space-between" alignItems="center">
-      <Text fontSize="$4" fontWeight="600" color="$gray12">
-        Field Label
-      </Text>
-      <Text fontSize="$2" fontWeight="500" color={hasError ? '$red10' : 'white'}>
-        Required
-      </Text>
-    </XStack>
-    <Input
-      fontSize="$4"
-      paddingHorizontal="$3.5"
-      paddingVertical="$2.5"
-      borderRadius="$2"
-      borderWidth={1}
-      borderColor={hasError ? '$red6' : '$gray4'}
-      backgroundColor={hasError ? '$red1' : '$gray1'}
-      focusStyle={{
-        borderColor: hasError ? '$red8' : '$gray6',
-        backgroundColor: hasError ? '$red2' : '$gray1',
-      }}
-      placeholderTextColor="$gray9"
-    />
-    {/* Inline error with icon */}
-    {hasError && (
-      <XStack space="$2" alignItems="center">
-        <Text fontSize="$2" fontWeight="500" color="$red10">⚠</Text>
-        <Text fontSize="$3" color="$red10">Error message</Text>
-      </XStack>
-    )}
-  </YStack>
-</YStack>
-```
-
-**Features**:
-- Status indicators (Required/Optional) 
-- Inline error states with icons
-- Consistent focus states (gray, not blue)
-- Proper padding for text alignment
-- Character counts for text areas
-
-### Mixed Layout Sections
-Combining padded content with edge-to-edge sections for visual hierarchy.
-
-```tsx
-<ScrollView>
-  {/* Padded form section */}
-  <YStack padding="$4" space="$4">
-    {/* Form inputs and content */}
-    
-    {/* Section header breaks out */}
-    <YStack space="$3">
-      <XStack
-        backgroundColor="$gray2"
-        paddingHorizontal="$4"
-        paddingVertical="$3"
-        marginHorizontal="$-4"  // Break out of padding
-      >
-        <Text fontSize="$5" fontWeight="600">Section Title</Text>
-        <Button>Action</Button>
-      </XStack>
-    </YStack>
-  </YStack>
-  
-  {/* Edge-to-edge content section */}
-  <YStack marginHorizontal="$-4">
-    {/* List items with internal padding */}
-    <XStack paddingHorizontal="$4" paddingVertical="$4">
-      {/* Content aligns with form above */}
-    </XStack>
-  </YStack>
-</ScrollView>
-```
-
-**Use cases**: Edit forms, settings screens, any mixed content layouts
-
-## Advanced Patterns & Future Enhancements
-
-### Enhanced Template Editing Patterns
-Advanced UX patterns for complex editing interfaces that maintain design system consistency.
-
-#### Template Identity Card Pattern
-Consolidated form sections with improved visual hierarchy and user guidance.
-
-```tsx
-{/* Enhanced card pattern for form grouping */}
-<Card 
-  padding="$4" 
-  backgroundColor="$gray1" 
-  marginHorizontal="$4"
-  borderRadius="$4"
-  borderWidth={1}
-  borderColor="$gray3"
->
-  <YStack space="$4">
-    {/* Section explanation */}
-    <YStack space="$2">
-      <Text fontSize="$5" fontWeight="600" color="$gray12">
-        Section Title
-      </Text>
-      <Text fontSize="$3" color="$gray10" lineHeight="$1">
-        Clear explanation of what this section does
-      </Text>
-    </YStack>
-    
-    {/* Form fields with enhanced states */}
-    <YStack space="$4">
-      {/* Enhanced input pattern */}
-    </YStack>
-  </YStack>
-</Card>
-```
-
-#### Exercise Management Hub Pattern
-Intelligent content sections that adapt based on data state and user context.
-
-```tsx
-{/* Smart header with contextual statistics */}
-<XStack
-  backgroundColor="$blue2"
-  paddingHorizontal="$4"
-  paddingVertical="$4"
-  justifyContent="space-between"
-  borderBottomWidth={1}
-  borderBottomColor="$blue3"
->
-  <YStack space="$1">
-    <Text fontSize="$5" fontWeight="600" color="$blue12">
-      Content Type
-    </Text>
-    {/* Dynamic stats based on content */}
-    <XStack space="$4" alignItems="center">
-      <XStack space="$1" alignItems="center">
-        <Target size={14} color="$blue11" />
-        <Text fontSize="$3" color="$blue11">
-          {count} items
-        </Text>
-      </XStack>
-      <XStack space="$1" alignItems="center">
-        <Clock size={14} color="$blue11" />
-        <Text fontSize="$3" color="$blue11">
-          ~{estimatedTime} min
-        </Text>
-      </XStack>
-    </XStack>
-  </YStack>
-  
-  <Button
-    size="$3"
-    backgroundColor="$blue9"
-    icon={<Plus size={16} color="white" />}
-    borderRadius="$3"
-  >
-    Add
-  </Button>
-</XStack>
-```
-
-#### Enhanced List Items with Inline Editing
-Progressive disclosure pattern for complex list items with editing capabilities.
-
-```tsx
-{/* Expandable list item with edit states */}
-<Card
-  padding="$0"
-  marginHorizontal="$4"
-  marginVertical="$2"
-  borderRadius="$4"
-  backgroundColor={isEditing ? "$blue2" : "$background"}
-  borderWidth={1}
-  borderColor={isEditing ? "$blue6" : "$gray3"}
->
-  <XStack padding="$4">
-    {/* Optional drag handle */}
-    <YStack paddingRight="$3" justifyContent="center">
-      <Button size="$2" chromeless padding="$1">
-        <GripVertical size={16} color="$gray8" />
-      </Button>
-    </YStack>
-    
-    <YStack flex={1} space="$3">
-      {/* Header with actions */}
-      <XStack justifyContent="space-between" alignItems="flex-start">
-        <YStack flex={1} space="$1">
-          <Text fontSize="$4" fontWeight="600" color="$gray12">
-            Primary Content
-          </Text>
-          <Text fontSize="$2" color="$gray10">
-            Category/Type
-          </Text>
-        </YStack>
-        
-        {/* Context-sensitive action buttons */}
-        <XStack space="$1">
-          {isEditing ? (
-            <>
-              <Button size="$2" backgroundColor="$green9">
-                <Check size={14} color="white" />
-              </Button>
-              <Button size="$2" variant="outlined">
-                <X size={14} />
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button size="$2" chromeless>
-                <Edit3 size={14} color="$gray10" />
-              </Button>
-              <Button size="$2" chromeless>
-                <Trash2 size={14} color="$red10" />
-              </Button>
-            </>
-          )}
-        </XStack>
-      </XStack>
-      
-      {/* Conditional content based on edit state */}
-      {isEditing ? (
-        <InlineEditForm />
-      ) : (
-        <ContentDisplay />
-      )}
-    </YStack>
-  </XStack>
-</Card>
-```
-
-#### Floating Action Button Pattern
-Context-aware floating actions that enhance discoverability without cluttering the interface.
-
-```tsx
-{/* Smart FAB that appears/hides based on context */}
-<YStack
-  position="absolute"
-  bottom={24}
-  right={24}
-  zIndex={1000}
-  alignItems="center"
-  space="$2"
->
-  <Button
-    circular
-    size="$4"
-    backgroundColor="$blue9"
-    shadowColor="$shadowColor"
-    shadowOffset={{ width: 0, height: 4 }}
-    shadowOpacity={0.3}
-    shadowRadius={8}
-    elevation={6}
-  >
-    <Plus size={24} color="white" />
-  </Button>
-  
-  {/* Optional label */}
-  <Text
-    fontSize="$2"
-    color="$gray11"
-    backgroundColor="$background"
-    paddingHorizontal="$2"
-    paddingVertical="$1"
-    borderRadius="$2"
-    shadowOpacity={0.1}
-  >
-    Action Label
-  </Text>
-</YStack>
-```
-
-### UX Enhancement Principles
-
-#### Progressive Disclosure
-- **Basic view**: Essential information visible
-- **Expanded view**: Detailed controls available on demand
-- **Edit mode**: Focused editing interface with clear save/cancel actions
-
-#### Contextual Actions
-- **Smart visibility**: Actions appear when and where needed
-- **State-aware**: Different actions based on content state
-- **Thumb-friendly**: Important actions within reach zones
-
-#### Feedback Systems
-- **Immediate validation**: Real-time form feedback
-- **Visual confirmations**: Clear state changes and progress indicators
-- **Error recovery**: Clear error states with actionable solutions
+### Component Performance
+- **Memoization**: Use `React.memo` for list items
+- **Reusability**: Custom UI components reduce bundle size
+- **Tree Shaking**: Only import needed components
 
 ## Examples in Codebase
 
-- **Edit Template Screen** (`apps/mobile/app/edit-template/[id].tsx`) - Enhanced form design, mixed layout sections, progressive disclosure patterns
-- **Template Preview Screen** (`apps/mobile/app/template/[id].tsx`) - Full implementation of design system
-- **CollapsibleExerciseCard** (`src/features/workout/components/`) - Clean list item pattern with state management
-- **CustomHeader** - Dynamic header pattern with contextual actions
+### Screen Structure
+- **Workout Screen** (`app/(tabs)/workout.tsx`) - H1 page title, H2 section titles
+- **Template Cards** (`src/features/workout/components/RoutineCarousel.tsx`) - H3 card titles
+- **Browse Tiles** (`src/features/workout/components/BrowseExercisesTile.tsx`) - Tile styling
 
-## Future Enhancement Roadmap
+### Component Usage
+```tsx
+// Correct usage example
+import { YStack, H1, H2, H3, Text, Button } from '@my/ui';
 
-### Planned Improvements
-- **Drag & Drop**: Native gesture-based reordering for lists
-- **Inline Editing**: Progressive disclosure for complex form items
-- **Smart Actions**: Context-aware floating action buttons
-- **Micro-interactions**: Subtle animations for state changes
-- **Gesture Support**: Swipe actions for common list operations
+export default function ExampleScreen() {
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: SPOTTA_COLORS.background }}>
+      <YStack padding="$4" space="$4">
+        <H1 color="white">Screen Title</H1>
+        
+        <YStack space="$3">
+          <H2 color="white">Section</H2>
+          <Card padding="$4" backgroundColor="$gray2">
+            <H3>Card Title</H3>
+            <Text color="$gray10">Description text</Text>
+            <Button backgroundColor={SPOTTA_COLORS.blue}>Action</Button>
+          </Card>
+        </YStack>
+      </YStack>
+    </SafeAreaView>
+  );
+}
+```
 
-### Implementation Notes
-- Maintain backward compatibility with existing patterns
-- Test new patterns on real devices for accessibility
-- Document component APIs for team adoption
-- Consider performance impact of enhanced interactions
+## Design System Maintenance
+
+### Version Control
+- **Current Version**: 2.0 (Poppins Typography)
+- **Previous Version**: 1.0 (Inter Typography)
+- **Migration**: Complete across all components
+
+### Component Updates
+- **UI Package**: Central source of truth in `packages/ui/`
+- **Consistency**: All styling changes made in UI package
+- **Testing**: Visual regression tests for component changes
+
+### Future Enhancements
+- **Light Theme**: Add light theme support while maintaining hierarchy
+- **Additional Weights**: Add more Poppins weights as needed
+- **Responsive Typography**: Scale based on device size
+- **Animation**: Add subtle transitions for better UX
 
 ---
 
-*For questions or design system updates, refer to this document and maintain consistency across all mobile screens.*
+*This design system documentation reflects the current Poppins-based implementation. All new components should follow these patterns for consistency.*

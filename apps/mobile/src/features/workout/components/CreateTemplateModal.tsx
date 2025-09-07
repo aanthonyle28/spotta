@@ -9,7 +9,7 @@ import {
   Label,
   Card,
   ScrollView,
-} from 'tamagui';
+} from '@my/ui';
 import { X, Target } from '@tamagui/lucide-icons';
 import type { Exercise, Template, TemplateExercise } from '../types';
 

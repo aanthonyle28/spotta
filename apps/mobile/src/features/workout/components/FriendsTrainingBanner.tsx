@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { View } from 'react-native';
-import { Card, XStack, YStack, Text } from 'tamagui';
+import { Card, XStack, YStack, Text, H4 } from '@my/ui';
 import { ChevronRight } from '@tamagui/lucide-icons';
 import { SPOTTA_COLORS } from '../../../constants/colors';
 
@@ -56,10 +56,10 @@ export const FriendsTrainingBanner = memo<FriendsTrainingBannerProps>(
               ))}
             </XStack>
             <YStack flex={1}>
-              <Text fontSize="$4" color="white" numberOfLines={1}>
+              <H4 color="white" numberOfLines={1}>
                 {friends.length} friend{friends.length > 1 ? 's' : ''}{' '}
                 {friends.length > 1 ? 'are' : 'is'} training right now
-              </Text>
+              </H4>
             </YStack>
           </XStack>
           <ChevronRight size={20} color="white" />

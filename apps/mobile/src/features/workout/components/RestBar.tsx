@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { XStack, YStack, Text, Button, Progress } from 'tamagui';
+import { XStack, YStack, Text, Button, Progress } from '@my/ui';
 import { Pause, Play, SkipForward } from '@tamagui/lucide-icons';
 import type { RestTimerState } from '../types';
 import { RestTimerModal } from './RestTimerModal';

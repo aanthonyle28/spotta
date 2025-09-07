@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Sheet, YStack, XStack, H4, Button, Text, Card } from 'tamagui';
+import { Sheet, YStack, XStack, H4, Button, Text, Card } from '@my/ui';
 import { AlertTriangle, Play, RotateCcw, X } from '@tamagui/lucide-icons';
 import type { ActiveSession } from '../types';
 

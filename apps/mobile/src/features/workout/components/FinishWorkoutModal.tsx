@@ -12,7 +12,7 @@ import {
   Select,
   Adapt,
   ScrollView,
-} from 'tamagui';
+} from '@my/ui';
 import {
   Camera,
   Image as ImageIcon,

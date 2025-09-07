@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Card, YStack, Text } from 'tamagui';
+import { Card, YStack, Text, H4 } from '@my/ui';
 import { Search, ArrowUpRight } from '@tamagui/lucide-icons';
 import { SPOTTA_COLORS } from '../../../constants/colors';
 
@@ -23,10 +23,10 @@ export const BrowseExercisesTile = memo<BrowseExercisesTileProps>(
         <Search size={20} color="white" />
         <YStack space="$2" justifyContent="space-between" flex={1}>
           <YStack space="$1">
-            <Text fontSize="$4" fontWeight="600" color="white">
+            <H4 color="white">
               Browse Exercises
-            </Text>
-            <Text fontSize="$3" color="white" opacity={0.8}>
+            </H4>
+            <Text fontSize="$3" color="$gray10">
               Explore our exercise library
             </Text>
           </YStack>

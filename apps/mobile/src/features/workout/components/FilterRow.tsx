@@ -1,4 +1,4 @@
-import { XStack } from 'tamagui';
+import { XStack } from '@my/ui';
 import { FilterDropdown } from './FilterDropdown';
 
 export interface FilterRowProps {

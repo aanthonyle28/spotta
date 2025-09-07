@@ -9,7 +9,7 @@ import {
   Input,
   Checkbox,
   Sheet,
-} from 'tamagui';
+} from '@my/ui';
 import { Search, X } from '@tamagui/lucide-icons';
 import { workoutService } from '../services/workoutService';
 import { FilterRow } from './FilterRow';

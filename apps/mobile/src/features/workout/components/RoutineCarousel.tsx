@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native';
-import { XStack, YStack, Card, Text, Button } from 'tamagui';
+import { XStack, YStack, Card, Text, Button, H3 } from '@my/ui';
 import {
   Play,
   Plus,
@@ -12,6 +12,7 @@ import {
 } from '@tamagui/lucide-icons';
 import type { Template } from '../types';
 import { getDaysAgoText } from '../services/mockData';
+import { SPOTTA_COLORS } from '../../../constants/colors';
 
 interface RoutineCarouselProps {
   routines: Template[];
@@ -53,9 +54,9 @@ const RoutineCard = memo<RoutineCardProps>(
       >
         <YStack space="$3" flex={1}>
           <XStack justifyContent="space-between" alignItems="flex-start">
-            <Text fontSize="$5" fontWeight="600" numberOfLines={2} flex={1}>
+            <H3 numberOfLines={2} flex={1}>
               {routine.title}
-            </Text>
+            </H3>
             <Button
               size="$2"
               chromeless
@@ -86,12 +87,11 @@ const RoutineCard = memo<RoutineCardProps>(
 
           <Button
             size="$3"
-            backgroundColor="$blue9"
+            backgroundColor={SPOTTA_COLORS.blue}
             onPress={(e) => {
               e.stopPropagation();
               onStart(routine.id);
             }}
-            icon={<Play size={16} color="white" />}
             accessibilityLabel={`Start ${routine.title} template`}
             marginTop="auto"
           >

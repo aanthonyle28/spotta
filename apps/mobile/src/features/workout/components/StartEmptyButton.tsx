@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Button } from 'tamagui';
+import { Button } from '@my/ui';
 import { Play } from '@tamagui/lucide-icons';
 import { SPOTTA_COLORS } from '../../../constants/colors';
 
@@ -16,7 +16,6 @@ export const StartEmptyButton = memo<StartEmptyButtonProps>(
         backgroundColor={SPOTTA_COLORS.purple}
         onPress={onPress}
         disabled={disabled}
-        icon={<Play size={20} color="white" />}
         accessibilityLabel="Start empty workout"
       >
         {disabled ? 'Starting...' : 'Start empty workout'}

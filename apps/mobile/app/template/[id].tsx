@@ -7,7 +7,7 @@ import {
   Card,
   ScrollView,
   Spinner,
-} from 'tamagui';
+} from '@my/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Play, Clock, Target, ChevronLeft, Edit3 } from '@tamagui/lucide-icons';

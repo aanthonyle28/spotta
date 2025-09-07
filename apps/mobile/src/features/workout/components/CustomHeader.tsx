@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { YStack, XStack, Text } from 'tamagui';
+import { YStack, XStack, Text } from '@my/ui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CustomHeaderProps {

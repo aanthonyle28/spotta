@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FlatList } from 'react-native';
-import { YStack, XStack, Text, Button, Card, Input, Checkbox } from 'tamagui';
+import { YStack, XStack, Text, Button, Card, Input, Checkbox } from '@my/ui';
 import {
   SafeAreaView,
   useSafeAreaInsets,

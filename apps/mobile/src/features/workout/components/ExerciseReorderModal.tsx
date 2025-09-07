@@ -1,5 +1,5 @@
 import { memo, useState, useEffect } from 'react';
-import { Sheet, YStack, XStack, H4, Button, Text, Card } from 'tamagui';
+import { Sheet, YStack, XStack, H4, Button, Text, Card } from '@my/ui';
 import { GripVertical, ArrowUp, ArrowDown, X } from '@tamagui/lucide-icons';
 import type { SessionExercise } from '../types';
 

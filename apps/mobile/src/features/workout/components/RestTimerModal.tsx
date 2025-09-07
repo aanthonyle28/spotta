@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from 'react';
-import { Sheet, YStack, XStack, Text, Button, styled, Progress } from 'tamagui';
+import { Sheet, YStack, XStack, Text, Button, styled, Progress } from '@my/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkipForward } from '@tamagui/lucide-icons';
 import type { RestTimerState } from '../types';

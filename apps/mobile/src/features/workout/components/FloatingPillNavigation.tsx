@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { XStack, Button, Text } from 'tamagui';
+import { XStack, Button, Text } from '@my/ui';
 import { Dumbbell, Users, User } from '@tamagui/lucide-icons';
 import { SPOTTA_COLORS } from '../../../constants/colors';
 

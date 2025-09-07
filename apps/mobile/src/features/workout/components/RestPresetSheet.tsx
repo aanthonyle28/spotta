@@ -9,7 +9,7 @@ import {
   Input,
   Label,
   Portal,
-} from 'tamagui';
+} from '@my/ui';
 import { Clock, Settings } from '@tamagui/lucide-icons';
 
 interface RestPresetSheetProps {

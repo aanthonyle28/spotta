@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from 'react';
-import { YStack, XStack, H3, Text, Button, Card } from 'tamagui';
+import { YStack, XStack, H3, Text, Button, Card } from '@my/ui';
 import type { SessionExercise, SetData } from '../types';
 import type { SetEntryId } from '@spotta/shared';
 import { WeightRepsStepper } from './WeightRepsStepper';

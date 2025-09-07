@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Pressable, TouchableWithoutFeedback } from 'react-native';
-import { YStack, Text, Button } from 'tamagui';
+import { YStack, Text, Button } from '@my/ui';
 import { ChevronDown } from '@tamagui/lucide-icons';
 
 export interface FilterDropdownProps {

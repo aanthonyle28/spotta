@@ -9,7 +9,7 @@ import {
   ScrollView,
   Label,
   Sheet,
-} from 'tamagui';
+} from '@my/ui';
 import { X, Save } from '@tamagui/lucide-icons';
 import { workoutService } from '../services/workoutService';
 import { FilterDropdown } from './FilterDropdown';

@@ -1,4 +1,4 @@
-import { YStack, H1, Text } from 'tamagui';
+import { YStack, H1, Text } from '@my/ui';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

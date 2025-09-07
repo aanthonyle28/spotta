@@ -8,7 +8,7 @@ import {
   ScrollView,
   Separator,
   PortalProvider,
-} from 'tamagui';
+} from '@my/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Plus, Clock, Trophy, Dumbbell } from '@tamagui/lucide-icons';

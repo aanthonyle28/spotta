@@ -1,5 +1,5 @@
 import { Tabs, usePathname, router } from 'expo-router';
-import { YStack } from 'tamagui';
+import { YStack } from '@my/ui';
 import { useMemo } from 'react';
 import { useWorkoutState } from '../../src/features/workout/providers/WorkoutStateProvider';
 import {

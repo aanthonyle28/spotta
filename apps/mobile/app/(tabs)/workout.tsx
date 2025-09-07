@@ -2,12 +2,12 @@ import {
   YStack,
   XStack,
   H1,
-  H3,
+  H2,
   Text,
   Button,
   Card,
   ScrollView,
-} from 'tamagui';
+} from '@my/ui';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Share } from 'react-native';
@@ -168,7 +168,7 @@ export default function WorkoutStartScreen() {
           {/* Routine Carousel */}
           <YStack space="$3">
             <XStack justifyContent="space-between" alignItems="center">
-              <H3>Templates</H3>
+              <H2>Templates</H2>
               <Button
                 size="$2"
                 chromeless
@@ -193,9 +193,9 @@ export default function WorkoutStartScreen() {
 
           {/* Discover Section - Two Column Layout */}
           <YStack space="$3">
-            <Text fontSize="$5" fontWeight="600" color="white">
+            <H2 color="white">
               Discover
-            </Text>
+            </H2>
             <XStack space="$3">
               <YStack flex={1}>
                 <BrowseExercisesTile

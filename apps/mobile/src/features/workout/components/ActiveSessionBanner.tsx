@@ -1,5 +1,5 @@
 import { memo, useState, useEffect } from 'react';
-import { XStack, YStack, Text, Card } from 'tamagui';
+import { XStack, YStack, Text, Card } from '@my/ui';
 import { ChevronRight } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import type { ActiveSession } from '../types';
