@@ -221,7 +221,7 @@ export default function AddExercisesScreen() {
     return (
       <Card
         padding="$4"
-        backgroundColor={isSelected ? '$blue2' : '$gray1'}
+        backgroundColor={isSelected ? '$blue2' : '$gray2'}
         borderWidth={0}
         borderRadius="$4"
         marginBottom="$2"

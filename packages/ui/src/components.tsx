@@ -55,6 +55,43 @@ export const Input = styled(TamaguiInput, {
   fontFamily: 'Poppins',
 });
 
-// Re-export all other components from tamagui unchanged
-export * from 'tamagui';
-export { Text, H1, H2, H3, H4, H5, Button, Input };
+// Re-export all other components from tamagui unchanged (excluding the ones we've customized)
+export {
+  // Core functions
+  styled,
+  
+  // Layout components
+  YStack,
+  XStack,
+  ZStack,
+  Stack,
+  
+  // Form components
+  Checkbox,
+  Label,
+  RadioGroup,
+  Select,
+  Adapt,
+  Switch,
+  
+  // Display components
+  Card,
+  Image,
+  Avatar,
+  Progress,
+  Spinner,
+  
+  // Navigation components
+  ScrollView,
+  Sheet,
+  
+  // Utility components
+  Spacer,
+  Separator,
+  
+  // Providers
+  TamaguiProvider,
+  
+  // Portal
+  Portal,
+} from 'tamagui';

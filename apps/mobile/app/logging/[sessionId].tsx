@@ -7,8 +7,8 @@ import {
   Button,
   ScrollView,
   Separator,
-  PortalProvider,
 } from '@my/ui';
+import { PortalProvider } from '@tamagui/portal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Plus, Clock, Trophy, Dumbbell } from '@tamagui/lucide-icons';
@@ -542,7 +542,7 @@ export default function LoggingScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <PortalProvider>
         <YStack flex={1}>
-          {/* Header */}
+          {/* Header Section */}
           <YStack padding="$4" backgroundColor="$background" space="$3">
             <XStack justifyContent="space-between" alignItems="flex-start">
               <YStack flex={1} space="$2" marginRight="$3">
@@ -565,6 +565,7 @@ export default function LoggingScreen() {
               </Button>
             </XStack>
 
+            {/* Stats Row */}
             <XStack justifyContent="space-between" alignItems="center">
               <XStack space="$3" alignItems="center">
                 <XStack space="$1" alignItems="center">
@@ -597,7 +598,7 @@ export default function LoggingScreen() {
                 backgroundColor="$gray3"
                 borderRadius="$2"
                 onPress={() => {
-                  setSelectedExerciseForRest(null); // null = template level
+                  setSelectedExerciseForRest(null);
                   setShowRestPresetSheet(true);
                 }}
                 accessibilityLabel="Template rest timer settings"
@@ -616,7 +617,7 @@ export default function LoggingScreen() {
 
           <Separator />
 
-          {/* Exercise List with Buttons - All Scrollable */}
+          {/* Exercise List ScrollView */}
           <ScrollView
             flex={1}
             showsVerticalScrollIndicator={false}
@@ -624,6 +625,7 @@ export default function LoggingScreen() {
             scrollEventThrottle={16}
           >
             <YStack>
+              {/* Exercise Cards */}
               {state.activeSession.exercises.map((item, index) => (
                 <CollapsibleExerciseCard
                   key={`${item.id}-${index}`}
@@ -647,8 +649,8 @@ export default function LoggingScreen() {
                   onReorderExercises={handleReorderExercises}
                 />
               ))}
-
-              {/* Add Exercise Button - In Scrollable Content */}
+              
+              {/* Add Exercise Button */}
               <Button
                 size="$3"
                 margin="$4"
@@ -661,7 +663,7 @@ export default function LoggingScreen() {
                 Add Exercise
               </Button>
 
-              {/* Cancel Workout Button - In Scrollable Content */}
+              {/* Cancel Workout Button */}
               <Button
                 size="$3"
                 marginHorizontal="$4"
@@ -674,7 +676,7 @@ export default function LoggingScreen() {
             </YStack>
           </ScrollView>
 
-          {/* Rest Timer Bar - Sticky */}
+          {/* Test RestBar component */}
           {state.restTimer.isActive && (
             <RestBar
               restTimer={state.restTimer}

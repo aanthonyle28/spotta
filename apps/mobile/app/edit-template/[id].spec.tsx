@@ -386,7 +386,7 @@ describe('EditTemplateScreen', () => {
 
       const descriptionInput = screen.getByLabelText('Template description');
       expect(descriptionInput.props.accessibilityHint).toBe(
-        'Optional description explaining the template\\'s purpose and goals'
+        'Optional description explaining the template\'s purpose and goals'
       );
 
       // Buttons

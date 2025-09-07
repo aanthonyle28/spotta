@@ -47,7 +47,8 @@
     "react-native-screens": "~4.10.0",
     "react-native-svg": "15.8.0",
     "react-native-web": "^0.20.0",
-    "tamagui": "^1.132.20"
+    "tamagui": "^1.132.20",
+    "expo-image-picker": "~16.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.24.6",
